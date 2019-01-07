@@ -1,0 +1,4 @@
+bottle==0.12.13
+meinheld==0.6.1
+numpy==1.13.1
+pandas==0.20.3
