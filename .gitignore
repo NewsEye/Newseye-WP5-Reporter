@@ -1,0 +1,13 @@
+__pycache__
+*.log
+.idea
+virtualenv/
+/data/*
+/database/*
+*.iml
+*.cprof
+.vscode
+*.ipynb
+*.pyc
+/*.csv
+/venv/*
