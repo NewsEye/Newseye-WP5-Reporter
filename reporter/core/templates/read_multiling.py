@@ -38,6 +38,7 @@ the same language specifier).
 import re
 import warnings
 import logging
+from typing import Optional, List, Union, Tuple, Dict
 
 from ..template import Literal, Template, Slot
 from . import FACT_FIELD_MAP, LOCATION_TYPE_MAP
@@ -45,7 +46,6 @@ from .matchers import OPERATORS, Matcher, FactField, ReferentialExpr
 from .substitutions import FactFieldSource, LiteralSource, EntitySource, TimeSource
 
 log = logging.getLogger('root')
-
 
 RULE_PREFIX = '|'
 
@@ -68,7 +68,7 @@ lang_spec_re = re.compile(r'(?P<lang>\S*):\s(?P<template>.*)')
 multi_space_re = re.compile(r'\s+')
 
 
-def read_templates_file(filename, initial_language=None, return_what_types=False):
+def read_templates_file(filename: str, initial_language: Optional[str] = None, return_what_types: bool = False):
     """
     Read in template specifications from a file. The file is assumed to be utf-8 encoded.
 
@@ -82,7 +82,8 @@ def read_templates_file(filename, initial_language=None, return_what_types=False
         return read_templates(f.read(), initial_language=initial_language, return_what_types=return_what_types)
 
 
-def read_templates(data, initial_language=None, return_what_types=False):
+def read_templates(data: str, initial_language: Optional[str] = None, return_what_types: bool = False) \
+        -> Union[Dict[str, Template], Tuple[Dict[str, Template], List[str]]]:
     """
     Parse the template specifications in the given string.
 
@@ -101,7 +102,9 @@ def read_templates(data, initial_language=None, return_what_types=False):
     for line in group_definitions:
         group_name, _, rest = line[1:].partition(':')
         if group_name[0] != '{' or group_name[-1] != '}':
-            raise TemplateReadingError("invalid group name '{}' for use in template definitions\nGroup names need to be within curly brackets".format(group_name))
+            raise TemplateReadingError(
+                "invalid group name '{}' for use in template definitions\nGroup names need to be within curly brackets".format(
+                    group_name))
         rest = rest.strip()
         group_values = set([value.strip() for value in rest.split(',')])
         value_groups[group_name] = group_values
@@ -126,7 +129,8 @@ def read_templates(data, initial_language=None, return_what_types=False):
         return templates
 
 
-def read_template_group(template_spec, current_language=None, warn_on_old_format=True):
+def read_template_group(template_spec: List[str], current_language: Optional[str] = None,
+                        warn_on_old_format: bool = True):
     """
     Parse a template group: one block that shares fact constraints and may specify multiple templates
     (for different languages, or the same).
@@ -257,8 +261,9 @@ def read_template_group(template_spec, current_language=None, warn_on_old_format
                             # Use 1-indexed fact numbering in templates: makes more sense for anyone but computer scientists
                             rule_ref = int(rule_ref) - 1
                             if rule_ref < 0:
-                                raise TemplateReadingError('Rule references use 1-index numbering. Found reference to rule '
-                                                           '0: did you mean 1?')
+                                raise TemplateReadingError(
+                                    'Rule references use 1-index numbering. Found reference to rule '
+                                    '0: did you mean 1?')
                         else:
                             # Default to referring to the first rule, since there's usually only one
                             rule_ref = 0
@@ -279,7 +284,7 @@ def read_template_group(template_spec, current_language=None, warn_on_old_format
 
                         if rule_ref >= len(rules):
                             raise TemplateReadingError("Substitution '{}' refers to rule {}, but template only has {} "
-                                                       "rules".format(subst, rule_ref+1, len(rules)))
+                                                       "rules".format(subst, rule_ref + 1, len(rules)))
 
                     attributes = {}
                     # Read each of the attribute specifications
@@ -290,7 +295,8 @@ def read_template_group(template_spec, current_language=None, warn_on_old_format
                             attributes[att.strip()] = val.strip()
                         else:
                             raise TemplateReadingError(
-                                'Found an attribute with no value specified. Possibly a leftover old style filter? {}'.format(subst_part)
+                                'Found an attribute with no value specified. Possibly a leftover old style filter? {}'.format(
+                                    subst_part)
                             )
 
                     if field_name[0] in ["'", '"']:
@@ -318,7 +324,7 @@ def read_template_group(template_spec, current_language=None, warn_on_old_format
     return templates, current_language, set(seen_what_types)
 
 
-def parse_matcher_expr(constraint_line):
+def parse_matcher_expr(constraint_line: str):
     rest = constraint_line
     while rest.strip():
         rest = rest.strip()
@@ -335,7 +341,7 @@ def parse_matcher_expr(constraint_line):
 
         # The value is now everything up to the next , or the end
         value_match = rhs_value_re.match(rest)
-        value, rest = rest[:value_match.end()], rest[value_match.end()+1:].strip()
+        value, rest = rest[:value_match.end()], rest[value_match.end() + 1:].strip()
 
         if len(value) == 0:
             raise TemplateReadingError('missing value part of constraint in: {}'.format(constraint_line))
@@ -379,7 +385,7 @@ def parse_matcher_expr(constraint_line):
         yield lhs, op, value_groups.get(value, value)
 
 
-def parse_matcher_lhs(text):
+def parse_matcher_lhs(text: str):
     """
     Parse an expression on the LHS of a matcher. The provided text may be the whole matcher, or anything that
     starts with the LHS expression. The remainder of the text is returned.
@@ -390,7 +396,7 @@ def parse_matcher_lhs(text):
     if field_match is None:
         raise TemplateReadingError('matcher must begin with field name; could not parse: %s' % text)
     field_end = field_match.end()
-    field_name, rest = text[:field_end], text[field_end+1:].strip()
+    field_name, rest = text[:field_end], text[field_end + 1:].strip()
 
     # Allow the alternative forms
     # If the field name is unknown, this will be assumed to be a shorthand for what_type=field_name, what=value
@@ -433,7 +439,8 @@ def process_attributes(attrs):
             try:
                 case_name = next(case for (case, alts) in CASE_NAMES.items() if case == val or val in alts)
             except StopIteration:
-                log.info("unknown case name '{}', using the given form and hoping that Omorfi recognizes it".format(val))
+                log.info(
+                    "unknown case name '{}', using the given form and hoping that Omorfi recognizes it".format(val))
                 case_name = val
             proc_attrs[attr] = case_name
         else:

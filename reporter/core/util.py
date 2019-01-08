@@ -1,11 +1,16 @@
 from collections.abc import Iterable
+from typing import List, Optional, Any, TypeVar, Union
+
+from reporter.core import Message, Registry, DocumentPlan
 from .pipeline import NLGPipelineComponent
 
 import logging
+
 log = logging.getLogger('root')
 
 
-def filter_messages(messages, what_type=None, what=None, where_type=None, where=None):
+def filter_messages(messages: List[Message], what_type: Optional[str] = None, what: Optional[str] = None,
+                    where_type: Optional[str] = None, where: Optional[str] = None) -> List[Message]:
     """
     Filters a list of message so that only message that match the parameters are returned.
     """
@@ -20,7 +25,10 @@ def filter_messages(messages, what_type=None, what=None, where_type=None, where=
     return messages
 
 
-def extend_or_append(collection, new_items):
+T = TypeVar('T')
+
+
+def extend_or_append(collection: List[T], new_items: Union[T, List[T]]) -> List[T]:
     """
     Expands or appends 'new_items' to 'collection', depending on whether
     'new_items' is a collection or not.
@@ -34,13 +42,13 @@ def extend_or_append(collection, new_items):
 
 class SquelchOutput(NLGPipelineComponent):
 
-    def run(self, *_):
+    def run(self, *_: Any) -> str:
         return ""
 
 
 class PrintMessages(NLGPipelineComponent):
 
-    def run(self, registry, messages):
+    def run(self, registry: Registry, messages: List[Message]) -> str:
         for m in messages:
             log.info(m)
         return ""
@@ -48,7 +56,7 @@ class PrintMessages(NLGPipelineComponent):
 
 class PrintNuclei(NLGPipelineComponent):
 
-    def run(self, registry, nuclei, non_nuclei):
+    def run(self, registry: Registry, nuclei: List[Message], non_nuclei: List[Message]) -> str:
         log.info("Nuclei:")
         for m in nuclei:
             print("\t{}".format(m))
@@ -57,7 +65,7 @@ class PrintNuclei(NLGPipelineComponent):
 
 class PrintDocumentPlan(NLGPipelineComponent):
 
-    def run(self, registry, dp, *args):
+    def run(self, registry: Registry, dp: DocumentPlan, *args: Any) -> str:
         log.info("Printing tree to stdout")
         print()
         dp.print_tree()
@@ -67,7 +75,7 @@ class PrintDocumentPlan(NLGPipelineComponent):
 
 class PrintOutput(NLGPipelineComponent):
 
-    def run(self, registry, output):
+    def run(self, registry: Registry, output: Any) -> str:
         log.info("Printing output:")
         print("\n" + output + "\n")
         return ""

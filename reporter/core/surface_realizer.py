@@ -1,8 +1,13 @@
+from random import Random
+
+from reporter.core import Registry, DocumentPlan
 from .pipeline import NLGPipelineComponent
 
 import re
+from typing import List
 
 import logging
+
 log = logging.getLogger('root')
 
 
@@ -16,26 +21,26 @@ class SurfaceRealizer(NLGPipelineComponent):
     """
 
     @property
-    def paragraph_start(self):
+    def paragraph_start(self) -> NoReturn:
         raise NotImplementedError
 
     @property
-    def paragraph_end(self):
+    def paragraph_end(self) -> NoReturn:
         raise NotImplementedError
 
     @property
-    def sentence_start(self):
+    def sentence_start(self) -> NoReturn:
         raise NotImplementedError
 
     @property
-    def sentence_end(self):
+    def sentence_end(self) -> NoReturn:
         raise NotImplementedError
 
     @property
-    def fail_on_empty(self):
+    def fail_on_empty(self) -> NoReturn:
         raise NotImplementedError
 
-    def run(self, registry, random, language, document_plan):
+    def run(self, registry: Registry, random: Random, language: str, document_plan: DocumentPlan) -> str:
         """
         Run this pipeline component.
         """
@@ -45,9 +50,9 @@ class SurfaceRealizer(NLGPipelineComponent):
         output = ""
         for p in paragraphs:
             output += self.paragraph_start + p + self.paragraph_end
-        return output,
+        return output
 
-    def realize(self, sequence, language):
+    def realize(self, sequence: DocumentPlan, language: str) -> str:
         """Realizes a single paragraph."""
         output = ""
         for message in sequence.children:

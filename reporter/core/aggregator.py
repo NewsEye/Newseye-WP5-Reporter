@@ -1,12 +1,15 @@
-from .pipeline import NLGPipelineComponent
-from .template import Template, Literal, Slot
-from .templates.substitutions import FactFieldSource
-from .message import Message
-from .document_plan import Relation
-
-import re
-
 import logging
+import re
+from random import Random
+from typing import List
+
+from reporter.core import Registry, DocumentPlan
+from .document_plan import Relation
+from .message import Message
+from .pipeline import NLGPipelineComponent
+from .template import Template, Literal, Slot, TemplateComponent
+from .templates.substitutions import FactFieldSource
+
 log = logging.getLogger('root')
 
 
@@ -14,7 +17,7 @@ class Aggregator(NLGPipelineComponent):
     value_type_re = re.compile(
         r'([0-9_a-z]+?)(_normalized)?(?:(_mk_score|_mk_trend)|(_percentage)?(_change)?(?:(?:_grouped_by)(_time_place|_crime_time|_crime_place_year))?((?:_decrease|_increase)?_rank(?:_reverse)?)?)')
 
-    def run(self, registry, random, language, document_plan):
+    def run(self, registry: Registry, random: Random, language: str, document_plan: DocumentPlan) -> DocumentPlan:
         if log.isEnabledFor(logging.DEBUG):
             document_plan.print_tree()
 
@@ -26,11 +29,27 @@ class Aggregator(NLGPipelineComponent):
 
         return document_plan
 
-    def _aggregate_sequence(self, registry, language, this):
+    def _aggregate(self, registry: Registry, language: str, this: DocumentPlan):  # Todo: Return type hint
+        log.debug("Visiting {}".format(this))
+
+        # Check the relation attribute and call the appropriate aggregator.
+        try:
+            relation = this.relation
+        # If the node doesn't have a relation attribute, it is a message and should be simply returned
+        except AttributeError:
+            return this
+
+        if relation == Relation.ELABORATION:
+            return self._aggregate_elaboration(registry, language, this)
+        elif relation == Relation.LIST:
+            return self._aggregate_list(registry, language, this)
+        return self._aggregate_sequence(registry, language, this)
+
+    def _aggregate_sequence(self, registry: Registry, language: str, this: DocumentPlan) -> DocumentPlan:
         log.debug("Visiting {}".format(this))
 
         num_children = len(this.children)
-        new_children = []
+        new_children = []  # type: List[Message]
         for idx in range(0, num_children):
             if idx > 0:
                 t0 = new_children[-1]
@@ -53,7 +72,7 @@ class Aggregator(NLGPipelineComponent):
         this.children.extend(new_children)
         return this
 
-    def _aggregate_elaboration(self, registry, language, this):
+    def _aggregate_elaboration(self, registry: Registry, language: str, this: DocumentPlan) -> DocumentPlan:
         log.debug("Visiting {}".format(this))
 
         num_children = len(this.children)
@@ -73,16 +92,17 @@ class Aggregator(NLGPipelineComponent):
         this.children.extend(new_children)
         return this
 
-    def _aggregate_list(self, registry, language, this):
+    def _aggregate_list(self, registry: Registry, language: str, this: DocumentPlan) -> Message:
+        # TODO: The typing of this whole method needs to be done properly
         log.debug("Visiting {}".format(this))
         first_msg = this.children[0]
-        template = first_msg.template
+        template = first_msg.template  # TODO: This here assumes we are dealing with a DocumentPlan that has only Messages as children, unsure why that is guaranteed
         for idx, slot in enumerate(template.components):
             if slot.slot_type == 'what':
                 what_idx = idx
             elif slot.slot_type == 'what_type':
                 what_type_idx = idx
-        if what_idx < what_type_idx:
+        if what_idx < what_type_idx:  # TODO: Technically not quaranteed to exist
             start_idx = what_idx
             end_idx = what_type_idx + 1
         else:
@@ -92,7 +112,7 @@ class Aggregator(NLGPipelineComponent):
         end_slots = template.components[end_idx:]
         combined_facts = []
         inner_components = []
-        for idx, msg in enumerate(this.children):
+        for idx, msg in enumerate(this.children):  # TODO: Here, msg is known to be a Message for some reason
             inner_slots = [slot.copy() for slot in template.components[start_idx:end_idx]]
             for slot in inner_slots:
                 slot.fact = msg.fact
@@ -108,7 +128,8 @@ class Aggregator(NLGPipelineComponent):
             combined_slots.append(Literal(","))
         if len(inner_components) > 1:
             combined_slots.extend(inner_components[-2])
-            combined_slots.append(Literal(registry.get('vocabulary').get(language, {}).get('default_combiner', "MISSING-COMBINER")))
+            combined_slots.append(
+                Literal(registry.get('vocabulary').get(language, {}).get('default_combiner', "MISSING-COMBINER")))
         combined_slots.extend(inner_components[-1])
         combined_slots.extend(end_slots)
         new_message = Message(facts=combined_facts, importance_coefficient=first_msg.importance_coefficient)
@@ -116,14 +137,15 @@ class Aggregator(NLGPipelineComponent):
         new_message.prevent_aggregation = True
         return new_message
 
-    def _same_prefix(self, first, second):
+    def _same_prefix(self, first: Message, second: Message) -> bool:
         try:
             return first.components[0].value == second.components[0].value
         except AttributeError:
             return False
 
-    def _combine(self, registry, language, first, second):
-        log.debug("Combining {} and {}".format([c.value for c in first.components], [c.value for c in second.components]))
+    def _combine(self, registry: Registry, language: str, first: Message, second: Message) -> Message:
+        log.debug(
+            "Combining {} and {}".format([c.value for c in first.components], [c.value for c in second.components]))
         combined = [c for c in first.components]
         for idx, other_component in enumerate(second.components):
             if idx >= len(combined):
@@ -134,18 +156,22 @@ class Aggregator(NLGPipelineComponent):
         log.debug("idx = {}".format(idx))
         # ToDo! At the moment everything is considered either positive or negative, which is sometimes weird. Add neutral sentences.
         if self._message_positive(first) != self._message_positive(second):
-            combined.append(Literal(registry.get('vocabulary').get(language, {}).get('inverse_combiner', "MISSING-COMBINER")))
+            combined.append(
+                Literal(registry.get('vocabulary').get(language, {}).get('inverse_combiner', "MISSING-COMBINER")))
         else:
-            combined.append(Literal(registry.get('vocabulary').get(language, {}).get('default_combiner', "MISSING-COMBINER")))
+            combined.append(
+                Literal(registry.get('vocabulary').get(language, {}).get('default_combiner', "MISSING-COMBINER")))
         combined.extend(second.components[idx:])
         log.debug("Combined thing is {}".format([c.value for c in combined]))
-        new_message = Message(facts=first.facts + [fact for fact in second.facts if fact not in first.facts], importance_coefficient=first.importance_coefficient)
+        new_message = Message(facts=first.facts + [fact for fact in second.facts if fact not in first.facts],
+                              importance_coefficient=first.importance_coefficient)
         new_message.template = Template(combined)
         new_message.prevent_aggregation = True
         return new_message
 
-    def _elaborate(self, registry, language, first, second):
-        log.debug("Elaborating {} with {}".format([c.value for c in first.components], [c.value for c in second.components]))
+    def _elaborate(self, registry: Registry, language: str, first: Message, second: Message) -> Message:
+        log.debug(
+            "Elaborating {} with {}".format([c.value for c in first.components], [c.value for c in second.components]))
         result = [c for c in first.components]
         try:
             first_type = first.facts[0].what_type
@@ -157,13 +183,15 @@ class Aggregator(NLGPipelineComponent):
             unit_1, normalized_1, trend_1, percentage_1, change_1, grouped_by_1, rank_1 = match_1.groups()
             unit_2, normalized_2, trend_2, percentage_2, change_2, grouped_by_2, rank_2 = match_2.groups()
 
-            if (unit_1, normalized_1, percentage_1) == (unit_2, normalized_2, percentage_2) and not change_1 and change_2:
+            if (unit_1, normalized_1, percentage_1) == (unit_2, normalized_2, percentage_2) \
+                    and not change_1 and change_2:
                 result.append(Literal(
                     registry.get('vocabulary').get(language, {}).get('subord_clause_start', "MISSING-COMBINER")))
                 result.append(Slot(FactFieldSource('what'), fact=second.facts[0]))
                 result.append(Slot(FactFieldSource('what_type'), fact=second.facts[0]))
                 result[-1].attributes['form'] = 'full'
-                result.append(Literal(registry.get('vocabulary').get(language, {}).get('comparator', "MISSING-COMBINER")))
+                result.append(
+                    Literal(registry.get('vocabulary').get(language, {}).get('comparator', "MISSING-COMBINER")))
                 result.append(Slot(FactFieldSource('when_1'), fact=second.facts[0]))
             else:
                 result.append(Literal("("))
@@ -174,12 +202,13 @@ class Aggregator(NLGPipelineComponent):
                 result.append(Literal(")"))
         except KeyError:
             return self._combine(registry, language, first, second)
-        new_message = Message(facts=first.facts + [fact for fact in second.facts if fact not in first.facts], importance_coefficient=first.importance_coefficient)
+        new_message = Message(facts=first.facts + [fact for fact in second.facts if fact not in first.facts],
+                              importance_coefficient=first.importance_coefficient)
         new_message.template = Template(result)
         new_message.prevent_aggregation = first.prevent_aggregation or second.prevent_aggregation
         return new_message
 
-    def _are_same(self, c1, c2):
+    def _are_same(self, c1: TemplateComponent, c2: TemplateComponent) -> bool:
         if c1.value != c2.value:
             # Are completely different, are not same
             return False
@@ -205,23 +234,7 @@ class Aggregator(NLGPipelineComponent):
         # False if different cases or one had attributes and other didn't
         return c1_case == c2_case
 
-    def _aggregate(self, registry, language, this):
-        log.debug("Visiting {}".format(this))
-
-        # Check the relation attribute and call the appropriate aggregator.
-        try:
-            relation = this.relation
-        # If the node doesn't have a relation attribute, it is a message and should be simply returned
-        except AttributeError:
-            return this
-
-        if relation == Relation.ELABORATION:
-            return self._aggregate_elaboration(registry, language, this)
-        elif relation == Relation.LIST:
-            return self._aggregate_list(registry, language, this)
-        return self._aggregate_sequence(registry, language, this)
-
-    def _message_positive(self, message):
+    def _message_positive(self, message: Message) -> bool:
         fact = message.template.slots[0].fact
         try:
             return fact.what <= 0 or '_decrease_rank' in fact.what_type

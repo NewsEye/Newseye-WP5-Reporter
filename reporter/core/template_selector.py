@@ -1,8 +1,12 @@
 import logging
 from functools import lru_cache
+from random import Random
+from typing import List, Optional, Tuple, Generator
 
+from reporter.core import Registry, DocumentPlan, Message
 from .pipeline import NLGPipelineComponent
-from .template import DefaultTemplate
+from .template import DefaultTemplate, Template
+
 log = logging.getLogger('root')
 
 # If we're starting a new paragraph and haven't mentioned the location for more than this number of
@@ -15,7 +19,9 @@ class TemplateSelector(NLGPipelineComponent):
     Adds a matching Template to each Message in the DocumentPlan.
 
     """
-    def run(self, registry, random, language, document_plan, all_messages):
+
+    def run(self, registry: Registry, random: Random, language: str, document_plan: DocumentPlan,
+            all_messages: List[Message]) -> DocumentPlan:
         """
         Run this pipeline component.
         """
@@ -28,9 +34,11 @@ class TemplateSelector(NLGPipelineComponent):
         log.info("Selecting templates from {} templates".format(len(templates)))
         self._recurse(random, language, document_plan, all_messages, template_checker)
 
-        return document_plan,
+        return document_plan
 
-    def _recurse(self, random, language, this, all_messages, template_checker, current_location=None, since_location=0):
+    def _recurse(self, random: Random, language: str, this: DocumentPlan, all_messages: List[Message],
+                 template_checker: 'TemplateMessageChecker', current_location: Optional[str] = None,
+                 since_location: int = 0) -> Tuple[str, str]:
         """
         Recursively works through the tree, adding Templates to Messages.
         """
@@ -82,7 +90,7 @@ class TemplateSelector(NLGPipelineComponent):
         return current_location, since_location
 
     @staticmethod
-    def _add_template_to_message(message, template_original, all_messages):
+    def _add_template_to_message(message: Message, template_original: Template, all_messages: List[Message]) -> None:
         """
         Adds a matching template to a message, also adding the facts used by the template to the message.
 
@@ -114,13 +122,14 @@ class TemplateMessageChecker(object):
     The checks are cached on message and location_required.
 
     """
-    def __init__(self, templates, all_messages):
+
+    def __init__(self, templates: List[Template], all_messages: List[Message]) -> None:
         self.all_messages = all_messages
         self.templates = templates
         self._cache = {}
 
     @lru_cache(maxsize=1024)
-    def exists_template_for_message(self, message, location_required=False):
+    def exists_template_for_message(self, message: Message, location_required: bool = False) -> bool:
         """
         Check for templates that apply to the given message. To make things faster, we don't try to find
         all available templates, but return as soon as we find one.
@@ -138,7 +147,7 @@ class TemplateMessageChecker(object):
             return False
         return True
 
-    def all_templates_for_message(self, message, location_required=False):
+    def all_templates_for_message(self, message: Message, location_required: bool = False) -> Generator[Template]:
         for template in self.templates:
             # If we need the location, only accept templates that express it
             if location_required and not template.expresses_location:

@@ -1,6 +1,11 @@
 import logging
 from math import isnan
+from random import Random
+from typing import Optional, List
 
+from pandas import DataFrame
+
+from reporter.core import Registry
 from .pipeline import NLGPipelineComponent
 from .message import Fact, Message
 
@@ -22,7 +27,9 @@ class MessageGenerator(NLGPipelineComponent):
     column that row, and the 'what_type' is defined by the title of that column.
     """
 
-    def run(self, registry, random, language, datastore, where_query, where_type_query, when1_query=None, when2_query=None, when_type_query="year", ignored_cols=None):
+    def run(self, registry: Registry, random: Random, language: str, datastore: DataFrame, where_query: str,
+            where_type_query: str, when1_query: Optional[str] = None, when2_query: Optional[str] = None,
+            when_type_query: str = "year", ignored_cols: Optional[List[str]] = None) -> List[Message]:
         log.info("Generating messages with where={}, where_type={}, when1={}, when2={}, when_type={}".format(
             where_query, where_type_query, when1_query, when2_query, when_type_query))
 
@@ -35,7 +42,7 @@ class MessageGenerator(NLGPipelineComponent):
 
         if where_type_query:
             query.append("where_type=={!r}".format(where_type_query))
-        
+
         if 'when' in datastore.all():
             # The DataFrame only has a 'when' column, not 'when1' and 'when2'
             if when1_query:
@@ -56,14 +63,14 @@ class MessageGenerator(NLGPipelineComponent):
         query = " and ".join(query)
         log.debug('Query: "{}"'.format(query))
         df = datastore.query(query)
-        
+
         messages = []
         col_names = [
-            col_name for col_name in df 
+            col_name for col_name in df
             if not (
-                col_name in ["where", "when1", "when2", "where_type", "when_type"]
-                or col_name in ignored_cols 
-                or "_outlierness" in col_name
+                    col_name in ["where", "when1", "when2", "where_type", "when_type"]
+                    or col_name in ignored_cols
+                    or "_outlierness" in col_name
             )
         ]
         df.apply(self._gen_messages, axis=1, args=(col_names, messages))
@@ -73,9 +80,11 @@ class MessageGenerator(NLGPipelineComponent):
                 log.debug("Extracted {}".format(m.fact))
 
         log.info("Extracted total {} messages".format(len(messages)))
-        return messages,
+        return messages
 
-    def _gen_messages(self, row, col_names, messages, importance_coefficient=1.0, polarity=0.0):
+    # TODO: This is not generalized at all, needs to be moved outside of CORE
+    def _gen_messages(self, row: DataFrame, col_names: List[str], messages: List[Message],
+                      importance_coefficient: float = 1.0, polarity: float = 0.0) -> None:
         where = row['where']
         where_type = row['where_type']
         when_type = row['when_type']
@@ -109,7 +118,7 @@ class MessageGenerator(NLGPipelineComponent):
                 raise NotImplementedError("Not implemented")
 
             fact = Fact(
-                where=where, where_type=where_type, when_1=when_1, when_2=when_2, when_type=when_type, 
+                where=where, where_type=where_type, when_1=when_1, when_2=when_2, when_type=when_type,
                 what=what, what_type=what_type, outlierness=outlierness
             )
             message = Message(facts=fact, importance_coefficient=importance_coefficient, polarity=polarity)

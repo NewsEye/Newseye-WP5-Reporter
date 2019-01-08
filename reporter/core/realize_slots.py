@@ -1,16 +1,19 @@
-from reporter.core import NLGPipelineComponent
-from reporter.english_realizer import EnglishRealizer
-
 import logging
 import re
+from random import Random
+from typing import cast
+
+from reporter.core import NLGPipelineComponent, Registry, DocumentPlan, Slot
+
 log = logging.getLogger('root')
 
 
 class SlotRealizer(NLGPipelineComponent):
 
-    def __init__(self):
+    def __init__(self) -> None:
+        # TODO: Move realizers to a param
         self._realizers = {
-            'en': EnglishRealizer(),
+            # 'en': EnglishRealizer(),
         }
         self._realizer = None
         self._default_numeral = lambda x: "{:n}".format(x)
@@ -18,7 +21,7 @@ class SlotRealizer(NLGPipelineComponent):
         self._default_time = lambda x: None
         self._random = None
 
-    def run(self, registry, random, language, document_plan):
+    def run(self, registry: Registry, random: Random, language: str, document_plan: DocumentPlan) -> DocumentPlan:
         """
         Run this pipeline component.
         """
@@ -26,9 +29,9 @@ class SlotRealizer(NLGPipelineComponent):
         self._realizer = self._realizers[language[:2]]
         self._random = random
         self._recurse(document_plan)
-        return document_plan,
+        return document_plan
 
-    def _recurse(self, this):
+    def _recurse(self, this: DocumentPlan) -> int:
         try:
             # Try to use the current root as a non-leaf.
             log.debug("Visiting non-leaf '{}'".format(this))
@@ -41,6 +44,7 @@ class SlotRealizer(NLGPipelineComponent):
                     idx += slots_added
                 idx += 1
         except AttributeError:
+            this = cast(Slot, this)  # Known to be a Slot, since we are at a leaf node
             # Had no children, must be a leaf node
             log.debug("Visiting leaf {}".format(this))
             try:
@@ -61,7 +65,7 @@ class SlotRealizer(NLGPipelineComponent):
             else:
                 return 0
 
-    def _realize_value(self, slot):
+    def _realize_value(self, slot: Slot) -> int:
         try:
             what_type = slot.fact.what_type
             if 'rank' in what_type:
@@ -79,7 +83,7 @@ class SlotRealizer(NLGPipelineComponent):
             log.error("Error in value realization of slot {}".format(slot))
         return 0
 
-    def _realize_unit(self, slot):
+    def _realize_unit(self, slot: Slot) -> int:
         value_type_re = re.compile(
             r'([0-9_a-z]+?)(_normalized)?(?:(_mk_score|_mk_trend)|(_percentage)?(_change)?(?:(?:_grouped_by)(_time_place|_crime_time|_crime_place_year))?((?:_decrease|_increase)?_rank(?:_reverse)?)?)')
         match = value_type_re.fullmatch(slot.value)
@@ -100,7 +104,7 @@ class SlotRealizer(NLGPipelineComponent):
             log.error("Error in unit realization of slot {}".format(slot))
             return 0
 
-    def _realize_time(self, slot):
+    def _realize_time(self, slot: Slot) -> int:
         try:
             return self._realizer.time.get(slot.fact.when_type, self._default_time)(self._random, slot)
         except AttributeError:

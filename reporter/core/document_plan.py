@@ -1,8 +1,8 @@
-from enum import Enum
-
-from .message import Message
-
 import logging
+from enum import Enum
+from typing import Optional, List, Union
+
+from reporter.core import Message
 
 log = logging.getLogger('root')
 
@@ -26,24 +26,25 @@ class DocumentPlan(object):
     Contains an ordered list of children are connected by a relation.
     """
 
-    def __init__(self, children=None, relation=Relation.SEQUENCE):
+    def __init__(self, children: Optional[List[Union['DocumentPlan', Message]]] = None,
+                 relation: Relation = Relation.SEQUENCE) -> None:
         if children is None:
             children = []
         self._children = children
         self._relation = relation
 
     @property
-    def children(self):
+    def children(self) -> List[Union['DocumentPlan', Message]]:
         return self._children
 
     @property
-    def relation(self):
+    def relation(self) -> Relation:
         return self._relation
 
-    def add_message(self, msg):
+    def add_message(self, msg: Message) -> None:
         self._children.append(msg)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.relation.name
 
     """
@@ -51,11 +52,11 @@ class DocumentPlan(object):
     Modified from http://stackoverflow.com/a/30893896
     """
 
-    def print_tree(self, this=None, indent="", last='updown'):
+    def print_tree(self, this: 'DocumentPlan' = None, indent: str = "", last: str = 'updown') -> None:
         if not this:
             this = self
 
-        def rec_count(node):
+        def rec_count(node: Union[DocumentPlan, Message]) -> int:
             count = 0
             if not isinstance(node, DocumentPlan):
                 return count

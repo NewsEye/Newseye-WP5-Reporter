@@ -1,8 +1,114 @@
 import logging
+from typing import Callable, Union, Any, List, Optional, Dict, NoReturn
 
-from .templates.substitutions import LiteralSource
+from reporter.core import Fact, Message
 from .document_plan import DocumentPlan
+from .templates.substitutions import LiteralSource
+
 log = logging.getLogger('root')
+
+
+class TemplateComponent(object):
+    """An abstract TemplateComponent. Should not be used directly."""
+
+    def __init__(self) -> None:
+        self._parent = None
+
+    @property
+    def value(self) -> NoReturn:
+        raise NotImplementedError
+
+    @value.setter
+    def value(self, value) -> NoReturn:
+        raise NotImplementedError
+
+    @property
+    def parent(self) -> 'TemplateComponent':
+        return self._parent
+
+    @parent.setter
+    def parent(self, parent: 'TemplateComponent') -> None:
+        self._parent = parent
+
+    def __str__(self) -> str:
+        return '[AbstractTemplateComponent]'
+
+
+class Slot(TemplateComponent):
+    """
+    A TemplateComponent that can be filled by a Fact that fulfills a set of
+    requirements.
+    """
+
+    def __init__(self, to_value: Callable, attributes: Optional[Dict[Any]] = None, fact: Optional[Fact] = None) -> None:
+        """
+        :param to_value: A callable that defines how to transform the message
+            that fills this slot into a textual representation.
+        """
+
+        super().__init__()
+        self.attributes = attributes or {}
+        self._to_value = to_value
+        self._fact = fact
+        self._slot_type = self._to_value.field_name
+
+    @property
+    def slot_type(self) -> str:
+        return self._slot_type
+
+    @property
+    def fact(self) -> Fact:
+        return self._fact
+
+    @fact.setter
+    def fact(self, new_fact: Fact) -> None:
+        self._fact = new_fact
+
+    @property
+    def value(self) -> Union[str, int, float]:
+        return self._to_value(self._fact)
+
+    @value.setter
+    def value(self, f: Callable) -> None:
+        self._to_value = f
+
+    def copy(self) -> 'Slot':
+        return Slot(self._to_value, self.attributes.copy())
+
+    def __str__(self) -> str:
+        return "Slot({}{})".format(
+            self.value,
+            "".join(", {}={}".format(k, v) for (k, v) in self.attributes.items())
+        )
+
+
+class LiteralSlot(Slot):
+    def __init__(self, value: str, to_value: Callable, attributes: Optional[Dict[str, str]] = None) -> None:
+        super().__init__(LiteralSource(value), attributes or {})
+        self._fact = None
+        self._slot_type = "Literal"
+
+
+class Literal(TemplateComponent):
+    """A string literal."""
+
+    def __init__(self, string: str) -> None:
+        super().__init__()
+        self._string = string
+
+    @property
+    def slot_type(self) -> str:
+        return 'Literal'
+
+    @property
+    def value(self) -> str:
+        return self._string
+
+    def copy(self) -> 'Literal':
+        return Literal(self.value)
+
+    def __str__(self) -> str:
+        return self.value
 
 
 class Template(DocumentPlan):
@@ -11,7 +117,8 @@ class Template(DocumentPlan):
     using the template.
     """
 
-    def __init__(self, components, rules=None, slot_map=None):
+    def __init__(self, components: List[TemplateComponent], rules: List[Any] = None,
+                 slot_map: Optional[Dict[Any, Any]] = None) -> None:
         super().__init__()
         self._rules = rules if rules is not None else []
         self._rules = rules
@@ -26,7 +133,7 @@ class Template(DocumentPlan):
         self._expresses_location = None
         self._slots = None
 
-    def get_slot(self, slot_type):
+    def get_slot(self, slot_type: str) -> Slot:
         """
         First version of the slot_map: here we are making an assumption that there is only one instance per slot type,
         which is clearly not true after aggregation. Whether this will be a problem is still a bit unclear.
@@ -45,7 +152,7 @@ class Template(DocumentPlan):
             raise KeyError
         return self._slot_map[slot_type]
 
-    def add_slot(self, idx, slot):
+    def add_slot(self, idx: int, slot: Slot) -> None:
         if len(self._components) > idx:
             self._components.insert(idx, slot)
         else:
@@ -53,25 +160,25 @@ class Template(DocumentPlan):
         slot.parent = self
         self.slots.append(slot)
 
-    def move_slot(self, from_idx, to_idx):
+    def move_slot(self, from_idx: int, to_idx: int) -> None:
         if from_idx >= to_idx:
             self.components.insert(to_idx, self.components.pop(from_idx))
         else:
             self.components.insert(to_idx - 1, self.components.pop(from_idx))
 
     @property
-    def components(self):
+    def components(self) -> List[TemplateComponent]:
         return self._components
 
     @property
-    def children(self):
+    def children(self) -> List[TemplateComponent]:
         return self._components
 
     @property
-    def facts(self):
+    def facts(self) -> List[Fact]:
         return self._facts
 
-    def check(self, primary_message, all_messages, fill_slots=False):
+    def check(self, primary_message: Message, all_messages: List[Message], fill_slots: bool = False) -> List[Fact]:
         """
         Like fill(), but doesn't modify the template data structure, just checks whether the given message,
         with the support from other messages, is compatible with the template.
@@ -115,7 +222,7 @@ class Template(DocumentPlan):
             self._facts = used_facts
         return used_facts
 
-    def fill(self, primary_message, all_messages):
+    def fill(self, primary_message: Message, all_messages: List[Message]) -> List[Fact]:
         """
         Search for messages needed to fulfill all of the rules in the template, and link the Slot components to the
         matching Facts
@@ -128,7 +235,7 @@ class Template(DocumentPlan):
         return self.check(primary_message, all_messages, fill_slots=True)
 
     @property
-    def slots(self):
+    def slots(self) -> List[Slot]:
         # Cache the list of slots to avoid doing too many ifinstance checks
         # The slots are not guaranteed to be in the same order as they appear in the self._components
         if self._slots is None:
@@ -136,7 +243,7 @@ class Template(DocumentPlan):
         return self._slots
 
     @property
-    def expresses_location(self):
+    def expresses_location(self) -> bool:
         """ Whether this template expresses the location (where field) of any of its messages
         """
         if self._expresses_location is None:
@@ -150,144 +257,20 @@ class Template(DocumentPlan):
                 self._expresses_location = False
         return self._expresses_location
 
-    def copy(self):
+    def copy(self) -> 'Template':
         """Makes a deep copy of this Template. The copy does not contain any messages."""
         component_copy = [c.copy() for c in self.components]
         return Template(component_copy, self._rules)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "<Template: n_components={}>".format(len(self.components))
 
-    def display_template(self):
+    def display_template(self) -> str:
         """String representation of whole template, mainly for debugging"""
         return "".join(str(c) for c in self.components)
 
 
-class TemplateComponent(object):
-    """An abstract TemplateComponent. Should not be used directly."""
-
-    def __init__(self):
-        self._parent = None
-
-    @property
-    def parent(self):
-        return self._parent
-
-    @parent.setter
-    def parent(self, parent):
-        self._parent = parent
-
-    def __str__(self):
-        return '[AbstractTemplateComponent]'
-
-
-class Slot(TemplateComponent):
-    """
-    A TemplateComponent that can be filled by a Fact that fulfills a set of
-    requirements.
-    """
-
-    def __init__(self, to_value, attributes=None, fact=None):
-        """
-        :param to_value: A callable that defines how to transform the message
-            that fills this slot into a textual representation.
-        """
-
-        super().__init__()
-        self.attributes = attributes or {}
-        self._to_value = to_value
-        self._fact = fact
-        self._slot_type = self._to_value.field_name
-
-    @property
-    def slot_type(self):
-        return self._slot_type
-
-    @property
-    def fact(self):
-        return self._fact
-
-    @fact.setter
-    def fact(self, new_fact):
-        self._fact = new_fact
-
-    @property
-    def value(self):
-        return self._to_value(self._fact)
-
-    @value.setter
-    def value(self, f):
-        self._to_value = f
-
-    def copy(self):
-        return Slot(self._to_value, self.attributes.copy())
-
-    def __str__(self):
-        return "Slot({}{})".format(
-            self.value,
-            "".join(", {}={}".format(k, v) for (k, v) in self.attributes.items())
-        )
-
-
-class LiteralSlot(Slot):
-    def __init__(self, value, attributes=None):
-        self.attributes = attributes or {}
-        self._to_value = LiteralSource(value)
-        self._fact = None
-        self._slot_type = "Literal"
-
-    @property
-    def slot_type(self):
-        return self._slot_type
-
-    @property
-    def fact(self):
-        return self._fact
-
-    @fact.setter
-    def fact(self, new_fact):
-        self._fact = new_fact
-
-    @property
-    def value(self):
-        return self._to_value(self._fact)
-
-    @value.setter
-    def value(self, f):
-        self._to_value = f
-
-    def copy(self):
-        return Slot(self._to_value, self.attributes.copy())
-
-    def __str__(self):
-        return "Slot({}{})".format(
-            self.value,
-            "".join(", {}={}".format(k, v) for (k, v) in self.attributes.items())
-        )
-
-
-class Literal(TemplateComponent):
-    """A string literal."""
-    def __init__(self, string):
-        super().__init__()
-        self._string = string
-
-    @property
-    def slot_type(self):
-        return 'Literal'
-
-    @property
-    def value(self):
-        return self._string
-
-    def copy(self):
-        return Literal(self.value)
-
-    def __str__(self):
-        return self.value
-
-
 class DefaultTemplate(Template):
 
-    def __init__(self, message):
-        super().__init__(components=[Literal(message)])
+    def __init__(self, canned_text: str) -> None:
+        super().__init__(components=[Literal(canned_text)])

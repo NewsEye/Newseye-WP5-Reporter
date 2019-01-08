@@ -1,5 +1,9 @@
 import logging
-from .message import Message
+from random import Random
+from typing import Tuple, List, Union, Iterable
+
+from reporter.core import Registry
+from .message import Message, Fact
 from .pipeline import NLGPipelineComponent
 from .document_plan import DocumentPlan, Relation
 from .message_generator import NoMessagesForSelectionException
@@ -21,7 +25,8 @@ END_STORY_ABSOLUTE_TRESHOLD = 2.0
 
 class HeadlineDocumentPlanner(NLGPipelineComponent):
 
-    def run(self, registry, random, language, scored_messages):
+    def run(self, registry: Registry, random: Random, language: str, scored_messages) \
+            -> Tuple[DocumentPlan, List[Message]]:
         """
         Run this pipeline component.
         """
@@ -50,7 +55,7 @@ class BodyDocumentPlanner(NLGPipelineComponent):
     value_type_re = re.compile(
         r'([0-9_a-z]+?)(_normalized)?(?:(_mk_score|_mk_trend)|(_percentage)?(_change)?(?:(?:_grouped_by)(_time_place|_crime_time|_crime_place_year))?((?:_decrease|_increase)?_rank(?:_reverse)?)?)')
 
-    def run(self, registry, random, language, scored_messages):
+    def run(self, registry: Registry, random: Random, language: str, scored_messages: List[Message]) -> Tuple[DocumentPlan, List[Message]]:
         """
         Run this pipeline component.
         """
@@ -180,7 +185,7 @@ class BodyDocumentPlanner(NLGPipelineComponent):
 
         return dp, all_messages
 
-    def _is_effectively_repetition(self, candidate, messages):
+    def _is_effectively_repetition(self, candidate: Message, messages: List[Message]) -> bool:
         unit, normalized, trend, percentage, change, grouped_by, rank = self.value_type_re.fullmatch(
             candidate.fact.what_type).groups()
 
@@ -213,7 +218,7 @@ class BodyDocumentPlanner(NLGPipelineComponent):
         log.debug("It does not seem to be repetition, including in DocumentPlan")
         return False
 
-    def _flatten(self, messages):
+    def _flatten(self, messages: List[Message]) -> List[Message]:
         flat = []
         # Copy the list, since modifying it modifies also the resulting DocumentPlan.
         todo = messages[:]
@@ -226,7 +231,7 @@ class BodyDocumentPlanner(NLGPipelineComponent):
                 todo.extend([c for c in m.children if c])
         return flat
 
-    def _penalize_similarity(self, candidates, nuclei):
+    def _penalize_similarity(self, candidates: List[Message], nuclei: List[Message]) -> List[Message]:
         if not nuclei:
             return candidates
         # Pick only messages about crimes that belong to DIFFERENT generic crime type but share a location
@@ -236,7 +241,7 @@ class BodyDocumentPlanner(NLGPipelineComponent):
                               and nucleus.fact.what_type.split("_")[0] != msg.fact.what_type.split("_")[0])]
         return candidates
 
-    def _encourage_similarity(self, candidates, nucleus):
+    def _encourage_similarity(self, candidates: List[Message], nucleus: Message) -> List[Message]:
         # Pick only messages about crimes that belong to the same generic crime type (in other words, that have a crime
         # type starting with the same prefix as the nucleus
         modified = [msg for msg in candidates
@@ -249,7 +254,7 @@ class BodyDocumentPlanner(NLGPipelineComponent):
                         )]
         return modified
 
-    def _add_satellite(self, satellite, messages):
+    def _add_satellite(self, satellite: Message, messages: List[Union[DocumentPlan, Message]]) -> None:
         for idx, msg in enumerate(messages):
             if type(msg) is DocumentPlan:
                 if msg.relation == Relation.LIST and self._is_same_stat_type(msg.children[-1], satellite):
@@ -272,7 +277,7 @@ class BodyDocumentPlanner(NLGPipelineComponent):
                 return
         messages.append(satellite)
 
-    def _check_relation(self, msg_1, msg_2):
+    def _check_relation(self, msg_1: Message, msg_2: Message) -> Relation:
         """
         Returns the Relation type between msg_1 and msg_2
         :param msg_1:
@@ -294,7 +299,7 @@ class BodyDocumentPlanner(NLGPipelineComponent):
             return Relation.EXEMPLIFICATION
         return Relation.SEQUENCE
 
-    def _is_elaboration(self, fact1, fact2):
+    def _is_elaboration(self, fact1: Fact, fact2: Fact) -> bool:
         """
 
         :param fact1:
@@ -329,7 +334,7 @@ class BodyDocumentPlanner(NLGPipelineComponent):
         else:
             return False
 
-    def _is_exemplification(self, fact1, fact2):
+    def _is_exemplification(self, fact1: Fact, fact2: Fact) -> bool:
         """
         Should check, whether fact2 is an exemplification of fact1. This type doesn't exist at the moment, so
         will always return False
@@ -339,7 +344,7 @@ class BodyDocumentPlanner(NLGPipelineComponent):
         """
         return False
 
-    def _is_same_stat_type(self, msg1, msg2):
+    def _is_same_stat_type(self, msg1: Fact, msg2: Fact) -> bool:
         match_1 = self.value_type_re.fullmatch(msg1.fact.what_type)
         match_2 = self.value_type_re.fullmatch(msg2.fact.what_type)
         # true if everything except the crime itself is the same and the what values have the same sign
