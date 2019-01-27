@@ -40,7 +40,7 @@ import warnings
 import logging
 from typing import Optional, List, Union, Tuple, Dict
 
-from ..template import Literal, Template, Slot
+from ..document import Literal, Template, Slot
 from . import FACT_FIELD_MAP, LOCATION_TYPE_MAP
 from .matchers import OPERATORS, Matcher, FactField, ReferentialExpr
 from .substitutions import FactFieldSource, LiteralSource, EntitySource, TimeSource
@@ -63,6 +63,7 @@ or their variants with "_type" appended.
 2nd capture group is the part after the dot.
 """
 referential_value_re = re.compile(r'^(\d+)\.((?:who|where|what)(?:_type)?|when(?:_1|_2|_type))$')
+# TODO: referential_value_re needs to be either more generic or dynamically built from the fields of Fact
 
 lang_spec_re = re.compile(r'(?P<lang>\S*):\s(?P<template>.*)')
 multi_space_re = re.compile(r'\s+')
@@ -277,7 +278,9 @@ def read_template_group(template_spec: List[str], current_language: Optional[str
                             ))
 
                         # Only some of the field names are allowed to be used in templates
-                        if field_name not in ['what', 'where', 'when_1', 'when_2', 'what_type', 'time']:
+                        # TODO: Remove or reinstate with allowed things received as params from "somewhere"
+                        if field_name not in ['corpus', 'corpus_type', 'timestamp_from', 'timestamp_to',
+                                              'timestamp_type', 'analysis_type', 'result_key', 'result_value']:
                             raise TemplateReadingError("invalid field name '{}' for use in a template: {}".format(
                                 field_name, expanded_template_line
                             ))
@@ -301,8 +304,10 @@ def read_template_group(template_spec: List[str], current_language: Optional[str
 
                     if field_name[0] in ["'", '"']:
                         to_value = LiteralSource(field_name[1:-1])
+                    # TODO: No such thing
                     elif field_name == 'where':
                         to_value = EntitySource(field_name)
+                    # TODO: Unclear if this is still a thing
                     elif field_name == 'time':
                         to_value = TimeSource(field_name)
                     else:

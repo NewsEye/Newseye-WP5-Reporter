@@ -1,11 +1,11 @@
-import logging
 from functools import lru_cache
+import logging
 from random import Random
-from typing import List, Optional, Tuple, Generator
+from typing import Iterator, List, Tuple
 
-from reporter.core import Registry, DocumentPlan, Message
+from .document import DefaultTemplate, DocumentPlanNode, Message, Template
 from .pipeline import NLGPipelineComponent
-from .template import DefaultTemplate, Template
+from .registry import Registry
 
 log = logging.getLogger('root')
 
@@ -20,8 +20,8 @@ class TemplateSelector(NLGPipelineComponent):
 
     """
 
-    def run(self, registry: Registry, random: Random, language: str, document_plan: DocumentPlan,
-            all_messages: List[Message]) -> DocumentPlan:
+    def run(self, registry: Registry, random: Random, language: str, document_plan: DocumentPlanNode,
+            all_messages: List[Message]) -> Tuple[DocumentPlanNode]:
         """
         Run this pipeline component.
         """
@@ -34,60 +34,29 @@ class TemplateSelector(NLGPipelineComponent):
         log.info("Selecting templates from {} templates".format(len(templates)))
         self._recurse(random, language, document_plan, all_messages, template_checker)
 
-        return document_plan
+        return (document_plan, )
 
-    def _recurse(self, random: Random, language: str, this: DocumentPlan, all_messages: List[Message],
-                 template_checker: 'TemplateMessageChecker', current_location: Optional[str] = None,
-                 since_location: int = 0) -> Tuple[str, str]:
+    def _recurse(self, random: Random, language: str, this: DocumentPlanNode, all_messages: List[Message],
+                 template_checker: 'TemplateMessageChecker') -> None:
         """
         Recursively works through the tree, adding Templates to Messages.
         """
         # Check all children of this root
-        for idx, child in enumerate(this.children):
-            # Will result in an AttributeError if the child is not a Message
-            try:
-                # Check whether the location has changed and we therefore need to express the new one
-                location_required = current_location is None or child.fact.where != current_location
-                templates = list(template_checker.all_templates_for_message(child, location_required=location_required))
+        for child in this.children:
+            if isinstance(child, Message):
+                templates = list(template_checker.all_templates_for_message(child))
                 if len(templates) == 0:
                     # If there are no templates, something's gone horribly wrong
                     # The document planner should have made sure this didn't happen, but the only thing we can
                     #  at this point is skip the fact
-                    log.error("Found no templates to express {} (location required: {})".format(
-                        child, location_required
-                    ))
+                    log.error("Found no templates to express {}".format(child))
                 else:
-                    if idx == 0 and since_location > LOC_IF_NOT_SINCE:
-                        # First message of par, haven't mentioned loc for a while
-                        # Prefer locationed templates, but allow unlocationed if it's the only option
-                        preferred_templates = [t for t in templates if t.expresses_location]
-                        other_templates = [t for t in templates if not t.expresses_location]
-                    else:
-                        # If we've got templates with and templates without locations, prefer those without
-                        preferred_templates = [t for t in templates if not t.expresses_location]
-                        other_templates = [t for t in templates if t.expresses_location]
-                    # If there are multiple possibilities, choose randomly
-                    if len(preferred_templates):
-                        random.shuffle(preferred_templates)
-                        template = preferred_templates[0]
-                    else:
-                        random.shuffle(other_templates)
-                        template = other_templates[0]
+                    random.shuffle(templates)
+                    template = templates[0]
                     self._add_template_to_message(child, template, all_messages)
-
-                    # Update the current location to the one we just expressed (or implicitly did)
-                    current_location = child.fact.where
-                    # If we explicitly expressed the location, reset the counter
-                    if template.expresses_location:
-                        since_location = 0
-                    else:
-                        since_location += 1
-            except AttributeError:
+            else:
                 # This child is NOT a message and we should just recurse
-                current_location, since_location = \
-                    self._recurse(random, language, child, all_messages, template_checker,
-                                  current_location=current_location, since_location=since_location)
-        return current_location, since_location
+                self._recurse(random, language, child, all_messages, template_checker)
 
     @staticmethod
     def _add_template_to_message(message: Message, template_original: Template, all_messages: List[Message]) -> None:
@@ -106,7 +75,7 @@ class TemplateSelector(NLGPipelineComponent):
             log.debug("Successfully linked template to message")
         else:
             log.error("Chosen template '{}' for fact '{}' could not be used! "
-                      "Falling back to default templates".format(template.display_template(), message.fact))
+                      "Falling back to default templates".format(template.display_template(), message.main_fact))
             template = DefaultTemplate("")
         message.template = template
         message.facts = used_facts
@@ -129,29 +98,21 @@ class TemplateMessageChecker(object):
         self._cache = {}
 
     @lru_cache(maxsize=1024)
-    def exists_template_for_message(self, message: Message, location_required: bool = False) -> bool:
+    def exists_template_for_message(self, message: Message) -> bool:
         """
         Check for templates that apply to the given message. To make things faster, we don't try to find
         all available templates, but return as soon as we find one.
-
-        :param message:
-        :param location_required: by default, allows templates with or without location. If location_required=True,
-            only accept templates that explicitly express the message's location
-        :return:
         """
         try:
             # Try getting the first template
-            next(self.all_templates_for_message(message, location_required=location_required))
+            next(self.all_templates_for_message(message))
         except StopIteration:
             # No template found at all
             return False
         return True
 
-    def all_templates_for_message(self, message: Message, location_required: bool = False) -> Generator[Template]:
+    def all_templates_for_message(self, message: Message) -> Iterator[Template]:
         for template in self.templates:
-            # If we need the location, only accept templates that express it
-            if location_required and not template.expresses_location:
-                continue
             # See if the template can express this message (with the help of the other available messages)
             if template.check(message, self.all_messages):
                 # Got a matching template: this message can be expressed

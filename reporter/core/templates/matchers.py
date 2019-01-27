@@ -88,7 +88,7 @@ class Matcher(object):
         return OPERATORS[self.op](result, value)
 
     def __str__(self):
-        return "lambda msg, all: {} {} {}".format(self.lhs, self.op, self.value)
+        return "lambda msg, all: {} ({})     {}      {} ({})".format(self.lhs, type(self.lhs), self.op, self.value, type(self.value))
 
     def __repr__(self):
         return str(self)

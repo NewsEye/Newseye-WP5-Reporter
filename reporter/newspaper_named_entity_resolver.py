@@ -1,8 +1,7 @@
 from random import Random
-
-from reporter.core import EntityNameResolver, Registry, Slot
-
 import re
+
+from .core import EntityNameResolver, Registry, Slot
 
 
 class NewspaperEntityNameResolver(EntityNameResolver):

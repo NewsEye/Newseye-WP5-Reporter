@@ -1,7 +1,8 @@
 import argparse
 import os
+import logging
 import sys
-from typing import Callable, Tuple, Dict, List
+from typing import Callable, Dict, List, Tuple
 
 from reporter.newspaper_nlg_service import NewspaperNlgService
 
@@ -12,13 +13,11 @@ from bottle import Bottle, request, response, run, TEMPLATE_PATH
 #
 
 # Logging
-import logging
-
 formatter = logging.Formatter(fmt='%(asctime)s - %(levelname)s - %(module)s - %(message)s')
 handler = logging.StreamHandler()
 handler.setFormatter(formatter)
 log = logging.getLogger('root')
-log.setLevel(logging.INFO)
+log.setLevel(logging.DEBUG)
 # log.setLevel(5) # Enable for way too much logging, even more than DEBUG
 log.addHandler(handler)
 
@@ -54,25 +53,17 @@ def allow_cors(func: Callable) -> Callable:
     return wrapper
 
 
-def get_article(language: str, where: str, where_type: str) -> Tuple[str, str]:
-    return service.run_pipeline(language, where, where_type)
+def generate(language: str) -> Tuple[str, str]:
+    return service.run_pipeline(language)
 
 
 @app.route('/api/report')
 @allow_cors
-def news_api() -> Dict[str, str]:
+def api_generate() -> Dict[str, str]:
     language = request.query.language or "en"
-    where = request.query.where or None
-    where_type = request.query.where_type or None
 
-    if not where:
-        response.status = 400
-        return {"error": "Must have at least one of the following query parameters: 'where'"}
-
-    header, body = get_article(language, where, where_type)
+    header, body = generate(language)
     return dict({
-        "where": where,
-        "where_type": where_type,
         "language": language,
         "header": header,
         "body": body,
@@ -93,3 +84,4 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+    #print(generate())

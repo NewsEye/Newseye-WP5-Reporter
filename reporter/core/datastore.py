@@ -1,11 +1,10 @@
 import gzip
+import logging
 import pickle
 import re
-from typing import Optional, Callable, Union, List
+from typing import Callable, List, Optional, Union
 
-from pandas import HDFStore as PandasHDFStore, DataFrame
-
-import logging
+from pandas import DataFrame, HDFStore as PandasHDFStore
 
 log = logging.getLogger('root')
 

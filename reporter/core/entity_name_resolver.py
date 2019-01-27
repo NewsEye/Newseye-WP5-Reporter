@@ -1,11 +1,11 @@
-import logging
 from collections import defaultdict
+import logging
 from random import Random
-from typing import Set, Tuple
+from typing import Set, Tuple, DefaultDict
 
-from reporter.core import Registry
-from .document_plan import Relation, DocumentPlan
+from .document import DocumentPlanNode, Relation
 from .pipeline import NLGPipelineComponent
+from .registry import Registry
 
 log = logging.getLogger('root')
 
@@ -37,7 +37,7 @@ class EntityNameResolver(NLGPipelineComponent):
     # In this implementation, it is enough to define the multi-entity_type confusion groups, as we
     # can simply use the default parameter in dict.get() to return the key for other cases-
 
-    def run(self, registry: Registry, random: Random, language: str, document_plan: DocumentPlan):
+    def run(self, registry: Registry, random: Random, language: str, document_plan: DocumentPlanNode):
         """
         Run this pipeline component.
         """
@@ -55,9 +55,9 @@ class EntityNameResolver(NLGPipelineComponent):
 
         return document_plan,
 
-    def _recurse(self, registry: Registry, random: Random, language: str, this: DocumentPlan,
-                 previous_entities: defaultdict[str, None], encountered: Set[str]) \
-            -> Tuple[int, defaultdict[str, None], Set[str]]:
+    def _recurse(self, registry: Registry, random: Random, language: str, this: DocumentPlanNode,
+                 previous_entities: DefaultDict[str, None], encountered: Set[str]) \
+            -> Tuple[int, DefaultDict[str, None], Set[str]]:
         """
         Traverses the DocumentPlan tree recursively in-order and modifies named
         entity to_value functions to return the chosen form of that NE's name.

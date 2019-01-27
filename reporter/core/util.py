@@ -1,10 +1,10 @@
 from collections.abc import Iterable
-from typing import List, Optional, Any, TypeVar, Union
-
-from reporter.core import Message, Registry, DocumentPlan
-from .pipeline import NLGPipelineComponent
-
 import logging
+from typing import Any, List, Optional, TypeVar, Union
+
+from .document import DocumentPlanNode, Message
+from .pipeline import NLGPipelineComponent
+from .registry import Registry
 
 log = logging.getLogger('root')
 
@@ -65,7 +65,7 @@ class PrintNuclei(NLGPipelineComponent):
 
 class PrintDocumentPlan(NLGPipelineComponent):
 
-    def run(self, registry: Registry, dp: DocumentPlan, *args: Any) -> str:
+    def run(self, registry: Registry, dp: DocumentPlanNode, *args: Any) -> str:
         log.info("Printing tree to stdout")
         print()
         dp.print_tree()

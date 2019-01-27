@@ -1,10 +1,8 @@
 from random import Random
+import logging
 from typing import List
 
-from reporter.core import Registry, Message
-from reporter.core.pipeline import NLGPipelineComponent
-
-import logging
+from .core import Message, NLGPipelineComponent, Registry
 
 log = logging.getLogger('root')
 
@@ -17,7 +15,7 @@ class NewspaperImportanceSelector(NLGPipelineComponent):
         facts = messages
         scored_messages = self.score_importance(facts, registry)
         sorted_scored_messages = sorted(scored_messages, key=lambda x: float(x.score), reverse=True)
-        return sorted_scored_messages
+        return (sorted_scored_messages, )
 
     def score_importance(self, messages: List[Message], registry: Registry) -> List[Message]:
         for msg in messages:

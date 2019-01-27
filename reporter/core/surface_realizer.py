@@ -1,12 +1,10 @@
-from random import Random
-
-from reporter.core import Registry, DocumentPlan
-from .pipeline import NLGPipelineComponent
-
-import re
-from typing import List
-
 import logging
+from random import Random
+import re
+
+from .document import DocumentPlanNode
+from .pipeline import NLGPipelineComponent
+from .registry import Registry
 
 log = logging.getLogger('root')
 
@@ -21,26 +19,26 @@ class SurfaceRealizer(NLGPipelineComponent):
     """
 
     @property
-    def paragraph_start(self) -> NoReturn:
+    def paragraph_start(self):
         raise NotImplementedError
 
     @property
-    def paragraph_end(self) -> NoReturn:
+    def paragraph_end(self):
         raise NotImplementedError
 
     @property
-    def sentence_start(self) -> NoReturn:
+    def sentence_start(self):
         raise NotImplementedError
 
     @property
-    def sentence_end(self) -> NoReturn:
+    def sentence_end(self):
         raise NotImplementedError
 
     @property
-    def fail_on_empty(self) -> NoReturn:
+    def fail_on_empty(self):
         raise NotImplementedError
 
-    def run(self, registry: Registry, random: Random, language: str, document_plan: DocumentPlan) -> str:
+    def run(self, registry: Registry, random: Random, language: str, document_plan: DocumentPlanNode) -> str:
         """
         Run this pipeline component.
         """
@@ -52,12 +50,14 @@ class SurfaceRealizer(NLGPipelineComponent):
             output += self.paragraph_start + p + self.paragraph_end
         return output
 
-    def realize(self, sequence: DocumentPlan, language: str) -> str:
+    def realize(self, sequence: DocumentPlanNode, language: str) -> str:
         """Realizes a single paragraph."""
         output = ""
         for message in sequence.children:
             template = message.template
-            sent = " ".join([component.value for component in template.components if component.value != ""]).rstrip()
+            component_values = [str(component.value) for component in template.components]
+
+            sent = " ".join([component_value for component_value in component_values if component_value != ""]).rstrip()
             # Temp fix: remove extra spaces occurring with braces and sometimes before commas.
             sent = re.sub(r'\(\s', r'(', sent)
             sent = re.sub(r'\s\)', r')', sent)

@@ -1,9 +1,9 @@
 import logging
-from typing import Any, Optional, Union, List, Tuple
+from typing import Any, List, Optional, Tuple, Union
 
 from numpy.random import RandomState
 
-from reporter.core import Registry
+from .registry import Registry
 
 log = logging.getLogger('root')
 
@@ -43,8 +43,7 @@ class NLGPipeline(object):
                 log.error("Exception occurred while running with initial inputs {}".format(initial_inputs))
                 log.exception(ex)
                 raise
-            if not (args is list or args is tuple):
-                output = (output,)
             args = output
+            print(args)
         log.info("NLG Pipeline completed")
         return output
