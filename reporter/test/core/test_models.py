@@ -1,5 +1,5 @@
 from unittest import main, TestCase
-from reporter.core.models import Message, Fact, DocumentPlanNode, Document
+from reporter.core.models import Message, Fact, DocumentPlanNode, Document, Relation
 
 
 class TestFact(TestCase):
@@ -97,6 +97,27 @@ class TestDocument(TestCase):
         assert m1 in d.messages()
         assert m2 in d.messages()
 
+
+class TestDocumentPlanNode(TestCase):
+
+    def test_document_plan_node_creation(self):
+        f1 = Fact('corpus1', 'corpus_type', 'timestamp_from', 'timestamp_to', 'timestamp_type', 'analysis_type',
+                  'result_key', 'result_value', 'outlierness')
+        m1 = Message(f1, 0.1, 0.2, 0.3)
+
+        f2 = Fact('corpus2', 'corpus_type', 'timestamp_from', 'timestamp_to', 'timestamp_type', 'analysis_type',
+                  'result_key', 'result_value', 'outlierness')
+        m2 = Message(f2, 0.1, 0.2, 0.3)
+
+        dp = DocumentPlanNode([m1, m2], Relation.ELABORATION)
+
+        assert dp.children == [m1, m2]
+        assert dp.relation == Relation.ELABORATION
+        assert str(dp) == 'ELABORATION'
+        try:
+            dp.print_tree()
+        except Exception:
+            self.fail('print_tree() failed to run without an exception')
 
 if __name__ == '__main__':
     main()
