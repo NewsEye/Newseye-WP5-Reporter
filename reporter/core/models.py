@@ -139,8 +139,7 @@ class Message(DocumentPlanNode):
                  polarity: float = 0.0) -> None:
         super().__init__()
 
-        # TODO: This breaks for non-lists, maybe thinking the NamedTuple if a list?
-        self._facts = list(facts) if isinstance(facts, Fact) else facts
+        self._facts = [facts] if isinstance(facts, Fact) else facts
         self._main_fact = self._facts[0]
         self._template = None # type: Optional[Template]
 
@@ -155,8 +154,7 @@ class Message(DocumentPlanNode):
 
     @facts.setter
     def facts(self, facts: Union[List['Fact'], 'Fact']) -> None:
-        # TODO: This breaks for non-lists, maybe thinking the NamedTuple if a list?
-        self._facts = list(facts) if isinstance(facts, Fact) else facts
+        self._facts = [facts] if isinstance(facts, Fact) else facts
         self._main_fact = self._facts[0]
 
     # Added for backwards compatibility, returns by default the primary fact for this Message.
