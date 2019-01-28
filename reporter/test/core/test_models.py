@@ -1,5 +1,5 @@
 from unittest import main, TestCase
-from reporter.core.models import Message, Fact
+from reporter.core.models import Message, Fact, DocumentPlanNode, Document
 
 
 class TestFact(TestCase):
@@ -77,6 +77,27 @@ class TestMessage(TestCase):
 
         assert m.facts == [f1, f2]
         assert m.main_fact == f1
+
+
+class TestDocument(TestCase):
+
+    def test_document(self):
+        f1 = Fact('corpus1', 'corpus_type', 'timestamp_from', 'timestamp_to', 'timestamp_type', 'analysis_type',
+                  'result_key', 'result_value', 'outlierness')
+        m1 = Message(f1, 0.1, 0.2, 0.3)
+
+        f2 = Fact('corpus2', 'corpus_type', 'timestamp_from', 'timestamp_to', 'timestamp_type', 'analysis_type',
+                  'result_key', 'result_value', 'outlierness')
+        m2 = Message(f2, 0.1, 0.2, 0.3)
+
+        dp = DocumentPlanNode([m1, m2])
+
+        d = Document('en', dp)
+
+        assert d.language == 'en'
+        assert d.document_plan == dp
+        assert m1 in d.messages()
+        assert m2 in d.messages()
 
 
 if __name__ == '__main__':
