@@ -12,7 +12,7 @@ class Document(object):
 
     def __init__(self, language: str, document_plan: Optional['DocumentPlanNode'] = None):
         self.language = language
-        self.document_plan = None
+        self.document_plan = document_plan
 
     def messages(self):
         return self._recursively_find_messages(self.document_plan)
