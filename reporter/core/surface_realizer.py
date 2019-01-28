@@ -2,7 +2,7 @@ import logging
 from random import Random
 import re
 
-from .document import DocumentPlanNode
+from .models import DocumentPlanNode
 from .pipeline import NLGPipelineComponent
 from .registry import Registry
 

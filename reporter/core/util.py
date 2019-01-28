@@ -2,7 +2,7 @@ from collections.abc import Iterable
 import logging
 from typing import Any, List, Optional, TypeVar, Union
 
-from .document import DocumentPlanNode, Message
+from .models import DocumentPlanNode, Message
 from .pipeline import NLGPipelineComponent
 from .registry import Registry
 

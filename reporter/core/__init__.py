@@ -1,6 +1,6 @@
 from .aggregator import Aggregator
 from .datastore import DataStore, DataFrameStore, HdfStore
-from .document import DefaultTemplate, DocumentPlanNode, Fact, Literal, LiteralSlot, Message, Relation, Slot, Template, TemplateComponent
+from .models import DefaultTemplate, DocumentPlanNode, Fact, Literal, LiteralSlot, Message, Relation, Slot, Template, TemplateComponent
 from .document_planner import BodyDocumentPlanner, HeadlineDocumentPlanner
 from .entity_name_resolver import EntityNameResolver
 from .message_generator import MessageGenerator, NoMessagesForSelectionException

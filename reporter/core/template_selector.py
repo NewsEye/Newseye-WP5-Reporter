@@ -3,7 +3,7 @@ import logging
 from random import Random
 from typing import Iterator, List, Tuple
 
-from .document import DefaultTemplate, DocumentPlanNode, Message, Template
+from .models import DefaultTemplate, DocumentPlanNode, Message, Template
 from .pipeline import NLGPipelineComponent
 from .registry import Registry
 

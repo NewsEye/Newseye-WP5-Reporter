@@ -3,7 +3,7 @@ from random import Random
 import re
 from typing import cast, Union
 
-from .document import DocumentPlanNode, Slot, TemplateComponent
+from .models import DocumentPlanNode, Slot, TemplateComponent
 from .pipeline import NLGPipelineComponent
 from .registry import Registry
 

@@ -40,7 +40,7 @@ import warnings
 import logging
 from typing import Optional, List, Union, Tuple, Dict
 
-from ..document import Literal, Template, Slot
+from ..models import Literal, Template, Slot
 from . import FACT_FIELD_MAP, LOCATION_TYPE_MAP
 from .matchers import OPERATORS, Matcher, FactField, ReferentialExpr
 from .substitutions import FactFieldSource, LiteralSource, EntitySource, TimeSource

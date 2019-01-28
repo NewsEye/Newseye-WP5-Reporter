@@ -3,7 +3,7 @@ from random import Random
 import re
 from typing import List, Union, Tuple, cast
 
-from .document import Fact, DocumentPlanNode, Message, Relation
+from .models import Fact, DocumentPlanNode, Message, Relation
 from .message_generator import NoMessagesForSelectionException
 from .pipeline import NLGPipelineComponent
 from .registry import Registry

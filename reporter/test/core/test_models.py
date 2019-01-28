@@ -1,7 +1,7 @@
 from unittest import main, TestCase
-from reporter.core.document import Message, Fact
+from reporter.core.models import Message, Fact
 
-class Test_Message(TestCase):
+class TestMessage(TestCase):
 
     def test_fact_creation(self):
         f = Fact('where', 'where_type', 'what', 'what_type', 'when_1', 'when_2', 'when_type', 0.5)

@@ -186,12 +186,12 @@ class Message(DocumentPlanNode):
 # of an injection thingymabob is needed.
 Fact = namedtuple('fact', [
     'corpus', # The test corpus
-    'corpus_type', # Corpus
-    'timestamp_from', # 2008
-    'timestamp_to', # 2008
-    'timestamp_type', # year
+    'corpus_type', # query
+    'timestamp_from', # None
+    'timestamp_to', # None
+    'timestamp_type', # all_time
     'analysis_type', #count
-    'result_key', # language_english
+    'result_key', # language_ssim:english
     'result_value', # 13
     'outlierness', # 1
 ])

@@ -3,7 +3,7 @@ import logging
 from random import Random
 from typing import Set, Tuple, DefaultDict
 
-from .document import DocumentPlanNode, Relation
+from .models import DocumentPlanNode, Relation
 from .pipeline import NLGPipelineComponent
 from .registry import Registry
 
