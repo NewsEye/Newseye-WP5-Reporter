@@ -22,8 +22,6 @@ class TestMessage(TestCase):
     def test_message_creation_single_fact(self):
         f = Fact('corpus', 'corpus_type', 'timestamp_from', 'timestamp_to', 'timestamp_type', 'analysis_type',
                  'result_key', 'result_value', 'outlierness')
-        print(f)
-
         m = Message(f, 0.1, 0.2, 0.3)
 
         assert isinstance(m.facts, list) and not isinstance(m.facts, Fact)
