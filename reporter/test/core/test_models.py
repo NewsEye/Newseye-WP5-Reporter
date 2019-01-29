@@ -111,5 +111,148 @@ class TestDocumentPlanNode(TestCase):
     def test_document_plan_node_print_tree_does_not_crash(self):
         self.document_plan_node.print_tree()
 
+
+class TestTemplateComponent(TestCase):
+
+    def setUp(self):
+        self.parent = TemplateComponent()
+        self.component = TemplateComponent()
+
+    def test_template_component_default_values(self):
+        component = self.component
+
+        self.assertIsNone(component.parent)
+        self.assertEqual(str(component), '[AbstractTemplateComponent]')
+
+    def test_template_sets_parent(self):
+        self.component.parent = self.parent
+        self.assertEqual(self.component.parent, self.parent)
+
+    def test_is_abstract(self):
+        with self.assertRaises(NotImplementedError):
+            self.component.value()
+
+        with self.assertRaises(NotImplementedError):
+            self.component.value = 'anything'
+
+        with self.assertRaises(NotImplementedError):
+            self.component.copy()
+
+
+class TestSlot(TestCase):
+
+    def setUp(self):
+        self.to_value = LiteralSource('some literal')
+        self.attributes = dict()
+        self.fact = Fact('corpus', 'corpus_type', 'timestamp_from', 'timestamp_to', 'timestamp_type', 'analysis_type',
+                         'result_key', 'result_value', 'outlierness')
+
+    def test_slot_creation_with_default_values(self):
+        slot = Slot(self.to_value)
+
+        self.assertEqual(slot.value, 'some literal')
+        self.assertEqual(slot.slot_type, 'literal')
+        self.assertIsInstance(slot.attributes, dict)
+        self.assertEqual(len(slot.attributes), 0)
+        self.assertIsNone(slot.fact)
+
+    def test_slot_creation_without_defaults(self):
+        slot = Slot(self.to_value, self.attributes, self.fact)
+
+        self.assertEqual(slot.attributes, self.attributes)
+        self.assertEqual(slot.fact, self.fact)
+
+    def test_slot_value_setter(self):
+        slot = Slot(self.to_value)
+        slot.value = LiteralSource('another literal')
+
+        self.assertEqual(slot.value, 'another literal')
+
+    def test_slot_value_setter_updates_slot_type(self):
+        slot = Slot(self.to_value)
+        slot.value = SlotSource('a fake type')
+
+        self.assertEqual(slot.slot_type, 'a fake type')
+
+    def test_slot_copy_copies_value_type_and_attributes(self):
+        slot = Slot(self.to_value, self.attributes, self.fact)
+        copy = slot.copy()
+
+        self.assertEqual(slot.value, copy.value)
+        self.assertEqual(slot.slot_type, copy.slot_type)
+        self.assertEqual(slot.attributes, copy.attributes)
+
+    def test_slot_copy_does_not_copy_fact(self):
+        slot = Slot(self.to_value, self.attributes, self.fact)
+        copy = slot.copy()
+
+        self.assertIsNone(copy.fact)
+
+    def test_slot_copy_changes_to_original_do_not_reflect_to_copy(self):
+        slot = Slot(self.to_value, self.attributes, self.fact)
+        copy = slot.copy()
+        slot.attributes['new_key'] = 'new_val'
+        slot.value = LiteralSource('new literal')
+
+        self.assertNotEqual(slot.value, copy.value)
+        self.assertNotEqual(slot.attributes, copy.attributes)
+
+    def test_slot_copy_changes_to_copy_do_not_reflect_to_original(self):
+        slot = Slot(self.to_value, self.attributes, self.fact)
+        copy = slot.copy()
+        copy.attributes['new_key'] = 'new_val'
+        copy.value = LiteralSource('new literal')
+
+        self.assertNotEqual(slot.value, copy.value)
+        self.assertNotEqual(slot.attributes, copy.attributes)
+
+
+class TestLiteralSlot(TestCase):
+
+    def setUp(self):
+        self.attributes = dict()
+
+    def test_literal_slot_creation_with_defaults(self):
+        slot = LiteralSlot('a string')
+        self.assertEqual(slot.value, 'a string')
+        self.assertIsInstance(slot.attributes, dict)
+        self.assertEqual(len(slot.attributes), 0)
+        self.assertEqual(slot.slot_type, 'literal')
+
+    def test_literal_slot_creation_without_defaults(self):
+        slot = LiteralSlot('a string', self.attributes)
+        self.assertEqual(slot.attributes, self.attributes)
+
+
+class TestSlotSource(TestCase):
+
+    def setUp(self):
+        self.fact = Fact('corpus name', 'corpus_type', 'timestamp_from', 'timestamp_to', 'timestamp_type',
+                         'analysis_type', 'result_key', 'result_value', 'outlierness')
+        self.source = SlotSource('field')
+
+    def test_slot_source_creation(self):
+        self.assertEqual(self.source.field_name, 'field')
+
+    def test_slot_source_is_abstract(self):
+        with self.assertRaises(NotImplementedError):
+            self.source(self.fact)
+
+
+class TestFactFieldSource(TestCase):
+
+    def setUp(self):
+        self.fact = Fact('corpus name', 'corpus_type', 'timestamp_from', 'timestamp_to', 'timestamp_type',
+                         'analysis_type', 'result_key', 'result_value', 'outlierness')
+        self.message = Message(self.fact, 0.1, 0.2, 0.3)
+        self.source = FactFieldSource('corpus')
+
+    def test_fact_field_source_creation(self):
+        self.assertEqual(self.source.field_name, 'corpus')
+
+    def test_fact_field_source_retrieves_from_fact_on_call(self):
+        self.assertEqual(self.source(self.fact), 'corpus name')
+
+
 if __name__ == '__main__':
     main()
