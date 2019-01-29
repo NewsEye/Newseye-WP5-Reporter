@@ -40,7 +40,7 @@ import warnings
 import logging
 from typing import Optional, List, Union, Tuple, Dict
 
-from .models import Literal, Template, Slot, FactFieldSource, LiteralSource, EntitySource, TimeSource, FactField, \
+from .models import Literal, Template, Slot, FactFieldSource, LiteralSource, TimeSource, FactField, \
     ReferentialExpr, Matcher
 
 log = logging.getLogger('root')
@@ -328,12 +328,8 @@ def read_template_group(template_spec: List[str], current_language: Optional[str
 
                     if field_name[0] in ["'", '"']:
                         to_value = LiteralSource(field_name[1:-1])
-                    # TODO: No such thing
-                    elif field_name == 'where':
-                        to_value = EntitySource(field_name)
-                    # TODO: Unclear if this is still a thing
                     elif field_name == 'time':
-                        to_value = TimeSource(field_name)
+                        to_value = TimeSource()
                     else:
                         to_value = FactFieldSource(field_name)
 
