@@ -387,8 +387,7 @@ class Slot(TemplateComponent):
     """
 
     # Todo: Are the values in "attributes" of a known type?
-    # Todo: "to_value" is really SlotSource, but that has a redundant(?) LiteralSource which prevents a common interface
-    def __init__(self, to_value: Callable, attributes: Optional[Dict[str, Any]] = None, fact: Optional[Fact] = None) -> None:
+    def __init__(self, to_value: 'SlotSource', attributes: Optional[Dict[str, Any]] = None, fact: Optional[Fact] = None) -> None:
         """
         :param to_value: A callable that defines how to transform the message
             that fills this slot into a textual representation.
