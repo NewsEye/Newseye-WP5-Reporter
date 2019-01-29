@@ -534,7 +534,7 @@ class ReferentialExpr(object):
         self.field_name = field_name
         self.reference_idx = reference_idx
 
-    def __call__(self, message: 'Message', all_references: List[object]) -> str:
+    def __call__(self, fact: 'Fact', all_references: List[object]) -> str:
         return getattr(all_references[self.reference_idx], self.field_name)
 
     def __str__(self) -> str:
@@ -542,9 +542,26 @@ class ReferentialExpr(object):
 
 
 class Matcher(object):
+
+    def _equal_op(a: Union[object], b: Any) -> bool:
+        if type(b) is str:
+            return re.match('^' + b + '$', str(a)) is not None
+        else:
+            return operator.eq(a, b)
+
+    OPERATORS = {
+        '=': _equal_op,
+        '!=': operator.ne,
+        '>': operator.gt,
+        '<': operator.lt,
+        '>=': operator.ge,
+        '<=': operator.le,
+        'in': lambda a, b: operator.contains(b, a),
+    }
+
     def __init__(self, lhs: LhsExpr, op: str, value: Any) -> None:
-        if op not in OPERATORS:
-            raise ValueError("invalid matcher operator '{}'. Must be one of: {}".format(op, ", ".join(OPERATORS)))
+        if op not in Matcher.OPERATORS:
+            raise ValueError("invalid matcher operator '{}'. Must be one of: {}".format(op, ", ".join(Matcher.OPERATORS)))
         self.value = value
         self.op = op
         self.lhs = lhs
@@ -557,28 +574,10 @@ class Matcher(object):
         else:
             value = self.value
         # Perform the relevant comparison operator
-        return OPERATORS[self.op](result, value)
+        return Matcher.OPERATORS[self.op](result, value)
 
     def __str__(self):
         return "lambda msg, all: {} ({})     {}      {} ({})".format(self.lhs, type(self.lhs), self.op, self.value, type(self.value))
 
     def __repr__(self):
         return str(self)
-
-
-def equal_op(a: Union[object], b: Any) -> bool:
-    if type(b) is str:
-        return re.match('^' + b + '$', str(a)) is not None
-    else:
-        return operator.eq(a, b)
-
-
-OPERATORS = {
-    '=': equal_op,
-    '!=': operator.ne,
-    '>': operator.gt,
-    '<': operator.lt,
-    '>=': operator.ge,
-    '<=': operator.le,
-    'in': lambda a, b: operator.contains(b, a),
-}

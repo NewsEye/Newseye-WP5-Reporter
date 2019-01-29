@@ -41,7 +41,7 @@ import logging
 from typing import Optional, List, Union, Tuple, Dict
 
 from .models import Literal, Template, Slot, FactFieldSource, LiteralSource, EntitySource, TimeSource, FactField, \
-    ReferentialExpr, Matcher, OPERATORS
+    ReferentialExpr, Matcher
 
 log = logging.getLogger('root')
 
@@ -361,10 +361,10 @@ def parse_matcher_expr(constraint_line: str):
         lhs, rest = parse_matcher_lhs(rest)
         # The next thing is the operator between the LHS and RHS
         try:
-            op = next(opr for opr in OPERATORS if rest.startswith(opr))
+            op = next(opr for opr in Matcher.OPERATORS if rest.startswith(opr))
         except StopIteration:
             raise TemplateReadingError("unrecognised operator at start of '{}'. Should be one of {}".format(
-                rest, ', '.join(OPERATORS)
+                rest, ', '.join(Matcher.OPERATORS)
             ))
         rest = rest[len(op):].strip()
 
