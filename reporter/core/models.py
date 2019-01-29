@@ -411,6 +411,7 @@ class Slot(TemplateComponent):
         self._to_value = f
 
     def copy(self) -> 'Slot':
+        # TODO: Is it intended that Fact is not copied over?
         return Slot(self._to_value, self.attributes.copy())
 
     def __str__(self) -> str:
