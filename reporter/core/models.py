@@ -422,10 +422,8 @@ class Slot(TemplateComponent):
 
 
 class LiteralSlot(Slot):
-    def __init__(self, value: str, to_value: Callable, attributes: Optional[Dict[str, str]] = None) -> None:
-        super().__init__(LiteralSource(value), attributes or {})
-        self._fact = None
-        self._slot_type = 'Literal'
+    def __init__(self, value: str, attributes: Optional[Dict[str, str]] = None) -> None:
+        super().__init__(LiteralSource(value), attributes)
 
 
 class Literal(TemplateComponent):
