@@ -201,10 +201,11 @@ class Template(DocumentPlanNode):
     using the template.
     """
 
-    # Todo: Figure out what the type of "rules" is
-    # Todo: Figure out what the type of "slot_map" is
-    def __init__(self, components: List['TemplateComponent'], rules: Optional[List[Any]] = None,
-                 slot_map: Optional[Dict[Any, Any]] = None) -> None:
+    def __init__(self,
+                 components: List['TemplateComponent'],
+                 rules: Optional[List[Tuple['Matcher', int]]] = None,
+                 slot_map: Optional[Dict[str, 'Slot']] = None) -> None:
+
         super().__init__()
 
         self._rules = rules if rules is not None else []
