@@ -40,12 +40,36 @@ import warnings
 import logging
 from typing import Optional, List, Union, Tuple, Dict
 
-from ..models import Literal, Template, Slot
-from . import FACT_FIELD_MAP, LOCATION_TYPE_MAP
-from .matchers import OPERATORS, Matcher, FactField, ReferentialExpr
-from .substitutions import FactFieldSource, LiteralSource, EntitySource, TimeSource
+from .models import Literal, Template, Slot, FactFieldSource, LiteralSource, EntitySource, TimeSource, FactField, \
+    ReferentialExpr, Matcher, OPERATORS
 
 log = logging.getLogger('root')
+
+
+def canonical_map(map_dict):
+    return dict(
+        (alt_val, canonical) for (canonical, alt_vals) in map_dict.items() for alt_val in ([canonical] + alt_vals)
+    )
+
+
+FACT_FIELD_ALIASES = {
+    'corpus': [],
+    'corpus_type': [],
+    'timestamp_from': ['timestamp', 'time'],
+    'timestamp_to': [],
+    'timestamp_type': [],
+    'analysis_type': [],
+    'result_key': [],
+    'result_value': [],
+}
+FACT_FIELD_MAP = canonical_map(FACT_FIELD_ALIASES)
+LOCATION_TYPES = {
+    "C": ["country"],
+    "D": ["district"],
+    "M": ["municipality", "mun"],
+}
+LOCATION_TYPE_MAP = canonical_map(LOCATION_TYPES)
+FACT_FIELDS = FACT_FIELD_ALIASES.keys()
 
 RULE_PREFIX = '|'
 
@@ -178,7 +202,7 @@ def read_template_group(template_spec: List[str], current_language: Optional[str
 
     # FACT CONSTRAINTS
     # Read in the fact constraints first to get a list of rules that will be associated with the template
-    rules = []
+    rules = [] # type: List[Matcher]
     seen_what_types = []
     for constraint_line in constraint_lines:
         # Every part of this line represents a constraint on the facts that may match
@@ -220,10 +244,10 @@ def read_template_group(template_spec: List[str], current_language: Optional[str
 
         # Allow alternative versions of a template to be specified using the [] notation for optional parts
         for expanded_template_line in expand_alternatives(template_line):
-            components = []
+            components = [] # type: List['TemplateComponent']
 
             # Generate list for mapping rules into template Slots
-            rule_to_slot = []
+            rule_to_slot = [] # type: List[int]
             for idx in range(len(rules)):
                 rule_to_slot.append([])
 

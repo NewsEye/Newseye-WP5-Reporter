@@ -6,8 +6,8 @@ from random import randint
 from typing import Callable, Dict, Iterable, List, Optional, TypeVar, Tuple
 
 from reporter.core import Aggregator, BodyDocumentPlanner, BodyHTMLSurfaceRealizer, HeadlineDocumentPlanner, \
-    HeadlineHTMLSurfaceRealizer, NLGPipeline, NLGPipelineComponent, read_templates_file, Registry, SlotRealizer, \
-    Template, TemplateSelector
+    HeadlineHTMLSurfaceRealizer, NLGPipeline, NLGPipelineComponent, read_templates_file, Registry, Template, \
+    TemplateSelector
 
 from reporter.newspaper_named_entity_resolver import NewspaperEntityNameResolver
 from reporter.newspaper_importance_allocator import NewspaperImportanceSelector

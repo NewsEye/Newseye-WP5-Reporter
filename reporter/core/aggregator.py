@@ -5,8 +5,7 @@ from typing import List, cast, Tuple
 
 from .pipeline import NLGPipelineComponent
 from .registry import Registry
-from .models import DocumentPlanNode, Message, Literal, Relation, Slot, Template, TemplateComponent
-from .templates.substitutions import FactFieldSource
+from .models import DocumentPlanNode, Message, Literal, Relation, Template, TemplateComponent
 
 log = logging.getLogger('root')
 
