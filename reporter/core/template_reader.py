@@ -247,7 +247,7 @@ def read_template_group(template_spec: List[str], current_language: Optional[str
             components = [] # type: List['TemplateComponent']
 
             # Generate list for mapping rules into template Slots
-            rule_to_slot = [] # type: List[int]
+            rule_to_slot = [] # type: List[List[Slot]]
             for idx in range(len(rules)):
                 rule_to_slot.append([])
 
