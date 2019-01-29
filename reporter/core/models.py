@@ -397,11 +397,10 @@ class Slot(TemplateComponent):
         self.attributes = attributes or {}
         self._to_value = to_value
         self.fact = fact
-        self._slot_type = self._to_value.field_name  # Todo: This here would apply to all SlotSource descendants except LiteralSource
 
     @property
     def slot_type(self) -> str:
-        return self._slot_type
+        return self._to_value.field_name
 
     @property
     def value(self) -> Union[str, int, float]:
