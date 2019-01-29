@@ -486,8 +486,8 @@ class TimeSource(SlotSource):
     """
     Special type of SlotSource for time entries.
     """
-    def __init__(self, field_name: str) -> None:
-        super().__init__(field_name)
+    def __init__(self) -> None:
+        super().__init__('time')
 
     def __call__(self, fact: Fact) -> str:
         return '[TIME:{}:{}:{}]'.format(getattr(fact, 'timestamp_type'), getattr(fact, 'from_timestamp'), getattr(fact, 'to_timestamp'))
