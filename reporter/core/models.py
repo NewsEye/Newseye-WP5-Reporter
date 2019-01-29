@@ -490,7 +490,7 @@ class TimeSource(SlotSource):
         super().__init__('time')
 
     def __call__(self, fact: Fact) -> str:
-        return '[TIME:{}:{}:{}]'.format(getattr(fact, 'timestamp_type'), getattr(fact, 'from_timestamp'), getattr(fact, 'to_timestamp'))
+        return '[TIME:{}:{}:{}]'.format(getattr(fact, 'timestamp_type'), getattr(fact, 'timestamp_from'), getattr(fact, 'timestamp_to'))
 
     def __str__(self):
         return 'fact.time'
