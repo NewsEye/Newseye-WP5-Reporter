@@ -1,6 +1,6 @@
 from unittest import main, TestCase
 from reporter.core.models import Message, Fact, DocumentPlanNode, Document, Relation, TemplateComponent, Slot, \
-    LiteralSource, SlotSource, LiteralSlot, FactFieldSource
+    LiteralSource, SlotSource, LiteralSlot, FactFieldSource, TimeSource
 
 
 class TestFact(TestCase):
@@ -252,6 +252,34 @@ class TestFactFieldSource(TestCase):
 
     def test_fact_field_source_retrieves_from_fact_on_call(self):
         self.assertEqual(self.source(self.fact), 'corpus name')
+
+
+class TestLiteralSource(TestCase):
+
+    def setUp(self):
+        self.fact = Fact('corpus name', 'corpus_type', 'timestamp_from', 'timestamp_to', 'timestamp_type',
+                         'analysis_type', 'result_key', 'result_value', 'outlierness')
+        self.source = LiteralSource('Some literal')
+
+    def test_literal_source_creation(self):
+        self.assertEqual(self.source.value, 'Some literal')
+        self.assertEqual(self.source.field_name, 'literal')
+
+    def test_literal_source_ignores_fact_and_always_returns_literal(self):
+        self.assertEqual(self.source(self.fact), 'Some literal')
+
+
+class TestTimeSource(TestCase):
+
+    def setUp(self):
+        self.fact = Fact('_', '_', 't1', 't2', 'tt', '_', '_', '_', '_')
+        self.source = TimeSource()
+
+    def test_time_source_creation(self):
+        self.assertEqual(self.source.field_name, 'time')
+
+    def test_time_source_retrieves_from_fact(self):
+        self.assertEqual(self.source(self.fact), '[TIME:tt:t1:t2]')
 
 
 if __name__ == '__main__':
