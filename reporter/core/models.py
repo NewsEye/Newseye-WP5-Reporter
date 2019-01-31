@@ -241,12 +241,7 @@ class Template(DocumentPlanNode):
         self.slots.append(slot)
 
     def move_slot(self, from_idx: int, to_idx: int) -> None:
-        if from_idx >= to_idx:
-            # Moving the slot backwards
-            self.components.insert(to_idx, self.components.pop(from_idx))
-        else:
-            # Moving the slot forwards
-            self.components.insert(to_idx - 1, self.components.pop(from_idx))
+        self.components.insert(to_idx, self.components.pop(from_idx))
 
     @property
     def components(self) -> List['TemplateComponent']:
