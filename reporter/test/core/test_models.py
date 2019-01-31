@@ -372,7 +372,9 @@ class TestTemplate(TestCase):
     def setUp(self):
         self.fact1 = Fact('1', '_', '_', '_', '_', '_', '_', '_', '_')
         self.fact2 = Fact('2', '_', '_', '_', '_', '_', '_', '_', '_')
-        self.all_facts = [self.fact1, self.fact2]
+
+        self.message1 = Message(self.fact1)
+        self.message2 = Message(self.fact2)
 
         self.expr = FactField('corpus')
         self.matcher = Matcher(self.expr, '=', '1')
@@ -431,6 +433,50 @@ class TestTemplate(TestCase):
 
         self.template.move_slot(2, 1)
         self.assertListEqual(self.template.components, [self.slot, new_slot, self.literal])
+
+    def test_template_check_success(self):
+        used_facts = self.template.check(self.message1, [self.message1])
+        self.assertEqual(len(used_facts), 1)
+        self.assertIn(self.fact1, used_facts)
+
+    def test_template_check_success_does_not_fill(self):
+        self.template.check(self.message1, [self.message1])
+        self.assertIsNone(self.message1.template)
+        self.assertEqual(len(self.template.facts), 0)
+        self.assertIsNone(self.slot.fact)
+
+    def test_template_check_failure(self):
+        used_facts = self.template.check(self.message2, [self.message2])
+        self.assertEqual(len(used_facts), 0)
+        self.assertNotIn(self.fact2, used_facts)
+
+    def test_template_check_failure_does_not_fill(self):
+        self.template.check(self.message2, [self.message2])
+        self.assertEqual(len(self.template.facts), 0)
+        self.assertIsNone(self.slot.fact)
+
+    def test_template_fill_success(self):
+        used_facts = self.template.fill(self.message1, [self.message1])
+        self.assertEqual(len(used_facts), 1)
+        self.assertIn(self.fact1, used_facts)
+
+    def test_template_fill_success_fills(self):
+        self.template.fill(self.message1, [self.message1])
+        self.assertEqual(len(self.template.facts), 1)
+        self.assertIn(self.fact1, self.template.facts)
+        self.assertEqual(self.slot.fact, self.fact1)
+
+    def test_template_fill_failure(self):
+        used_facts = self.template.fill(self.message2, [self.message2])
+        self.assertEqual(len(used_facts), 0)
+        self.assertNotIn(self.fact2, used_facts)
+
+    def test_template_fill_failure_does_not_fill(self):
+        self.template.fill(self.message2, [self.message2])
+        self.assertEqual(len(self.template.facts), 0)
+        self.assertIsNone(self.slot.fact)
+
+    # TODO: Add tests for more complex templates, i.e. \w multiple Matchers and multiple Messages
 
 if __name__ == '__main__':
     main()
