@@ -552,7 +552,8 @@ class ReferentialExpr(object):
 
 class Matcher(object):
 
-    def _equal_op(a: Union[object], b: Any) -> bool:
+    @staticmethod
+    def _equal_op(a: Any, b: Any) -> bool:
         if type(b) is str:
             return re.match('^' + b + '$', str(a)) is not None
         else:
