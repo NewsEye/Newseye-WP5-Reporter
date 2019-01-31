@@ -334,7 +334,6 @@ class TestMatcher(TestCase):
         self.fact2 = Fact('2', '_', '_', '_', '_', '_', '_', '_', '_')
         self.all_facts = [self.fact1, self.fact2]
         self.expr = FactField('corpus')
-        pass
 
     def test_matcher_standard_ops_map_correctly(self):
         import operator
