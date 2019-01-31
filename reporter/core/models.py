@@ -203,7 +203,7 @@ class Template(DocumentPlanNode):
 
     def __init__(self,
                  components: List['TemplateComponent'],
-                 rules: Optional[List[Tuple['Matcher', int]]] = None,
+                 rules: Optional[List[Tuple[List['Matcher'], List[int]]]] = None,
                  slot_map: Optional[Dict[str, 'Slot']] = None) -> None:
 
         super().__init__()

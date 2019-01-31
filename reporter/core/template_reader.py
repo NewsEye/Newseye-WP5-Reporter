@@ -202,7 +202,7 @@ def read_template_group(template_spec: List[str], current_language: Optional[str
 
     # FACT CONSTRAINTS
     # Read in the fact constraints first to get a list of rules that will be associated with the template
-    rules = [] # type: List[Matcher]
+    rules = []  # type: List[List[Matcher]]
     seen_what_types = []
     for constraint_line in constraint_lines:
         # Every part of this line represents a constraint on the facts that may match
@@ -244,10 +244,10 @@ def read_template_group(template_spec: List[str], current_language: Optional[str
 
         # Allow alternative versions of a template to be specified using the [] notation for optional parts
         for expanded_template_line in expand_alternatives(template_line):
-            components = [] # type: List['TemplateComponent']
+            components = []  # type: List['TemplateComponent']
 
             # Generate list for mapping rules into template Slots
-            rule_to_slot = [] # type: List[List[Slot]]
+            rule_to_slot = []  # type: List[List[int]]
             for idx in range(len(rules)):
                 rule_to_slot.append([])
 
