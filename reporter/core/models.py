@@ -280,10 +280,11 @@ class Template(DocumentPlanNode):
         if not all(matcher(primary_fact, used_facts) for matcher in self._rules[0][0]):
             return []
 
-
         if fill_slots:
             for slot_index in self._rules[0][1]:
-                self._components[slot_index].fact = primary_fact
+                component = self._components[slot_index]
+                if isinstance(component, Slot):
+                    component.fact = primary_fact
 
         used_facts.append(primary_fact)
 
@@ -296,7 +297,9 @@ class Template(DocumentPlanNode):
                         # Found a suitable message: fill the slots
                         if fill_slots:
                             for slot_index in slot_indices:
-                                self._components[slot_index].fact = mess.main_fact
+                                component = self._components[slot_index]
+                                if isinstance(component, Slot):
+                                    component.fact = mess.main_fact
                         if mess.main_fact not in used_facts:
                             used_facts.append(mess.main_fact)
                         # Move onto the next rule
