@@ -230,7 +230,7 @@ class Template(DocumentPlanNode):
             slot_of_correct_type = next((slot for slot in self.slots if slot.slot_type == slot_type), default=None)
             self._slot_map[slot_type] = slot_of_correct_type
         if self._slot_map[slot_type] is None:
-            raise KeyError('No slot of type "{}" in Template {}').format(slot_type, self)
+            raise KeyError('No slot of type "{}" in Template {}'.format(slot_type, self))
         return self._slot_map[slot_type]
 
     def add_slot(self, idx: int, slot: 'Slot') -> None:
