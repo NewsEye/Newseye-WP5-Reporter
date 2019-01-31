@@ -1,6 +1,7 @@
 from unittest import main, TestCase
 from reporter.core.models import Message, Fact, DocumentPlanNode, Document, Relation, TemplateComponent, Slot, \
-    LiteralSource, SlotSource, LiteralSlot, FactFieldSource, TimeSource, LhsExpr, FactField, ReferentialExpr, Matcher
+    LiteralSource, SlotSource, LiteralSlot, FactFieldSource, TimeSource, LhsExpr, FactField, ReferentialExpr, Matcher, \
+    Template
 
 
 class TestFact(TestCase):
@@ -365,6 +366,71 @@ class TestMatcher(TestCase):
         self.assertTrue(matcher(self.fact2, self.all_facts))
         self.assertFalse(matcher(self.fact1, self.all_facts))
 
+
+class TestTemplate(TestCase):
+
+    def setUp(self):
+        self.fact1 = Fact('1', '_', '_', '_', '_', '_', '_', '_', '_')
+        self.fact2 = Fact('2', '_', '_', '_', '_', '_', '_', '_', '_')
+        self.all_facts = [self.fact1, self.fact2]
+
+        self.expr = FactField('corpus')
+        self.matcher = Matcher(self.expr, '=', '1')
+        self.rules = [([self.matcher], [0])]
+
+        self.slot = Slot(SlotSource('corpus'))
+        self.literal = LiteralSlot('literal')
+        self.components = [self.slot, self.literal]
+
+        self.template = Template(self.components, self.rules)
+
+    def test_template_constructs(self):
+        self.assertListEqual(self.template.components, self.components)
+        self.assertIsInstance(self.template.facts, list)
+        self.assertEqual(len(self.template.facts), 0)
+
+    def test_template_sets_parent_to_components(self):
+        self.assertEqual(self.slot.parent, self.template)
+        self.assertEqual(self.literal.parent, self.template)
+
+    def test_template_get_slot(self):
+        self.assertEqual(self.template.get_slot('corpus'), self.slot)
+        self.assertEqual(self.template.get_slot('literal'), self.literal)
+
+        with self.assertRaises(KeyError):
+            self.template.get_slot('no such')
+
+    def test_template_add_slot(self):
+        new_slot = Slot(SlotSource('timestamp_from'))
+        self.template.add_slot(2, new_slot)
+        self.assertIn(new_slot, self.template.components)
+        self.assertEqual(self.template.get_slot('timestamp_from'), new_slot)
+
+    def test_template_added_slot(self):
+        new_slot = Slot(SlotSource('timestamp_from'))
+        self.template.add_slot(1, new_slot)
+        self.assertListEqual(self.template.components, [self.slot, new_slot, self.literal])
+
+
+    def test_template_added_slot_is_last_component(self):
+        new_slot = Slot(SlotSource('timestamp_from'))
+        self.template.add_slot(2, new_slot)
+        self.assertListEqual(self.template.components, [self.slot, self.literal, new_slot])
+
+    def test_template_move_slot_forwards(self):
+        # TODO: This fails, when it shouldn't
+        new_slot = Slot(SlotSource('timestamp_from'))
+        self.template.add_slot(2, new_slot)
+
+        self.template.move_slot(0, 1)
+        self.assertListEqual(self.template.components, [self.literal, self.slot, new_slot])
+
+    def test_template_move_slot_backwards(self):
+        new_slot = Slot(SlotSource('timestamp_from'))
+        self.template.add_slot(2, new_slot)
+
+        self.template.move_slot(2, 1)
+        self.assertListEqual(self.template.components, [self.slot, new_slot, self.literal])
 
 if __name__ == '__main__':
     main()
