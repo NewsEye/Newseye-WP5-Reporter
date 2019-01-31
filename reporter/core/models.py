@@ -215,7 +215,6 @@ class Template(DocumentPlanNode):
         self._components = components
         for c in self._components:
             c.parent = self
-        self._expresses_location = None
         self._slots = None
 
     def get_slot(self, slot_type: str) -> 'Slot':
