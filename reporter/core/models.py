@@ -226,7 +226,7 @@ class Template(DocumentPlanNode):
         :return:
         """
         if slot_type not in self._slot_map.keys():
-            slot_of_correct_type = next((slot for slot in self.slots if slot.slot_type == slot_type), default=None)
+            slot_of_correct_type = next((slot for slot in self.slots if slot.slot_type == slot_type), None)
             self._slot_map[slot_type] = slot_of_correct_type
         if self._slot_map[slot_type] is None:
             raise KeyError('No slot of type "{}" in Template {}'.format(slot_type, self))
