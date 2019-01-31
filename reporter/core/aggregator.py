@@ -24,7 +24,7 @@ class Aggregator(NLGPipelineComponent):
 
         return (document_plan, )
 
-    def _aggregate(self, registry: Registry, language: str, document_plan_node: DocumentPlanNode):  # Todo: Return type hint
+    def _aggregate(self, registry: Registry, language: str, document_plan_node: DocumentPlanNode) -> DocumentPlanNode:
         log.debug("Visiting {}".format(document_plan_node))
 
         # Cannot aggregate a single Message
