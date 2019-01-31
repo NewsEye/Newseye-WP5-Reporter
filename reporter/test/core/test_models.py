@@ -1,6 +1,6 @@
 from unittest import main, TestCase
 from reporter.core.models import Message, Fact, DocumentPlanNode, Document, Relation, TemplateComponent, Slot, \
-    LiteralSource, SlotSource, LiteralSlot, FactFieldSource, TimeSource
+    LiteralSource, SlotSource, LiteralSlot, FactFieldSource, TimeSource, LhsExpr, FactField, ReferentialExpr, Matcher
 
 
 class TestFact(TestCase):
@@ -280,6 +280,91 @@ class TestTimeSource(TestCase):
 
     def test_time_source_retrieves_from_fact(self):
         self.assertEqual(self.source(self.fact), '[TIME:tt:t1:t2]')
+
+
+class TestLhsExpr(TestCase):
+
+    def setUp(self):
+        self.fact = self.fact = Fact('_', '_', '_', '_', '_', '_', '_', '_', '_')
+        self.expr = LhsExpr()
+
+    def test_lhs_expr_is_abstract(self):
+        with self.assertRaises(NotImplementedError):
+            self.expr(self.fact, [self.fact])
+
+        with self.assertRaises(NotImplementedError):
+            str(self.expr)
+
+
+class TestFactField(TestCase):
+
+    def setUp(self):
+        self.fact1 = Fact('1', '_', '_', '_', '_', '_', '_', '_', '_')
+        self.fact2 = Fact('2', '_', '_', '_', '_', '_', '_', '_', '_')
+        self.all_facts = [self.fact1, self.fact2]
+        self.field = FactField('corpus')
+
+    def test_fact_field_creation(self):
+        self.assertEqual(self.field.field_name, 'corpus')
+
+    def test_fact_field_fetches_from_fact(self):
+        self.assertEqual(self.field(self.fact1, self.all_facts), '1')
+
+
+class TestReferentialExpr(TestCase):
+
+    def setUp(self):
+        self.fact1 = Fact('1', '_', '_', '_', '_', '_', '_', '_', '_')
+        self.fact2 = Fact('2', '_', '_', '_', '_', '_', '_', '_', '_')
+        self.all_facts = [self.fact1, self.fact2]
+        self.expr = ReferentialExpr(1, 'corpus')
+
+    def test_referential_expr_creation(self):
+        self.assertEqual(self.expr.field_name, 'corpus')
+        self.assertEqual(self.expr.reference_idx, 1)
+
+    def test_referential_expr_fetches_from_correct_fact(self):
+        self.assertEqual(self.expr(self.fact1, self.all_facts), '2')
+
+
+class TestMatcher(TestCase):
+
+    def setUp(self):
+        self.fact1 = Fact('1', '_', '_', '_', '_', '_', '_', '_', '_')
+        self.fact2 = Fact('2', '_', '_', '_', '_', '_', '_', '_', '_')
+        self.all_facts = [self.fact1, self.fact2]
+        self.expr = FactField('corpus')
+        pass
+
+    def test_matcher_standard_ops_map_correctly(self):
+        import operator
+        self.assertEqual(Matcher.OPERATORS['!='], operator.ne)
+        self.assertEqual(Matcher.OPERATORS['>'], operator.gt)
+        self.assertEqual(Matcher.OPERATORS['<'], operator.lt)
+        self.assertEqual(Matcher.OPERATORS['>='], operator.ge)
+        self.assertEqual(Matcher.OPERATORS['<='], operator.le)
+
+    def test_matcher_equals_op(self):
+        equals = Matcher.OPERATORS['=']
+        self.assertTrue(equals(1, 1))
+        self.assertTrue(equals(1, "1"))
+        self.assertTrue(equals("1", "1"))
+        self.assertTrue(equals(None, None))
+
+        self.assertFalse(equals(1, "2"))
+        self.assertFalse(equals(1, 2))
+        self.assertFalse(equals(1, None))
+        self.assertFalse(equals("1", "2"))
+
+    def test_correctly_applies_check_to_fact_non_callable(self):
+        matcher = Matcher(self.expr, '=', '1')
+        self.assertTrue(matcher(self.fact1, self.all_facts))
+        self.assertFalse(matcher(self.fact2, self.all_facts))
+
+    def test_correctly_applies_check_to_fact_callable(self):
+        matcher = Matcher(self.expr, '=', lambda x, y: '2')
+        self.assertTrue(matcher(self.fact2, self.all_facts))
+        self.assertFalse(matcher(self.fact1, self.all_facts))
 
 
 if __name__ == '__main__':
