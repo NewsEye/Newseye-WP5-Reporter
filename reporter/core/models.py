@@ -538,6 +538,7 @@ class FactField(LhsExpr):
 
 
 class ReferentialExpr(object):
+    # TODO: Is this also supposed to be an LhsExrp?
     def __init__(self, reference_idx: int, field_name: str) -> None:
         self.field_name = field_name
         self.reference_idx = reference_idx
