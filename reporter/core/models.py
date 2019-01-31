@@ -24,6 +24,7 @@ class Document(object):
             for child in root.children:
                 yield from self._recursively_find_messages(child)
 
+
 class Relation(Enum):
     """
     Defines possible relations between the children of a DocumentPlan node.
@@ -141,12 +142,12 @@ class Message(DocumentPlanNode):
 
         self._facts = [facts] if isinstance(facts, Fact) else facts
         self._main_fact = self._facts[0]
-        self._template = None # type: Optional[Template]
+        self._template = None  # type: Optional[Template]
 
         self.importance_coefficient = importance_coefficient
         self.score = score
         self.polarity = polarity
-        self.prevent_aggregation = False # type: bool
+        self.prevent_aggregation = False  # type: bool
 
     @property
     def facts(self) -> List['Fact']:
@@ -183,15 +184,15 @@ class Message(DocumentPlanNode):
 # TODO: This has become project-specific and needs to be defined outside of Core. If it's needed within Core, some type
 # of an injection thingymabob is needed.
 Fact = namedtuple('fact', [
-    'corpus', # The test corpus
-    'corpus_type', # query
-    'timestamp_from', # None
-    'timestamp_to', # None
-    'timestamp_type', # all_time
-    'analysis_type', #count
-    'result_key', # language_ssim:english
-    'result_value', # 13
-    'outlierness', # 1
+    'corpus',  # The test corpus
+    'corpus_type',  # query
+    'timestamp_from',  # None
+    'timestamp_to',  # None
+    'timestamp_type',  # all_time
+    'analysis_type',  # count
+    'result_key',  # language_ssim:english
+    'result_value',  # 13
+    'outlierness',  # 1
 ])
 
 
@@ -226,7 +227,7 @@ class Template(DocumentPlanNode):
         :return:
         """
         if slot_type not in self._slot_map.keys():
-            slot_of_correct_type = next((slot for slot in self.slots if slot.slot_type == slot_type), default = None)
+            slot_of_correct_type = next((slot for slot in self.slots if slot.slot_type == slot_type), default=None)
             self._slot_map[slot_type] = slot_of_correct_type
         if self._slot_map[slot_type] is None:
             raise KeyError('No slot of type "{}" in Template {}').format(slot_type, self)
@@ -387,7 +388,8 @@ class Slot(TemplateComponent):
     """
 
     # Todo: Are the values in "attributes" of a known type?
-    def __init__(self, to_value: 'SlotSource', attributes: Optional[Dict[str, Any]] = None, fact: Optional[Fact] = None) -> None:
+    def __init__(self, to_value: 'SlotSource', attributes: Optional[Dict[str, Any]] = None,
+                 fact: Optional[Fact] = None) -> None:
         """
         :param to_value: A callable that defines how to transform the message
             that fills this slot into a textual representation.
@@ -471,6 +473,7 @@ class FactFieldSource(SlotSource):
 
 class LiteralSource(SlotSource):
     """Ignore the message and return a literal value"""
+
     def __init__(self, value: str) -> None:
         super().__init__('literal')
         self.value = value
@@ -486,11 +489,13 @@ class TimeSource(SlotSource):
     """
     Special type of SlotSource for time entries.
     """
+
     def __init__(self) -> None:
         super().__init__('time')
 
     def __call__(self, fact: Fact) -> str:
-        return '[TIME:{}:{}:{}]'.format(getattr(fact, 'timestamp_type'), getattr(fact, 'timestamp_from'), getattr(fact, 'timestamp_to'))
+        return '[TIME:{}:{}:{}]'.format(getattr(fact, 'timestamp_type'), getattr(fact, 'timestamp_from'),
+                                        getattr(fact, 'timestamp_to'))
 
     def __str__(self):
         return 'fact.time'
@@ -561,7 +566,8 @@ class Matcher(object):
 
     def __init__(self, lhs: LhsExpr, op: str, value: Any) -> None:
         if op not in Matcher.OPERATORS:
-            raise ValueError("invalid matcher operator '{}'. Must be one of: {}".format(op, ", ".join(Matcher.OPERATORS)))
+            raise ValueError(
+                "invalid matcher operator '{}'. Must be one of: {}".format(op, ", ".join(Matcher.OPERATORS)))
         self.value = value
         self.op = op
         self.lhs = lhs
@@ -577,7 +583,8 @@ class Matcher(object):
         return Matcher.OPERATORS[self.op](result, value)
 
     def __str__(self):
-        return "lambda msg, all: {} ({})     {}      {} ({})".format(self.lhs, type(self.lhs), self.op, self.value, type(self.value))
+        return "lambda msg, all: {} ({})     {}      {} ({})".format(self.lhs, type(self.lhs), self.op, self.value,
+                                                                     type(self.value))
 
     def __repr__(self):
         return str(self)
