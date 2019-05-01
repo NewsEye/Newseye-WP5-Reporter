@@ -52,7 +52,7 @@ class SlotRealizer(NLGPipelineComponent):
                 if success:
                     return slots_added
         else:  # No break
-            log.warning("Unable to realize slot {} in language {} with any realizer", slot, language)
+            log.warning("Unable to realize slot {} in language {} with any realizer".format(slot, language))
 
 
 class SlotRealizerComponent(ABC):
