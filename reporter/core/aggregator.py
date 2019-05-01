@@ -75,8 +75,10 @@ class Aggregator(NLGPipelineComponent):
         raise NotImplementedError
 
     def _same_prefix(self, first: Message, second: Message) -> bool:
-        # TODO: Re-implement this
-         return False
+        try:
+            return first.template.components[0].value == second.template.components[0].value
+        except AttributeError:
+            return False
 
     def _combine(self, registry: Registry, language: str, first: Message, second: Message) -> Message:
         log.debug("Combining {} and {}".format([c.value for c in first.template.components], [c.value for c in second.template.components]))
