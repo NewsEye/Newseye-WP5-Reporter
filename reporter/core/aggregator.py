@@ -49,6 +49,8 @@ class Aggregator(NLGPipelineComponent):
                 previous_child = None
             current_child = self._aggregate(registry, language, document_plan_node.children[idx])
 
+            #assert isinstance(current_child, Message)  # TODO: Logically, this should hold. But it doesn't and in fact the whole thing works anyways ¯\_(ツ)_/¯
+
             log.debug("previous_child={}, current_child={}".format(previous_child, current_child))
 
             if self._same_prefix(previous_child, current_child) and not (previous_child.prevent_aggregation or current_child.prevent_aggregation):
