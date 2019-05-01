@@ -177,6 +177,13 @@ class Message(DocumentPlanNode):
     def template(self, template: 'Template') -> None:
         self._template = template
 
+    @property
+    def children(self) -> List['TemplateComponent']:
+        if self.template:
+            return self.template.components
+        else:
+            return []
+
     def __repr__(self) -> str:
         if self.template:
             return "<Message: " + self.template.__repr__() + ">"
