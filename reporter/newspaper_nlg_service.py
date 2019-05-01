@@ -122,7 +122,7 @@ class NewspaperNlgService(object):
             body = ERRORS.get(language, {}).get("general-error", "Something went wrong.")
 
         # TODO: Re-enable headline generation
-        """
+
         log.info("Running headline NLG pipeline")
         try:
             headline_lang = "{}-head".format(language)
@@ -130,14 +130,12 @@ class NewspaperNlgService(object):
                 (),
                 headline_lang,
                 prng_seed=self.registry.get('seed'),
-            )[0]
+            )
             log.info("Headline pipeline complete")
         except Exception as ex:
             headline = ERRORS.get(language, {}).get("no-messages-for-selection", "Something went wrong.")
             log.error("%s", ex)
-        """
-
-        return "HEADLINE PLACEHOLDER", body
+        return headline, body
 
     def _set_seed(self, seed_val: Optional[int] = None) -> None:
         log.info("Selecting seed for NLG pipeline")
