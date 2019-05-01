@@ -88,16 +88,16 @@ class Aggregator(NLGPipelineComponent):
             if idx >= len(combined):
                 break
             this_component = combined[idx]
+
             if not self._are_same(this_component, other_component):
                 break
+
         log.debug("idx = {}".format(idx))
         # ToDo! At the moment everything is considered either positive or negative, which is sometimes weird. Add neutral sentences.
         if first.polarity != first.polarity:
-            combined.append(
-                Literal(registry.get('vocabulary').get(language, {}).get('inverse_combiner', "MISSING-COMBINER")))
+            combined.append(Literal("but"))
         else:
-            combined.append(
-                Literal(registry.get('vocabulary').get(language, {}).get('default_combiner', "MISSING-COMBINER")))
+            combined.append(Literal("and"))
         combined.extend(second.template.components[idx:])
         log.debug("Combined thing is {}".format([c.value for c in combined]))
         new_message = Message(facts=first.facts + [fact for fact in second.facts if fact not in first.facts],
