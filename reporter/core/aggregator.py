@@ -1,7 +1,6 @@
 import logging
-import re
 from random import Random
-from typing import List, cast, Tuple
+from typing import List, Tuple
 
 from .pipeline import NLGPipelineComponent
 from .registry import Registry
