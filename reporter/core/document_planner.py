@@ -18,6 +18,9 @@ SENTENCES_PER_PARAGRAPH = 7
 # How many messages are we allowed to take from the expanded set
 MAX_EXPANDED_NUCLEI = 2
 
+END_PARAGRAPH_RELATIVE_TRESHOLD = 0.1
+END_PARAGRAPH_ABSOLUTE_THRESHOLD = 1.0
+
 END_STORY_RELATIVE_TRESHOLD = 0.2
 END_STORY_ABSOLUTE_TRESHOLD = 1.0
 
@@ -125,12 +128,16 @@ class BodyDocumentPlanner(NLGPipelineComponent):
             par_length = 1
             satellite_candidates = self._encourage_similarity(scored_messages, message)
             for satellite in satellite_candidates:
-                if satellite.score == 0:
+                if satellite.score == 0 \
+                        or satellite.score < END_PARAGRAPH_ABSOLUTE_THRESHOLD \
+                        or satellite.score < message.score * END_PARAGRAPH_RELATIVE_TRESHOLD:
                     log.info("No more interesting things to include in paragraph, ending it")
                     break
 
                 # TODO: Drop messages that have been EFFECTIVELY TOLD by another semantically-equivalent message
 
+
+                # TODO: use END_STORY_RELATIVE_TRESHOLD to block this thing
                 # Only use the fact if we have a template to express it
                 # Otherwise skip to the next most relevant
                 if template_checker.exists_template_for_message(satellite):
