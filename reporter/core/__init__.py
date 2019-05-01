@@ -5,7 +5,7 @@ from .document_planner import BodyDocumentPlanner, HeadlineDocumentPlanner
 from .entity_name_resolver import EntityNameResolver
 from .message_generator import MessageGenerator, NoMessagesForSelectionException
 from .pipeline import NLGPipeline, NLGPipelineComponent
-from .realize_slots import SlotRealizer
+from .realize_slots import RegexRealizer, SlotRealizer, SlotRealizerComponent
 from .registry import ComponentNameCollisionError, UnknownComponentException, Registry
 from .surface_realizer import BodyHTMLSurfaceRealizer, HeadlineHTMLSurfaceRealizer, SurfaceRealizer
 from .template_selector import TemplateMessageChecker, TemplateSelector
