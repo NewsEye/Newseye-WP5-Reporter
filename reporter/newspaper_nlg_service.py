@@ -6,9 +6,12 @@ from random import randint
 from typing import Callable, Dict, Iterable, List, Optional, TypeVar, Tuple
 
 from reporter.core import Aggregator, BodyDocumentPlanner, BodyHTMLSurfaceRealizer, HeadlineDocumentPlanner, \
-    HeadlineHTMLSurfaceRealizer, NLGPipeline, NLGPipelineComponent, read_templates_file, Registry, Template, \
-    TemplateSelector
+    HeadlineHTMLSurfaceRealizer, NLGPipeline, NLGPipelineComponent, read_templates_file, Registry, SlotRealizer, \
+    Template, TemplateSelector
+from reporter.core.surface_realizer import BodyHTMLListSurfaceRealizer
 
+from reporter.newspaper_slot_realizers import EnglishFormatRealizer, EnglishLanguageRealizer, EnglishCategoryRealizer, \
+    EnglishGeoRealizer, EnglishTopicRealizer, EnglishPubdateRealizer, EnglishSubjectRealizer, EnglishSubjectEraRealizer
 from reporter.newspaper_named_entity_resolver import NewspaperEntityNameResolver
 from reporter.newspaper_importance_allocator import NewspaperImportanceSelector
 from reporter.newspaper_message_generator import NewspaperMessageGenerator, NoMessagesForSelectionException
@@ -40,6 +43,21 @@ class NewspaperNlgService(object):
             )
         )
 
+        # SurfazeRealizers
+        self.registry.register(
+            'slot-realizers',
+            [
+                EnglishFormatRealizer(),
+                EnglishLanguageRealizer(),
+                EnglishCategoryRealizer(),
+                EnglishGeoRealizer(),
+                EnglishTopicRealizer(),
+                EnglishPubdateRealizer(),
+                EnglishSubjectRealizer(),
+                EnglishSubjectEraRealizer(),
+            ]
+        )
+
         # PRNG seed
         self._set_seed(seed_val=random_seed)
 
@@ -51,7 +69,7 @@ class NewspaperNlgService(object):
             yield HeadlineDocumentPlanner() if headline else BodyDocumentPlanner()
             yield TemplateSelector()
             yield Aggregator()
-            #yield SlotRealizer()
+            yield SlotRealizer()
             #yield NewspaperEntityNameResolver()
             yield HeadlineHTMLSurfaceRealizer() if headline else BodyHTMLSurfaceRealizer()
 
