@@ -4,7 +4,7 @@ from typing import List, Tuple
 
 from .pipeline import NLGPipelineComponent
 from .registry import Registry
-from .models import DocumentPlanNode, Message, Literal, Relation, Template, TemplateComponent
+from .models import DocumentPlanNode, Message, Literal, Relation, Template, TemplateComponent, Slot
 
 log = logging.getLogger('root')
 
@@ -111,11 +111,11 @@ class Aggregator(NLGPipelineComponent):
             # Are completely different, are not same
             return False
 
-        try:
-            if getattr(c1.fact, c1.slot_type + "_type") != getattr(c2.fact, c2.slot_type + "_type"):
+        if isinstance(c1, Slot) and isinstance(c2, Slot):
+            assert c1.fact is not None
+            assert c2.fact is not None
+            if getattr(c1.fact, c1.slot_type) != getattr(c2.fact, c2.slot_type):
                 return False
-        except AttributeError:
-            pass
 
         # They are apparently same, check cases
         c1_case = "no-case"
