@@ -1,3 +1,8 @@
-en: the {analysis_type} of {result_key} was {result_value}
-en-head: HEADLINE GOES HERE
-| analysis_type = count
+en: there were {result_value} entries {result_key}
+| analysis_type = facet_count
+
+en: there were {result_value} entries related to {result_key}
+| analysis_type = topic_count
+
+en-head: Analysis of a corpus defined by the query {corpus}
+| corpus_type = query_result
