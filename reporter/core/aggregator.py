@@ -40,7 +40,7 @@ class Aggregator(NLGPipelineComponent):
         log.debug("Visiting {}".format(document_plan_node))
 
         num_children = len(document_plan_node.children)
-        new_children = []
+        new_children = []  # type: List[Message]
 
         for idx in range(0, num_children):
             if idx > 0:
