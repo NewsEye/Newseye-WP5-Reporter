@@ -177,8 +177,15 @@ class Message(DocumentPlanNode):
     def template(self, template: 'Template') -> None:
         self._template = template
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
+        if self.template:
+            return "<Message: " + self.template.__repr__() + ">"
+        elif self.main_fact:
+            return "<Message: " + self.main_fact.__repr__() + ">"
         return "<Message>"
+
+    def __str__(self) -> str:
+        return self.__repr__()
 
 
 # TODO: This has become project-specific and needs to be defined outside of Core. If it's needed within Core, some type
@@ -336,11 +343,14 @@ class Template(DocumentPlanNode):
         return Template(component_copy, self._rules)
 
     def __str__(self) -> str:
-        return "<Template: n_components={}>".format(len(self.components))
+        return "<Template: {}>".format(self.display_template())
+
+    def __repr__(self) -> str:
+        return str(self)
 
     def display_template(self) -> str:
         """String representation of whole template, mainly for debugging"""
-        return "".join(str(c) for c in self.components)
+        return " ".join(str(c) for c in self.components)
 
 
 class DefaultTemplate(Template):
