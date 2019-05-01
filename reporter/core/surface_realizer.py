@@ -94,3 +94,10 @@ class BodyHTMLListSurfaceRealizer(SurfaceRealizer):
     sentence_end = ".</li>"
     sentence_start = "<li>"
     fail_on_empty = False
+
+class BodyHTMLOrderedListSurfaceRealizer(SurfaceRealizer):
+    paragraph_start = "<ol>"
+    paragraph_end = "</ol>"
+    sentence_end = ".</li>"
+    sentence_start = "<li>"
+    fail_on_empty = False
