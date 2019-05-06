@@ -21,18 +21,10 @@ log.setLevel(logging.DEBUG)
 # log.setLevel(5) # Enable for way too much logging, even more than DEBUG
 log.addHandler(handler)
 
-# CLI parameters
-parser = argparse.ArgumentParser(description='Run the Reporter server.')
-parser.add_argument('port', type=int, default=8080, help='port number to attach to')
-parser.add_argument('--force-cache-refresh', action='store_true', default=False, help="re-compute all local caches")
-server_args = parser.parse_args()
-sys.argv = sys.argv[0:1]
-
 # Bottle
 app = Bottle()
 service = NewspaperNlgService(
-    random_seed=4551546,
-    force_cache_refresh=server_args.force_cache_refresh
+    random_seed=4551546
 )
 TEMPLATE_PATH.insert(0, os.path.dirname(os.path.realpath(__file__)) + "/../views/")
 static_root = os.path.dirname(os.path.realpath(__file__)) + "/../static/"
@@ -106,8 +98,8 @@ def get_languages() -> Dict[str, List[str]]:
 
 
 def main() -> None:
-    log.info("Starting with options port={}".format(server_args.port))
-    run(app, server='meinheld', host='0.0.0.0', port=server_args.port)
+    log.info("Starting server at 8080")
+    run(app, server='meinheld', host='0.0.0.0', port=8080)
     log.info("Stopping")
 
 
