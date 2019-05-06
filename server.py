@@ -42,6 +42,14 @@ static_root = os.path.dirname(os.path.realpath(__file__)) + "/../static/"
 # END INIT
 #
 
+LANGUAGES = [
+    'en'
+]
+
+FORMATS = [
+    'p', 'ol', 'ul'
+]
+
 
 def allow_cors(func: Callable) -> Callable:
     """ this is a decorator which enable CORS for specified endpoint """
@@ -53,9 +61,8 @@ def allow_cors(func: Callable) -> Callable:
     return wrapper
 
 
-def generate(language: str) -> Tuple[str, str]:
-    return service.run_pipeline(language)
-
+def generate(language: str, format:str = None, data:str = None) -> Tuple[str, str]:
+    return service.run_pipeline(language, format, data)
 
 @app.route('/api/report')
 @allow_cors
@@ -69,11 +76,33 @@ def api_generate() -> Dict[str, str]:
         "body": body,
     })
 
+@app.route('/api/report', method='POST')
+@allow_cors
+def api_generate() -> Dict[str, str]:
+    language = request.forms.get('language')
+    format = request.forms.get('format')
+    data = request.forms.get('data')
+
+    if language not in LANGUAGES or format not in FORMATS:
+        response.status = 400
+        return
+
+    header, body = generate(language, format, data)
+    return dict({
+        "language": language,
+        "header": header,
+        "body": body,
+    })
 
 @app.route('/api/languages')
 @allow_cors
 def get_languages() -> Dict[str, List[str]]:
-    return {"languages": ["en"]}
+    return {"languages": LANGUAGES}
+
+@app.route('/api/formats')
+@allow_cors
+def get_languages() -> Dict[str, List[str]]:
+    return {"formats": FORMATS}
 
 
 def main() -> None:

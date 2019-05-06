@@ -18,24 +18,24 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
             'topic_analysis': self._ignore
         }
 
-    def run(self, registry: Registry, random: Random, language: str) -> Tuple[List[Message]]:
+    def run(self, registry: Registry, random: Random, language: str, data:str) -> Tuple[List[Message]]:
         """
         Run this pipeline component.
         """
-        data_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data', 'sample_analysis_result.json'))
-        with open(data_file_path, 'r') as file_handle:
-            results = json.load(file_handle)['root']['children']
+        if not data: raise NoMessagesForSelectionException('No data at all!')
 
-            analyses = []
+        results = json.loads(data)['root']['children']
 
-            for child in results:
-                query = Query(child['query'], child['query_id'])
-                for analysis in child['analysis']:
-                    analyses.append(Analysis(
-                        query,
-                        analysis['analysis_type'],
-                        analysis['analysis_result']
-                    ))
+        analyses = []
+
+        for child in results:
+            query = Query(child['query'], child['query_id'])
+            for analysis in child['analysis']:
+                analyses.append(Analysis(
+                    query,
+                    analysis['analysis_type'],
+                    analysis['analysis_result']
+                ))
 
         messages = []
         for analysis in analyses:

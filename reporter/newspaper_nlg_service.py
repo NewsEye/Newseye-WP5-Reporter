@@ -8,7 +8,7 @@ from typing import Callable, Dict, Iterable, List, Optional, TypeVar, Tuple
 from reporter.core import Aggregator, BodyDocumentPlanner, BodyHTMLSurfaceRealizer, HeadlineDocumentPlanner, \
     HeadlineHTMLSurfaceRealizer, NLGPipeline, NLGPipelineComponent, read_templates_file, Registry, SlotRealizer, \
     Template, TemplateSelector
-from reporter.core.surface_realizer import BodyHTMLListSurfaceRealizer
+from reporter.core.surface_realizer import BodyHTMLListSurfaceRealizer, BodyHTMLSurfaceRealizer, BodyHTMLOrderedListSurfaceRealizer
 
 from reporter.newspaper_slot_realizers import EnglishFormatRealizer, EnglishLanguageRealizer, EnglishCategoryRealizer, \
     EnglishGeoRealizer, EnglishTopicRealizer, EnglishPubdateRealizer, EnglishSubjectRealizer, EnglishSubjectEraRealizer
@@ -61,22 +61,6 @@ class NewspaperNlgService(object):
         # PRNG seed
         self._set_seed(seed_val=random_seed)
 
-        def _get_components(headline=False) -> Iterable[NLGPipelineComponent]:
-            # Put together the list of components
-            # This varies depending on whether it's for headlines and whether we're using Omorphi
-            yield NewspaperMessageGenerator()  # Don't expand facts for headlines!
-            yield NewspaperImportanceSelector()
-            yield HeadlineDocumentPlanner() if headline else BodyDocumentPlanner()
-            yield TemplateSelector()
-            yield Aggregator()
-            yield SlotRealizer()
-            #yield NewspaperEntityNameResolver()
-            yield HeadlineHTMLSurfaceRealizer() if headline else BodyHTMLSurfaceRealizer()
-
-        log.info("Configuring Body NLG Pipeline")
-        self.body_pipeline = NLGPipeline(self.registry, *_get_components())
-        self.headline_pipeline = NLGPipeline(self.registry, *_get_components(headline=True))
-
     T = TypeVar('T')
 
     def _get_cached_or_compute(self, cache: str, compute: Callable[..., T], force_cache_refresh: bool = False,
@@ -105,11 +89,34 @@ class NewspaperNlgService(object):
         return read_templates_file(
             os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "templates", "main.txt")))
 
-    def run_pipeline(self, language: str) -> Tuple[str, str]:
+    def _get_components(self, realizer: str) -> Iterable[NLGPipelineComponent]:
+        # Put together the list of components
+        # This varies depending on whether it's for headlines and whether we're using Omorphi
+        yield NewspaperMessageGenerator()  # Don't expand facts for headlines!
+        yield NewspaperImportanceSelector()
+        yield HeadlineDocumentPlanner() if realizer == 'headline' else BodyDocumentPlanner()
+        yield TemplateSelector()
+        yield Aggregator()
+        yield SlotRealizer()
+        # yield NewspaperEntityNameResolver()
+        if realizer == 'headline':
+            yield HeadlineHTMLSurfaceRealizer()
+        elif realizer == 'ol':
+            yield BodyHTMLOrderedListSurfaceRealizer()
+        elif realizer == 'ul':
+            yield BodyHTMLListSurfaceRealizer()
+        else:
+            yield BodyHTMLSurfaceRealizer()
+
+    def run_pipeline(self, language: str, format: str, data: str) -> Tuple[str, str]:
+        log.info("Configuring Body NLG Pipeline")
+        self.body_pipeline = NLGPipeline(self.registry, *self._get_components(format))
+        self.headline_pipeline = NLGPipeline(self.registry, *self._get_components('headline'))
+
         log.info("Running Body NLG pipeline: language={}".format(language))
         try:
             body = self.body_pipeline.run(
-                (),
+                (data,),
                 language,
                 prng_seed=self.registry.get('seed'),
             )
@@ -127,7 +134,7 @@ class NewspaperNlgService(object):
         try:
             headline_lang = "{}-head".format(language)
             headline = self.headline_pipeline.run(
-                (),
+                (data,),
                 headline_lang,
                 prng_seed=self.registry.get('seed'),
             )
@@ -135,6 +142,7 @@ class NewspaperNlgService(object):
         except Exception as ex:
             headline = ERRORS.get(language, {}).get("no-messages-for-selection", "Something went wrong.")
             log.error("%s", ex)
+
         return headline, body
 
     def _set_seed(self, seed_val: Optional[int] = None) -> None:
