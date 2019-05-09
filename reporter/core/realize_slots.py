@@ -24,7 +24,7 @@ class SlotRealizer(NLGPipelineComponent):
         log.info("Realizing slots")
         self._registry = registry
         self._random = random
-        self._recurse(document_plan, language)
+        self._recurse(document_plan, language.split('-')[0])
         return (document_plan, )
 
     def _recurse(self, this: DocumentPlanNode, language: str) -> int:
