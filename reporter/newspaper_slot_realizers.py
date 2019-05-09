@@ -92,3 +92,49 @@ class EnglishSubjectEraRealizer(RegexRealizer):
             1,
             'about the {}'
         )
+
+class EnglishYearRealizer(RegexRealizer):
+
+    def __init__(self, random):
+        super().__init__(
+            random,
+            'en',
+            r'\[year:([^\]]+)\]',
+            1,
+            (
+                'during {}',
+                'during the year {}',
+                'in {}',
+            )
+        )
+
+class EnglishChangeRealizerIncrease(RegexRealizer):
+
+    def __init__(self, random):
+        super().__init__(
+            random,
+            'en',
+            r'\[CHANGE:([^\]:]+):([^\]:]+)\]',
+            (1, 2),
+            (
+                'increased from {} percentage of the corpus to {}',
+                'rose from {} percentage of the corpus to {}',
+            ),
+            lambda before, after: before < after
+        )
+
+
+class EnglishChangeRealizerDecrease(RegexRealizer):
+
+    def __init__(self, random):
+        super().__init__(
+            random,
+            'en',
+            r'\[CHANGE:([^\]:]+):([^\]:]+)\]',
+            (1, 2),
+            (
+                'decreased from {} percentege of the corpus to {} ',
+                'fell from {} precentage of the corpus to {}',
+            ),
+            lambda before, after: before > after
+        )
