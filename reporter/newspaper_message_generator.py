@@ -12,120 +12,129 @@ log = logging.getLogger('root')
 class NewspaperMessageGenerator(NLGPipelineComponent):
 
     def __init__(self) -> None:
-        self.MESSAGE_GENERATORS = {
-            'facet_counts': self._generate_messages_from_facet_counts,
-            'common_topics': self._generate_messages_from_common_topics,
-            'topic_analysis': self._ignore
-        }
+        self.MESSAGE_GENERATORS = [
+            self._common_facet_values_message_generator,
+            self._find_steps_from_time_series_message_generator,
+        ]
 
     def run(self, registry: Registry, random: Random, language: str, data:str) -> Tuple[List[Message]]:
         """
         Run this pipeline component.
         """
         if not data: raise NoMessagesForSelectionException('No data at all!')
+        results = json.loads(data)['root']
+        task_results = [TaskResult.from_dict(a) for a in results]
+        analyses = []  # Type: List[TaskResult]
+        for result in task_results:
+            if result.children:
+                task_results.extend(result.children)
+            if result.task_type == 'analysis':
+                analyses.append(result)
 
-        results = json.loads(data)['root']['children']
-
-        analyses = []
-
-        for child in results:
-            query = Query(child['query'], child['query_id'])
-            for analysis in child['analysis']:
-                analyses.append(Analysis(
-                    query,
-                    analysis['analysis_type'],
-                    analysis['analysis_result']
-                ))
-
-        messages = []
+        messages = []  # Type: List[Message]
         for analysis in analyses:
-            message_generator = self.MESSAGE_GENERATORS.get(analysis.type, None)
-            if message_generator:
-                messages.extend(message_generator(analysis))
+            for message_generator in self.MESSAGE_GENERATORS:
+                new_messages = message_generator(analysis)
+                for msg in new_messages:
+                    log.debug('Generated message {}'.format(msg))
+                if new_messages:
+                    messages.extend(new_messages)
+                else:
+                    log.error("Failed to parse a Message from {}. Utility={}".format(analysis, analysis.task_parameters.get('utility')))
 
         if not messages:
             raise NoMessagesForSelectionException()
 
         return (messages, )
 
+    def _common_facet_values_message_generator(self, analysis: 'TaskResult') -> List[Message]:
+        if analysis.task_parameters.get('utility') != 'common_facet_values':
+            return []
 
-    def _ignore(self, analysis: 'Analysis') -> List[Message]:
-        return []
+        corpus = 'query_result'
+        corpus_type = '[q:{}]'.format(analysis.task_parameters['target_search']['q'])
 
-    def _print(self, analysis: 'Analysis') -> List[Message]:
-        print('Query {} (ID={}): analysis_type={}, analysis_results={}'.format(
-            analysis.query.values, analysis.query.id, analysis.type, analysis.result)
-        )
-        return []
-
-    def _generate_messages_from_common_topics(self, analysis: 'Analysis') -> List[Message]:
         messages = []
-        print(analysis.result)
-        corpus_description = []
-        for key, value in analysis.query.values.items():
-            corpus_description.append("[{}:{}]".format(key, value))
-        corpus_description = " ".join(corpus_description)
-        for (topic, count) in analysis.result:
+        for idx, result in enumerate(analysis.task_result['facet_counts']):
+            count = result['document_count']
+            facet_type = analysis.task_parameters['facet_name']
+            facet_value = result['facet_value']
+            interestingness = analysis.task_result['interestingness'][idx]
             messages.append(
                 Message(
                     # TODO: This needs to be a list for the thing not to crash despite efforts to allow non-lists, see Message
                     [Fact(
-                        corpus_description,  # corpus
-                        'query_result',  # corpus_type'
+                        corpus,  # corpus
+                        corpus_type,  # corpus_type'
                         None,  # timestamp_from
                         None,  # timestamp_to
                         'all_time',  # timestamp_type
-                        'topic_count',  # analysis_type
-                        "[TOPIC:{}]".format(topic),  # result_key
+                        'count',  # analysis_type
+                        "[{}:{}]".format(facet_type, facet_value),  # result_key
                         count,  # result_value
-                        Random().randint(5,15),  # outlierness
+                        interestingness,  # outlierness
                     )]
                 )
             )
         return messages
 
-    def _generate_messages_from_facet_counts(self, analysis: 'Analysis') -> List[Message]:
+    def _find_steps_from_time_series_message_generator(self, analysis: 'TaskResult') -> List[Message]:
+        if analysis.task_parameters.get('utility') != 'find_steps_from_time_series':
+            return []
+
+        corpus = 'query_result'
+        corpus_type = '[q:{}]'.format(analysis.task_parameters['target_search']['q'])
+
         messages = []
-        print(analysis.result)
-        corpus_description = []
-        for key, value in analysis.query.values.items():
-            corpus_description.append("[{}:{}]".format(key, value))
-        corpus_description = " ".join(corpus_description)
-        for facet in analysis.result:
-            for entry in analysis.result[facet]:
-                assert len(entry) == 2 # These are really 2-tuples of (str, int), even if they are in the JSON as lists
-                key, count = entry
-                messages.append(
-                    Message(
-                        # TODO: This needs to be a list for the thing not to crash despite efforts to allow non-lists, see Message
-                        [Fact(
-                            corpus_description, #corpus
-                            'query_result', #corpus_type'
-                            None, #timestamp_from
-                            None, #timestamp_to
-                            'all_time', #timestamp_type
-                            'facet_count', #analysis_type
-                            "[{}:{}]".format(facet, key), #result_key
-                            count, #result_value
-                            Random().randint(0,10), #outlierness
-                        )]
-                    )
+        for facet_value, result in analysis.task_result.items():
+            if not result: continue
+            facet_type = analysis.task_parameters['facet_name']
+            year = result[0][0]
+            before = result[0][1][0] * 100
+            after = result[0][1][1] * 100
+            variance = result[0][2]
+            interestingness = abs(before - after) / (variance) + 0.000001
+            messages.append(
+                Message(
+                    # TODO: This needs to be a list for the thing not to crash despite efforts to allow non-lists, see Message
+                    [Fact(
+                        corpus,  # corpus
+                        corpus_type,  # corpus_type'
+                        '[year:{}]'.format(year),  # timestamp_from
+                        '[year:{}]'.format(year),  # timestamp_to
+                        'year',  # timestamp_type
+                        'step_detection',  # analysis_type
+                        "[{}:{}]".format(facet_type, facet_value),  # result_key
+                        '[CHANGE:{}:{}]'.format(before, after),  # result_value
+                        interestingness,  # outlierness
+                    )]
                 )
+            )
         return messages
 
 
-class Query(object):
-    def __init__(self, values: Dict[str, Any], id: str) -> None:
-        self.values = values
-        self.id = id
+class TaskResult(object):
+    def __init__(self,
+                 children: List['TaskResult'],
+                 hist_parent_id: str,
+                 task_parameters: Dict[str, Any],
+                 task_result: Any,
+                 task_type: str,
+                 uuid: str) -> None:
+        self.children = children
+        self.hist_parent_id = hist_parent_id
+        self.task_parameters = task_parameters
+        self.task_result = task_result
+        self.task_type = task_type
+        self.uuid = uuid
 
-
-class Analysis(object):
-    def __init__(self, query: Query, type: str, result: Dict[str, List[List[Union[int,str]]]]) -> None:
-        self.query = query
-        self.type = type
-        self.result = result
-
-
-if __name__ == '__main__':
-    NewspaperMessageGenerator().run(None, None, '')
+    @staticmethod
+    def from_dict(json: Dict[str, Any]) -> 'TaskResult':
+        return TaskResult(
+            [TaskResult.from_dict(child) for child in json['children']] if 'children' in json else [],
+            json['hist_parent_id'],
+            json['task_parameters'],
+            json['task_result'],
+            json['task_type'],
+            json['uuid']
+        )
