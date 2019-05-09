@@ -138,3 +138,13 @@ class EnglishChangeRealizerDecrease(RegexRealizer):
             ),
             lambda before, after: before > after
         )
+
+class EnglishQueryRealizer(RegexRealizer):
+    def __init__(self, random):
+        super().__init__(
+            random,
+            'en',
+            r'\[q:([^\]:]+)\]',
+            1,
+            '"{}"'
+        )

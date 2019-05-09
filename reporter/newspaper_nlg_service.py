@@ -14,7 +14,7 @@ from reporter.core.surface_realizer import BodyHTMLListSurfaceRealizer, BodyHTML
 
 from reporter.newspaper_slot_realizers import EnglishFormatRealizer, EnglishLanguageRealizer, EnglishCategoryRealizer, \
     EnglishGeoRealizer, EnglishTopicRealizer, EnglishPubdateRealizer, EnglishSubjectRealizer, EnglishSubjectEraRealizer, \
-    EnglishChangeRealizerDecrease, EnglishChangeRealizerIncrease, EnglishYearRealizer
+    EnglishChangeRealizerDecrease, EnglishChangeRealizerIncrease, EnglishYearRealizer, EnglishQueryRealizer
 from reporter.newspaper_named_entity_resolver import NewspaperEntityNameResolver
 from reporter.newspaper_importance_allocator import NewspaperImportanceSelector
 from reporter.newspaper_message_generator import NewspaperMessageGenerator, NoMessagesForSelectionException
@@ -66,6 +66,7 @@ class NewspaperNlgService(object):
                 EnglishChangeRealizerDecrease(slot_realizer_random),
                 EnglishChangeRealizerIncrease(slot_realizer_random),
                 EnglishYearRealizer(slot_realizer_random),
+                EnglishQueryRealizer(slot_realizer_random),
             ]
         )
 
