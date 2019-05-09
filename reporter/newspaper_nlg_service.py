@@ -5,6 +5,8 @@ import logging
 from random import randint
 from typing import Callable, Dict, Iterable, List, Optional, TypeVar, Tuple
 
+from numpy.random.mtrand import RandomState
+
 from reporter.core import Aggregator, BodyDocumentPlanner, BodyHTMLSurfaceRealizer, HeadlineDocumentPlanner, \
     HeadlineHTMLSurfaceRealizer, NLGPipeline, NLGPipelineComponent, read_templates_file, Registry, SlotRealizer, \
     Template, TemplateSelector
@@ -43,23 +45,25 @@ class NewspaperNlgService(object):
             )
         )
 
+        # PRNG seed
+        self._set_seed(seed_val=random_seed)
+
         # SurfazeRealizers
+
+        slot_realizer_random = RandomState(self.registry.get('seed'))
         self.registry.register(
             'slot-realizers',
             [
-                EnglishFormatRealizer(),
-                EnglishLanguageRealizer(),
-                EnglishCategoryRealizer(),
-                EnglishGeoRealizer(),
-                EnglishTopicRealizer(),
-                EnglishPubdateRealizer(),
-                EnglishSubjectRealizer(),
-                EnglishSubjectEraRealizer(),
+                EnglishFormatRealizer(slot_realizer_random),
+                EnglishLanguageRealizer(slot_realizer_random),
+                EnglishCategoryRealizer(slot_realizer_random),
+                EnglishGeoRealizer(slot_realizer_random),
+                EnglishTopicRealizer(slot_realizer_random),
+                EnglishPubdateRealizer(slot_realizer_random),
+                EnglishSubjectRealizer(slot_realizer_random),
+                EnglishSubjectEraRealizer(slot_realizer_random),
             ]
         )
-
-        # PRNG seed
-        self._set_seed(seed_val=random_seed)
 
     T = TypeVar('T')
 

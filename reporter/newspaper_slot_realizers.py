@@ -7,58 +7,64 @@ log = logging.getLogger('root')
 
 class EnglishFormatRealizer(RegexRealizer):
 
-    def __init__(self):
+    def __init__(self, random):
         super().__init__(
+            random,
             'en',
             r'\[format:([^\]]+)\]',
             1,
-            'in the format "{}"'
+            'the format "{}"'
         )
 
 class EnglishLanguageRealizer(RegexRealizer):
 
-    def __init__(self):
+    def __init__(self, random):
         super().__init__(
+            random,
             'en',
             r'\[language_ssim:([^\]]+)\]',
             1,
-            'in the {} language'
+            'the {} language'
         )
 
 class EnglishCategoryRealizer(RegexRealizer):
 
-    def __init__(self):
+    def __init__(self, random):
         super().__init__(
+            random,
             'en',
             r'\[lc_1letter_ssim:\w - ([^\]]+)\]',
             1,
-            'from the category "{}"'
+            'the category "{}"'
         )
 
 class EnglishGeoRealizer(RegexRealizer):
 
-    def __init__(self):
+    def __init__(self, random):
         super().__init__(
+            random,
             'en',
             r'\[subject_geo_ssim:([^\]]+)\]',
             1,
-            'about the location "{}"'
+            'the location "{}"'
         )
 
 class EnglishTopicRealizer(RegexRealizer):
 
-    def __init__(self):
+    def __init__(self, random):
         super().__init__(
+            random,
             'en',
             r'\[TOPIC:([^\]]+)\]',
             1,
-            'about the topic "{}"'
+            'the topic "{}"'
         )
 
 class EnglishPubdateRealizer(RegexRealizer):
 
-    def __init__(self):
+    def __init__(self, random):
         super().__init__(
+            random,
             'en',
             r'\[pub_date_ssim:([^\]]+)\]',
             1,
@@ -67,18 +73,20 @@ class EnglishPubdateRealizer(RegexRealizer):
 
 class EnglishSubjectRealizer(RegexRealizer):
 
-    def __init__(self):
+    def __init__(self, random):
         super().__init__(
+            random,
             'en',
             r'\[subject_ssim:([^\]]+)\]',
             1,
-            'about the subject "{}"'
+            'the subject "{}"'
         )
 
 class EnglishSubjectEraRealizer(RegexRealizer):
 
-    def __init__(self):
+    def __init__(self, random):
         super().__init__(
+            random,
             'en',
             r'\[subject_era_ssim:([^\]]+)\]',
             1,
