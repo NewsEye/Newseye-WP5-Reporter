@@ -1,8 +1,11 @@
-en: there were {result_value} entries {result_key}
+en: there were {result_value} entries about {result_key}
 | analysis_type = facet_count
 
 en: there were {result_value} entries related to {result_key}
 | analysis_type = topic_count
+
+en: {timestamp_from}, the number of entries related to {result_key} {result_value}
+| analysis_type = step_detection
 
 en-head: Analysis of a corpus defined by the query {corpus}
 | corpus_type = query_result
