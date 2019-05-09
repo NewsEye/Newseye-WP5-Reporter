@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 import logging
-from random import Random
 import re
-from typing import List, Tuple, Iterable, Union
+from typing import List, Tuple, Iterable, Union, Callable, Optional
+
+from numpy.random.mtrand import RandomState
 
 from .models import DocumentPlanNode, Slot, TemplateComponent
 from .pipeline import NLGPipelineComponent
@@ -16,7 +17,7 @@ class SlotRealizer(NLGPipelineComponent):
     def __init__(self) -> None:
         self._random = None
 
-    def run(self, registry: Registry, random: Random, language: str, document_plan: DocumentPlanNode) -> Tuple[DocumentPlanNode]:
+    def run(self, registry: Registry, random: RandomState, language: str, document_plan: DocumentPlanNode) -> Tuple[DocumentPlanNode]:
         """
         Run this pipeline component.
         """
@@ -68,11 +69,20 @@ class SlotRealizerComponent(ABC):
 
 class RegexRealizer(SlotRealizerComponent):
 
-    def __init__(self, language: str, regex: str, extracted_groups: Union[int, Iterable[int]], template: str) -> None:
+    def __init__(self,
+                 random: RandomState,
+                 language: str,
+                 regex: str,
+                 extracted_groups: Union[int, Iterable[int]],
+                 template: Union[str, Iterable[str]],
+                 allowed: Optional[Callable[..., bool]] = None
+             ) -> None:
+        self.random = random
         self.language = language
         self.regex = regex
         self.extracted_groups = extracted_groups if isinstance(extracted_groups, Iterable) else [extracted_groups]
-        self.template = template
+        self.templates = [template] if isinstance(template, str) else template
+        self.allowed = allowed
 
     def supported_languages(self) -> List[str]:
         return [self.language]
@@ -82,6 +92,9 @@ class RegexRealizer(SlotRealizerComponent):
             return False, 0
         match = re.fullmatch(self.regex, slot.value)
         if match:
-            slot.value = lambda f: self.template.format(*[match.group(i) for i in self.extracted_groups])
+            if self.allowed is not None and not self.allowed(*[match.group(i) for i in self.extracted_groups]):
+                return False, 0
+            template_idx = self.random.randint(0, len(self.templates))
+            slot.value = lambda f: self.templates[template_idx].format(*[match.group(i) for i in self.extracted_groups])
             return True, 0
         return False, 0
