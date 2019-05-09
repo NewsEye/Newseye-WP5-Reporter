@@ -51,8 +51,8 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
         if analysis.task_parameters.get('utility') != 'common_facet_values':
             return []
 
-        corpus = 'query_result'
-        corpus_type = '[q:{}]'.format(analysis.task_parameters['target_search']['q'])
+        corpus_type = 'query_result'
+        corpus = '[q:{}]'.format(analysis.task_parameters['target_search']['q'])
 
         messages = []
         for idx, result in enumerate(analysis.task_result['facet_counts']):
@@ -82,8 +82,8 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
         if analysis.task_parameters.get('utility') != 'find_steps_from_time_series':
             return []
 
-        corpus = 'query_result'
-        corpus_type = '[q:{}]'.format(analysis.task_parameters['target_search']['q'])
+        corpus_type = 'query_result'
+        corpus = '[q:{}]'.format(analysis.task_parameters['target_search']['q'])
 
         messages = []
         for facet_value, result in analysis.task_result.items():
