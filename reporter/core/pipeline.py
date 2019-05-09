@@ -33,14 +33,12 @@ class NLGPipeline(object):
         log.debug("PRNG seed is {}".format(prng_seed))
         prng = RandomState(prng_seed)
         log.info("First random is {}".format(prng.randint(1000000)))
-        log.info("Initial inputs are: {}".format(initial_inputs))
         args = initial_inputs
         for component in self.components:
             log.info("Running component {}".format(component))
             try:
                 output = component.run(self.registry, prng, language, *args)
             except Exception as ex:
-                log.error("Exception occurred while running with initial inputs {}".format(initial_inputs))
                 log.exception(ex)
                 raise
             args = output
