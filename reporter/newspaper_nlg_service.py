@@ -136,8 +136,6 @@ class NewspaperNlgService(object):
             log.error("%s", ex)
             body = ERRORS.get(language, {}).get("general-error", "Something went wrong.")
 
-        # TODO: Re-enable headline generation
-
         log.info("Running headline NLG pipeline")
         try:
             headline_lang = "{}-head".format(language)
