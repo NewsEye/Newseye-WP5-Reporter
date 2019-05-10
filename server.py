@@ -22,6 +22,13 @@ log.setLevel(logging.DEBUG)
 # log.setLevel(5) # Enable for way too much logging, even more than DEBUG
 log.addHandler(handler)
 
+logging.basicConfig(filename='reporter.log',
+                            filemode='a',
+                            format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                            datefmt='%H:%M:%S',
+                            level=logging.DEBUG)
+log = logging.getLogger('root')
+
 # Bottle
 app = Bottle()
 service = NewspaperNlgService(
