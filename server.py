@@ -75,7 +75,7 @@ def api_generate() -> Dict[str, str]:
     body = json.loads(request.body.read())
     language = body['language']
     format = body['format']
-    data = body['data']
+    data = json.dumps(body['data'])
 
     if language not in LANGUAGES or format not in FORMATS:
         response.status = 400
