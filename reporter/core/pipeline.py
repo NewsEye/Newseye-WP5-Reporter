@@ -42,6 +42,5 @@ class NLGPipeline(object):
                 log.exception(ex)
                 raise
             args = output
-            print(args)
         log.info("NLG Pipeline completed")
         return output
