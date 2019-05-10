@@ -2,6 +2,7 @@ import argparse
 import json
 import os
 import logging
+import logging.handlers
 import sys
 from typing import Callable, Dict, List, Tuple
 
@@ -14,20 +15,27 @@ from bottle import Bottle, request, response, run, TEMPLATE_PATH
 #
 
 # Logging
-formatter = logging.Formatter(fmt='%(asctime)s - %(levelname)s - %(module)s - %(message)s')
-handler = logging.StreamHandler()
-handler.setFormatter(formatter)
 log = logging.getLogger('root')
 log.setLevel(logging.DEBUG)
-# log.setLevel(5) # Enable for way too much logging, even more than DEBUG
-log.addHandler(handler)
 
-logging.basicConfig(filename='reporter.log',
-                            filemode='a',
-                            format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
-                            datefmt='%H:%M:%S',
-                            level=logging.DEBUG)
-log = logging.getLogger('root')
+formatter = logging.Formatter(fmt='%(asctime)s - %(levelname)s - %(module)s - %(message)s')
+
+stream_handler = logging.StreamHandler()
+stream_handler.setFormatter(formatter)
+stream_handler.setLevel(logging.DEBUG)
+
+rotating_file_handler = logging.handlers.RotatingFileHandler('reporter.log',
+                                                             mode='a',
+                                                             maxBytes=10*1024,
+                                                             backupCount=2,
+                                                             encoding=None,
+                                                             delay=0)
+rotating_file_handler.setFormatter(formatter)
+rotating_file_handler.setLevel(logging.INFO)
+
+log.addHandler(stream_handler)
+log.addHandler(rotating_file_handler)
+
 
 # Bottle
 app = Bottle()
