@@ -1,4 +1,5 @@
 import argparse
+import json
 import os
 import logging
 import sys
@@ -62,6 +63,25 @@ def api_generate() -> Dict[str, str]:
     language = request.query.language or "en"
 
     header, body = generate(language)
+    return dict({
+        "language": language,
+        "header": header,
+        "body": body,
+    })
+
+@app.route('/api/report/json', method='POST')
+@allow_cors
+def api_generate() -> Dict[str, str]:
+    body = json.loads(request.body.read())
+    language = body['language']
+    format = body['format']
+    data = body['data']
+
+    if language not in LANGUAGES or format not in FORMATS:
+        response.status = 400
+        return
+
+    header, body = generate(language, format, data)
     return dict({
         "language": language,
         "header": header,
