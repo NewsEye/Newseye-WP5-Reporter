@@ -93,7 +93,7 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
             before = result[0][1][0] * 100
             after = result[0][1][1] * 100
             variance = result[0][2]
-            interestingness = abs(before - after) / (variance) + 0.000001
+            interestingness = (abs(before - after) / variance) if variance != 0 else 0.000001
             messages.append(
                 Message(
                     # TODO: This needs to be a list for the thing not to crash despite efforts to allow non-lists, see Message
