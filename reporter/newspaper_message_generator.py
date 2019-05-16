@@ -15,6 +15,7 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
         self.MESSAGE_GENERATORS = [
             self._common_facet_values_message_generator,
             self._find_steps_from_time_series_message_generator,
+            self._extract_facets_message_generator,
         ]
 
     def run(self, registry: Registry, random: Random, language: str, data:str) -> Tuple[List[Message]]:
@@ -75,6 +76,35 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
                         interestingness,  # outlierness
                     )]
                 )
+            )
+        return messages
+
+    def _extract_facets_message_generator(self, analysis: 'TaskResult') -> List[Message]:
+        if analysis.task_parameters.get('utility') != 'extract_facets':
+            return []
+
+        corpus_type = 'query_result'
+        corpus = '[q:{}]'.format(analysis.task_parameters['target_search']['q'])
+
+        messages = []
+        for facet, values_and_counts in analysis.task_result.items():
+            if 'example' in facet: continue
+            for facet_value, count in values_and_counts.items():
+                messages.append(
+                    Message(
+                        # TODO: This needs to be a list for the thing not to crash despite efforts to allow non-lists, see Message
+                        [Fact(
+                            corpus,  # corpus
+                            corpus_type,  # corpus_type'
+                            None,  # timestamp_from
+                            None,  # timestamp_to
+                            'all_time',  # timestamp_type
+                            'facet_count_{}'.format(facet),  # analysis_type
+                            "[{}:{}]".format(facet, facet_value),  # result_key
+                            count,  # result_value
+                            5,  # outlierness
+                        )]
+                    )
             )
         return messages
 
