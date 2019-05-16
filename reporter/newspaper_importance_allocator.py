@@ -23,4 +23,4 @@ class NewspaperImportanceSelector(NLGPipelineComponent):
         return messages
 
     def score_importance_single(self, message: Message, registry: Registry) -> float:
-        return 1.0
+        return message.main_fact.outlierness
