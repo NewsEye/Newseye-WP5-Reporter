@@ -42,7 +42,7 @@ class NewspaperNlgService(object):
             self._get_cached_or_compute(
                 '../data/templates.cache',
                 self._load_templates,
-                force_cache_refresh=force_cache_refresh
+                force_cache_refresh=True
             )
         )
 
