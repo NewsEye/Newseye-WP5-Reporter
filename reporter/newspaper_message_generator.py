@@ -70,7 +70,7 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
                         None,  # timestamp_from
                         None,  # timestamp_to
                         'all_time',  # timestamp_type
-                        'count',  # analysis_type
+                        'facet_count',  # analysis_type
                         "[{}:{}]".format(facet_type, facet_value),  # result_key
                         count,  # result_value
                         interestingness,  # outlierness

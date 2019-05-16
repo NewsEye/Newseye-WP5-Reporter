@@ -7,5 +7,26 @@ en: there were {result_value} entries related to {result_key}
 en: {timestamp_from}, the number of entries related to {result_key} {result_value}
 | analysis_type = step_detection
 
+en: there were {result_value} entries about {result_key}
+| analysis_type = facet_count_subject_geo_ssim
+
+en: there were {result_value} entries about {result_key}
+| analysis_type = facet_count_subject_era_ssim
+
+en: there were {result_value} entries about {result_key}
+| analysis_type = facet_count_lc_1letter_ssim
+
+en: there were {result_value} entries about {result_key}
+| analysis_type = facet_count_subject_ssim
+
+en: there were {result_value} entries in {result_key}
+| analysis_type = facet_count_language_ssim
+
+en: there were {result_value} entries {result_key}
+| analysis_type = facet_count_pub_date_ssim
+
+en: there were {result_value} entries in {result_key}
+| analysis_type = facet_count_format
+
 en-head: Analysis of a corpus defined by the query {corpus}
 | corpus_type = query_result

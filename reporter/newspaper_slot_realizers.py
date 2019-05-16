@@ -90,7 +90,7 @@ class EnglishSubjectEraRealizer(RegexRealizer):
             'en',
             r'\[subject_era_ssim:([^\]]+)\]',
             1,
-            'the {}'
+            '{}'
         )
 
 class EnglishYearRealizer(RegexRealizer):
