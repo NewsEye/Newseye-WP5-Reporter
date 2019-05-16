@@ -183,13 +183,13 @@ class BodyDocumentPlanner(NLGPipelineComponent):
             return candidates
         for nucleus in nuclei:
             # TODO: This is pretty meaningless in the toy dataset we are using now
-            candidates = [msg for msg in candidates if nucleus.main_fact.corpus != msg.main_fact.corpus]
+            candidates = [msg for msg in candidates if nucleus.main_fact.analysis_type != msg.main_fact.analysis_type]
         return candidates
 
     def _encourage_similarity(self, candidates: List[Message], nucleus: Message) -> List[Message]:
         # TODO: This is domain specific, consider splitting this off to a domain-specific method in a subclass
         # TODO: This is pretty meaningless in the toy dataset we are using now
-        return [msg for msg in candidates if nucleus.main_fact.corpus == msg.main_fact.corpus]
+        return [msg for msg in candidates if nucleus.main_fact.analysis_type == msg.main_fact.analysis_type]
 
     def _add_satellite(self, satellite: Message, messages: List[Union[DocumentPlanNode, Message]]) -> None:
         for idx, msg in enumerate(messages):
