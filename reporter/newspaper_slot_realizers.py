@@ -148,3 +148,147 @@ class EnglishQueryRealizer(RegexRealizer):
             1,
             '"{}"'
         )
+
+# TODO: All Finnish language formats are not yet tested
+
+class FinnishFormatRealizer(RegexRealizer):
+
+    def __init__(self, random):
+        super().__init__(
+            random,
+            'fi',
+            r'\[format:([^\]]+)\]',
+            1,
+            '"{}"-muodossa'
+        )
+
+class FinnishLanguageRealizer(RegexRealizer):
+
+    def __init__(self, random):
+        super().__init__(
+            random,
+            'fi',
+            r'\[language_ssim:([^\]]+)\]',
+            1,
+            'kielellä {}'
+        )
+
+class FinnishCategoryRealizer(RegexRealizer):
+
+    def __init__(self, random):
+        super().__init__(
+            random,
+            'fi',
+            r'\[lc_1letter_ssim:\w - ([^\]]+)\]',
+            1,
+            'kategoriassa "{}"'
+        )
+
+class FinnishGeoRealizer(RegexRealizer):
+
+    def __init__(self, random):
+        super().__init__(
+            random,
+            'fi',
+            r'\[subject_geo_ssim:([^\]]+)\]',
+            1,
+            'paikassa "{}"'
+        )
+
+class FinnishTopicRealizer(RegexRealizer):
+
+    def __init__(self, random):
+        super().__init__(
+            random,
+            'fi',
+            r'\[TOPIC:([^\]]+)\]',
+            1,
+            'aiheeseen "{}"'
+        )
+
+class FinnishPubdateRealizer(RegexRealizer):
+
+    def __init__(self, random):
+        super().__init__(
+            random,
+            'fi',
+            r'\[pub_date_ssim:([^\]]+)\]',
+            1,
+            'julkaistu {}'
+        )
+
+class FinnishSubjectRealizer(RegexRealizer):
+
+    def __init__(self, random):
+        super().__init__(
+            random,
+            'fi',
+            r'\[subject_ssim:([^\]]+)\]',
+            1,
+            'aiheesta "{}"'
+        )
+
+class FinnishSubjectEraRealizer(RegexRealizer):
+
+    def __init__(self, random):
+        super().__init__(
+            random,
+            'fi',
+            r'\[subject_era_ssim:([^\]]+)\]',
+            1,
+            '{}'
+        )
+
+
+class FinnishYearRealizer(RegexRealizer):
+
+    def __init__(self, random):
+        super().__init__(
+            random,
+            'fi',
+            r'\[year:([^\]]+)\]',
+            1,
+            (
+                'vuonna {}',
+                'vuoden {} aikana',
+            )
+        )
+
+class FinnishChangeRealizerIncrease(RegexRealizer):
+
+    def __init__(self, random):
+        super().__init__(
+            random,
+            'fi',
+            r'\[CHANGE:([^\]:]+):([^\]:]+)\]',
+            (1, 2),
+            (
+                'kasvoi korpuksessa {} prosentista {} prosentiin',
+            ),
+            lambda before, after: before < after
+        )
+
+
+class FinnishChangeRealizerDecrease(RegexRealizer):
+
+    def __init__(self, random):
+        super().__init__(
+            random,
+            'fi',
+            r'\[CHANGE:([^\]:]+):([^\]:]+)\]',
+            (1, 2),
+            (
+                'laski korpuksessa {} prosentista {} prosentiin ',
+            ),
+            lambda before, after: before > after
+        )
+
+class FinnishQueryRealizer(RegexRealizer):
+    def __init__(self, random):
+        super().__init__(
+            random,
+            'fi',
+            r'\[q:([^\]:]+)\]',
+            1,
+            '"{}"'
+        )

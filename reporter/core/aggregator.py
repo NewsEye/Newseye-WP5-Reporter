@@ -93,11 +93,17 @@ class Aggregator(NLGPipelineComponent):
                 break
 
         log.debug("idx = {}".format(idx))
-        # ToDo! At the moment everything is considered either positive or negative, which is sometimes weird. Add neutral sentences.
-        if first.polarity != first.polarity:
-            combined.append(Literal("but"))
-        else:
-            combined.append(Literal("and"))
+        # TODO At the moment everything is considered either positive or negative, which is sometimes weird. Add neutral sentences.
+        if language == 'en':
+            if first.polarity != first.polarity:
+                combined.append(Literal("but"))
+            else:
+                combined.append(Literal("and"))
+        elif language == 'fi':
+            if first.polarity != first.polarity:
+                combined.append(Literal("mutta"))
+            else:
+                combined.append(Literal("ja"))
         combined.extend(second.template.components[idx:])
         log.debug("Combined thing is {}".format([c.value for c in combined]))
         new_message = Message(facts=first.facts + [fact for fact in second.facts if fact not in first.facts],

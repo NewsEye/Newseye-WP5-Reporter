@@ -30,3 +30,36 @@ en: there were {result_value} entries in {result_key}
 
 en-head: Analysis of a corpus defined by the query {corpus}
 | corpus_type = query_result
+
+fi: {result_key} tuloksia {result_value}
+| analysis_type = facet_count
+
+fi: {result_key} tuloksia liittyen {result_value}
+| analysis_type = topic_count
+
+fi: {timestamp_from}, tulosten lukumäärä liittyen {result_key} {result_value}
+| analysis_type = step_detection
+
+fi: {result_key} tuloksia {result_value}
+| analysis_type = facet_count_subject_geo_ssim
+
+fi: {result_key} tuloksia {result_value}
+| analysis_type = facet_count_subject_era_ssim
+
+fi: {result_key} tuloksia {result_value}
+| analysis_type = facet_count_lc_1letter_ssim
+
+fi: {result_key} tuloksia {result_value}
+| analysis_type = facet_count_subject_ssim
+
+fi: {result_key} tuloksia {result_value}
+| analysis_type = facet_count_language_ssim
+
+fi: {result_key} tuloksia {result_value}
+| analysis_type = facet_count_pub_date_ssim
+
+fi: {result_key} tuloksia {result_value}
+| analysis_type = facet_count_format
+
+fi-head: Analyysi korpuksesta kyselyllä {corpus} 
+| corpus_type = query_result
