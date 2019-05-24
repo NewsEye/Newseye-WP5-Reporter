@@ -37,7 +37,7 @@ fi: {result_key} tuloksia {result_value}
 fi: {result_key} tuloksia liittyen {result_value}
 | analysis_type = topic_count
 
-fi: {timestamp_from}, tulosten lukumäärä liittyen {result_key} {result_value}
+fi: {timestamp_from} tulosten lukumäärä liittyen {result_key} {result_value}
 | analysis_type = step_detection
 
 fi: {result_key} tuloksia {result_value}
