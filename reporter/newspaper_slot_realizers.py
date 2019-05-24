@@ -60,6 +60,17 @@ class EnglishTopicRealizer(RegexRealizer):
             'the topic "{}"'
         )
 
+class EnglishWordRealizer(RegexRealizer):
+
+    def __init__(self, random):
+        super().__init__(
+            random,
+            'en',
+            r'\[WORD:([^\]]+)\]',
+            1,
+            'the word "{}"'
+        )
+
 class EnglishPubdateRealizer(RegexRealizer):
 
     def __init__(self, random):
