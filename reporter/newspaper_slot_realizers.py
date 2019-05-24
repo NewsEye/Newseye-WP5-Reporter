@@ -217,6 +217,17 @@ class FinnishTopicRealizer(RegexRealizer):
             'aiheeseen "{}"'
         )
 
+class FinnishWordRealizer(RegexRealizer):
+
+    def __init__(self, random):
+        super().__init__(
+            random,
+            'fi',
+            r'\[WORD:([^\]]+)\]',
+            1,
+            'sanaan "{}"'
+        )
+
 class FinnishPubdateRealizer(RegexRealizer):
 
     def __init__(self, random):
@@ -274,9 +285,10 @@ class FinnishChangeRealizerIncrease(RegexRealizer):
             r'\[CHANGE:([^\]:]+):([^\]:]+)\]',
             (1, 2),
             (
-                'kasvoi korpuksessa {} prosentista {} prosentiin',
+                'kasvoi {} esiintymästä miljoonassa {}:ään ',
+                'nousi {} esiintymästä miljoonassa {}:ään ',
             ),
-            lambda before, after: before < after
+            lambda before, after: float(before) < float(after)
         )
 
 
@@ -289,9 +301,11 @@ class FinnishChangeRealizerDecrease(RegexRealizer):
             r'\[CHANGE:([^\]:]+):([^\]:]+)\]',
             (1, 2),
             (
-                'laski korpuksessa {} prosentista {} prosentiin ',
+                'laski {} esiintymästä miljoonassa {}:ään ',
+                'putosi {} esiintymästä miljoonassa {}:ään ',
+                'tippui {} esiintymästä miljoonassa {}:ään ',
             ),
-            lambda before, after: before > after
+            lambda before, after: float(before) > float(after)
         )
 
 class FinnishQueryRealizer(RegexRealizer):

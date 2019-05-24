@@ -19,7 +19,8 @@ from reporter.newspaper_slot_realizers import EnglishFormatRealizer, EnglishLang
 
 from reporter.newspaper_slot_realizers import FinnishFormatRealizer, FinnishLanguageRealizer, FinnishCategoryRealizer, \
     FinnishGeoRealizer, FinnishTopicRealizer, FinnishPubdateRealizer, FinnishSubjectRealizer, FinnishSubjectEraRealizer, \
-    FinnishChangeRealizerDecrease, FinnishChangeRealizerIncrease, FinnishYearRealizer, FinnishQueryRealizer
+    FinnishChangeRealizerDecrease, FinnishChangeRealizerIncrease, FinnishYearRealizer, FinnishQueryRealizer, \
+    FinnishWordRealizer
 
 from reporter.newspaper_named_entity_resolver import NewspaperEntityNameResolver
 from reporter.newspaper_importance_allocator import NewspaperImportanceSelector
@@ -89,6 +90,7 @@ class NewspaperNlgService(object):
                 FinnishChangeRealizerIncrease(slot_realizer_random),
                 FinnishYearRealizer(slot_realizer_random),
                 FinnishQueryRealizer(slot_realizer_random),
+                FinnishWordRealizer(slot_realizer_random),
             ]
         )
 
