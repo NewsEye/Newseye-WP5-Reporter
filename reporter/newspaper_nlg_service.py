@@ -16,6 +16,11 @@ from reporter.newspaper_slot_realizers import EnglishFormatRealizer, EnglishLang
     EnglishGeoRealizer, EnglishTopicRealizer, EnglishPubdateRealizer, EnglishSubjectRealizer, EnglishSubjectEraRealizer, \
     EnglishChangeRealizerDecrease, EnglishChangeRealizerIncrease, EnglishYearRealizer, EnglishQueryRealizer, \
     EnglishWordRealizer
+
+from reporter.newspaper_slot_realizers import FinnishFormatRealizer, FinnishLanguageRealizer, FinnishCategoryRealizer, \
+    FinnishGeoRealizer, FinnishTopicRealizer, FinnishPubdateRealizer, FinnishSubjectRealizer, FinnishSubjectEraRealizer, \
+    FinnishChangeRealizerDecrease, FinnishChangeRealizerIncrease, FinnishYearRealizer, FinnishQueryRealizer
+
 from reporter.newspaper_named_entity_resolver import NewspaperEntityNameResolver
 from reporter.newspaper_importance_allocator import NewspaperImportanceSelector
 from reporter.newspaper_message_generator import NewspaperMessageGenerator, NoMessagesForSelectionException
@@ -56,6 +61,7 @@ class NewspaperNlgService(object):
         self.registry.register(
             'slot-realizers',
             [
+                # English
                 EnglishFormatRealizer(slot_realizer_random),
                 EnglishLanguageRealizer(slot_realizer_random),
                 EnglishCategoryRealizer(slot_realizer_random),
@@ -69,6 +75,20 @@ class NewspaperNlgService(object):
                 EnglishYearRealizer(slot_realizer_random),
                 EnglishQueryRealizer(slot_realizer_random),
                 EnglishWordRealizer(slot_realizer_random),
+
+                # Finnish
+                FinnishFormatRealizer(slot_realizer_random),
+                FinnishLanguageRealizer(slot_realizer_random),
+                FinnishCategoryRealizer(slot_realizer_random),
+                FinnishGeoRealizer(slot_realizer_random),
+                FinnishTopicRealizer(slot_realizer_random),
+                FinnishPubdateRealizer(slot_realizer_random),
+                FinnishSubjectRealizer(slot_realizer_random),
+                FinnishSubjectEraRealizer(slot_realizer_random),
+                FinnishChangeRealizerDecrease(slot_realizer_random),
+                FinnishChangeRealizerIncrease(slot_realizer_random),
+                FinnishYearRealizer(slot_realizer_random),
+                FinnishQueryRealizer(slot_realizer_random),
             ]
         )
 
