@@ -34,14 +34,16 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
 
         messages = []  # Type: List[Message]
         for analysis in analyses:
+            found_new = False
             for message_generator in self.MESSAGE_GENERATORS:
                 new_messages = message_generator(analysis)
                 for msg in new_messages:
                     log.debug('Generated message {}'.format(msg))
                 if new_messages:
+                    found_new = True
                     messages.extend(new_messages)
-                else:
-                    log.error("Failed to parse a Message from {}. Utility={}".format(analysis, analysis.task_parameters.get('utility')))
+            if not found_new:
+                log.error("Failed to parse a Message from {}. Utility={}".format(analysis, analysis.task_parameters.get('utility')))
 
         if not messages:
             raise NoMessagesForSelectionException()
