@@ -128,10 +128,10 @@ class EnglishChangeRealizerIncrease(RegexRealizer):
             r'\[CHANGE:([^\]:]+):([^\]:]+)\]',
             (1, 2),
             (
-                'increased from {} percentage of the corpus to {}',
-                'rose from {} percentage of the corpus to {}',
+                'increased from {} IPM to {}',
+                'rose from {} IPM to {}',
             ),
-            lambda before, after: before < after
+            lambda before, after: float(before) < float(after)
         )
 
 
@@ -144,10 +144,10 @@ class EnglishChangeRealizerDecrease(RegexRealizer):
             r'\[CHANGE:([^\]:]+):([^\]:]+)\]',
             (1, 2),
             (
-                'decreased from {} percentege of the corpus to {} ',
-                'fell from {} precentage of the corpus to {}',
+                'decreased from {} IPM {} ',
+                'fell from {} IPM to {}',
             ),
-            lambda before, after: before > after
+            lambda before, after: float(before) > float(after)
         )
 
 class EnglishQueryRealizer(RegexRealizer):
