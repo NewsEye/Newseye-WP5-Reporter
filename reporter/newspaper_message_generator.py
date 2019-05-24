@@ -118,30 +118,30 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
         corpus = '[q:{}]'.format(analysis.task_parameters['target_search']['q'])
 
         messages = []
-        for facet_value, result in analysis.task_result.items():
-            if not result: continue
-            facet_type = analysis.task_parameters['facet_name']
-            year = result[0][0]
-            before = result[0][1][0] * 100
-            after = result[0][1][1] * 100
-            variance = result[0][2]
-            interestingness = (abs(before - after) / variance) if variance != 0 else 0.000001
-            messages.append(
-                Message(
-                    # TODO: This needs to be a list for the thing not to crash despite efforts to allow non-lists, see Message
-                    [Fact(
-                        corpus,  # corpus
-                        corpus_type,  # corpus_type'
-                        '[year:{}]'.format(year),  # timestamp_from
-                        '[year:{}]'.format(year),  # timestamp_to
-                        'year',  # timestamp_type
-                        'step_detection',  # analysis_type
-                        "[{}:{}]".format(facet_type, facet_value),  # result_key
-                        '[CHANGE:{}:{}]'.format(before, after),  # result_value
-                        interestingness,  # outlierness
-                    )]
+        for facet_value, results in analysis.task_result.items():
+            facet_type = analysis.task_parameters.get('facet_name', 'WORD')
+            for result in results:
+                year = result[0]
+                before = round(result[1][0], 2)
+                after = round(result[1][1], 2)
+                variance = result[2]
+                interestingness = (abs(before - after) / variance) * 5 if variance != 0 else 0.000001
+                messages.append(
+                    Message(
+                        # TODO: This needs to be a list for the thing not to crash despite efforts to allow non-lists, see Message
+                        [Fact(
+                            corpus,  # corpus
+                            corpus_type,  # corpus_type'
+                            '[year:{}]'.format(year),  # timestamp_from
+                            '[year:{}]'.format(year),  # timestamp_to
+                            'year',  # timestamp_type
+                            'step_detection',  # analysis_type
+                            "[{}:{}]".format(facet_type, facet_value),  # result_key
+                            '[CHANGE:{}:{}]'.format(before, after),  # result_value
+                            interestingness,  # outlierness
+                        )]
+                    )
                 )
-            )
         return messages
 
 
