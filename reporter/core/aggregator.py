@@ -104,6 +104,11 @@ class Aggregator(NLGPipelineComponent):
                 combined.append(Literal("mutta"))
             else:
                 combined.append(Literal("ja"))
+        elif language == 'de':
+            if first.polarity != first.polarity:
+                combined.append(Literal("aber"))
+            else:
+                combined.append(Literal("und"))
         combined.extend(second.template.components[idx:])
         log.debug("Combined thing is {}".format([c.value for c in combined]))
         new_message = Message(facts=first.facts + [fact for fact in second.facts if fact not in first.facts],

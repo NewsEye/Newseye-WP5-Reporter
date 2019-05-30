@@ -117,8 +117,6 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
         corpus_type = 'query_result'
         corpus = '[q:{}]'.format(analysis.task_parameters['target_search']['q'])
 
-        print('Hello here I am ')
-
         messages = []
         for facet_value, results in analysis.task_result.items():
             facet_type = analysis.task_parameters.get('facet_name', 'WORD')

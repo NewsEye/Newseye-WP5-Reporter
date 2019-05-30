@@ -317,3 +317,159 @@ class FinnishQueryRealizer(RegexRealizer):
             1,
             '"{}"'
         )
+
+
+# TODO: All German language formats are not yet tested
+
+class GermanFormatRealizer(RegexRealizer):
+
+    def __init__(self, random):
+        super().__init__(
+            random,
+            'de',
+            r'\[format:([^\]]+)\]',
+            1,
+            'im Format "{}"'
+        )
+
+class GermanLanguageRealizer(RegexRealizer):
+
+    def __init__(self, random):
+        super().__init__(
+            random,
+            'de',
+            r'\[language_ssim:([^\]]+)\]',
+            1,
+            '{} Sprache'
+        )
+
+class GermanCategoryRealizer(RegexRealizer):
+
+    def __init__(self, random):
+        super().__init__(
+            random,
+            'de',
+            r'\[lc_1letter_ssim:\w - ([^\]]+)\]',
+            1,
+            'der Kategorie "{}"'
+        )
+
+class GermanGeoRealizer(RegexRealizer):
+
+    def __init__(self, random):
+        super().__init__(
+            random,
+            'de',
+            r'\[subject_geo_ssim:([^\]]+)\]',
+            1,
+            'der Standort "{}"'
+        )
+
+class GermanTopicRealizer(RegexRealizer):
+
+    def __init__(self, random):
+        super().__init__(
+            random,
+            'de',
+            r'\[TOPIC:([^\]]+)\]',
+            1,
+            'das Thema "{}"'
+        )
+
+class GermanWordRealizer(RegexRealizer):
+
+    def __init__(self, random):
+        super().__init__(
+            random,
+            'de',
+            r'\[WORD:([^\]]+)\]',
+            1,
+            'das Wort "{}"'
+        )
+
+class GermanPubdateRealizer(RegexRealizer):
+
+    def __init__(self, random):
+        super().__init__(
+            random,
+            'de',
+            r'\[pub_date_ssim:([^\]]+)\]',
+            1,
+            '{}'
+        )
+
+class GermanSubjectRealizer(RegexRealizer):
+
+    def __init__(self, random):
+        super().__init__(
+            random,
+            'de',
+            r'\[subject_ssim:([^\]]+)\]',
+            1,
+            'über das Thema "{}"'
+        )
+
+class GermanSubjectEraRealizer(RegexRealizer):
+
+    def __init__(self, random):
+        super().__init__(
+            random,
+            'de',
+            r'\[subject_era_ssim:([^\]]+)\]',
+            1,
+            '{}'
+        )
+
+
+class GermanYearRealizer(RegexRealizer):
+
+    def __init__(self, random):
+        super().__init__(
+            random,
+            'de',
+            r'\[year:([^\]]+)\]',
+            1,
+            (
+                'während des Jahres {}',
+                'im Jahre {}',
+            )
+        )
+
+class GermanChangeRealizerIncrease(RegexRealizer):
+
+    def __init__(self, random):
+        super().__init__(
+            random,
+            'de',
+            r'\[CHANGE:([^\]:]+):([^\]:]+)\]',
+            (1, 2),
+            (
+                'erhöht von {} IPM auf {}',
+            ),
+            lambda before, after: float(before) < float(after)
+        )
+
+
+class GermanChangeRealizerDecrease(RegexRealizer):
+
+    def __init__(self, random):
+        super().__init__(
+            random,
+            'de',
+            r'\[CHANGE:([^\]:]+):([^\]:]+)\]',
+            (1, 2),
+            (
+                'von {} auf {} IPM verringert',
+            ),
+            lambda before, after: float(before) > float(after)
+        )
+
+class GermanQueryRealizer(RegexRealizer):
+    def __init__(self, random):
+        super().__init__(
+            random,
+            'de',
+            r'\[q:([^\]:]+)\]',
+            1,
+            '"{}"'
+        )

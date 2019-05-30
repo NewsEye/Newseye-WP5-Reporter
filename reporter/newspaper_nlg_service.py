@@ -22,6 +22,11 @@ from reporter.newspaper_slot_realizers import FinnishFormatRealizer, FinnishLang
     FinnishChangeRealizerDecrease, FinnishChangeRealizerIncrease, FinnishYearRealizer, FinnishQueryRealizer, \
     FinnishWordRealizer
 
+from reporter.newspaper_slot_realizers import GermanFormatRealizer, GermanLanguageRealizer, GermanCategoryRealizer, \
+    GermanGeoRealizer, GermanTopicRealizer, GermanPubdateRealizer, GermanSubjectRealizer, GermanSubjectEraRealizer, \
+    GermanChangeRealizerDecrease, GermanChangeRealizerIncrease, GermanYearRealizer, GermanQueryRealizer, \
+    GermanWordRealizer
+
 from reporter.newspaper_named_entity_resolver import NewspaperEntityNameResolver
 from reporter.newspaper_importance_allocator import NewspaperImportanceSelector
 from reporter.newspaper_message_generator import NewspaperMessageGenerator, NoMessagesForSelectionException
@@ -91,6 +96,21 @@ class NewspaperNlgService(object):
                 FinnishYearRealizer(slot_realizer_random),
                 FinnishQueryRealizer(slot_realizer_random),
                 FinnishWordRealizer(slot_realizer_random),
+
+                # German
+                GermanFormatRealizer(slot_realizer_random),
+                GermanLanguageRealizer(slot_realizer_random),
+                GermanCategoryRealizer(slot_realizer_random),
+                GermanGeoRealizer(slot_realizer_random),
+                GermanTopicRealizer(slot_realizer_random),
+                GermanPubdateRealizer(slot_realizer_random),
+                GermanSubjectRealizer(slot_realizer_random),
+                GermanSubjectEraRealizer(slot_realizer_random),
+                GermanChangeRealizerDecrease(slot_realizer_random),
+                GermanChangeRealizerIncrease(slot_realizer_random),
+                GermanYearRealizer(slot_realizer_random),
+                GermanQueryRealizer(slot_realizer_random),
+                GermanWordRealizer(slot_realizer_random),
             ]
         )
 
