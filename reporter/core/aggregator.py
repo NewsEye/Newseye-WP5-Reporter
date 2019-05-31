@@ -1,3 +1,4 @@
+from collections import defaultdict
 import logging
 from random import Random
 from typing import List, Tuple
@@ -94,21 +95,14 @@ class Aggregator(NLGPipelineComponent):
 
         log.debug("idx = {}".format(idx))
         # TODO At the moment everything is considered either positive or negative, which is sometimes weird. Add neutral sentences.
-        if language == 'en':
-            if first.polarity != first.polarity:
-                combined.append(Literal("but"))
-            else:
-                combined.append(Literal("and"))
-        elif language == 'fi':
-            if first.polarity != first.polarity:
-                combined.append(Literal("mutta"))
-            else:
-                combined.append(Literal("ja"))
-        elif language == 'de':
-            if first.polarity != first.polarity:
-                combined.append(Literal("aber"))
-            else:
-                combined.append(Literal("und"))
+        CONJUNCTIONS = registry.get('CONJUNCTIONS').get(language, None)
+        if not CONJUNCTIONS:
+            CONJUNCTIONS = defaultdict(lambda x: 'NO-CONJUNCTION-DICT'),
+
+        if first.polarity != first.polarity:
+            combined.append(Literal(CONJUNCTIONS.get('inverse_combiner', 'MISSING-INVERSE-CONJUCTION')))
+        else:
+            combined.append(Literal(CONJUNCTIONS.get('default_combiner', 'MISSING-DEFAULT-CONJUCTION')))
         combined.extend(second.template.components[idx:])
         log.debug("Combined thing is {}".format([c.value for c in combined]))
         new_message = Message(facts=first.facts + [fact for fact in second.facts if fact not in first.facts],
