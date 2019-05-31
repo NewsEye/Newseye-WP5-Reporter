@@ -9,8 +9,14 @@ CONJUNCTIONS = {
     'en': {
         'default_combiner': 'and',
         'inverse_combiner': 'but',
-        'subord_clause_start': ', which is',
-        'comparator': 'than',
+    },
+    'fi': {
+        'default_combiner': 'ja',
+        'inverse_combiner': 'mutta',
+    },
+    'de': {
+        'default_combiner': 'und',
+        'inverse_combiner': 'aber',
     }
 }
 
