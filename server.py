@@ -51,7 +51,7 @@ static_root = os.path.dirname(os.path.realpath(__file__)) + "/../static/"
 #
 
 LANGUAGES = [
-    'en', 'fi'
+    'en', 'fi', 'de'
 ]
 
 FORMATS = [
