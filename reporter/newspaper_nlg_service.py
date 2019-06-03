@@ -31,7 +31,7 @@ from reporter.newspaper_named_entity_resolver import NewspaperEntityNameResolver
 from reporter.newspaper_importance_allocator import NewspaperImportanceSelector
 from reporter.newspaper_message_generator import NewspaperMessageGenerator, NoMessagesForSelectionException
 
-from reporter.constants import ERRORS
+from reporter.constants import ERRORS, CONJUNCTIONS
 
 
 log = logging.getLogger('root')
@@ -57,7 +57,7 @@ class NewspaperNlgService(object):
                 force_cache_refresh=True
             )
         )
-
+        self.registry.register('CONJUNCTIONS', CONJUNCTIONS)
         # PRNG seed
         self._set_seed(seed_val=random_seed)
 
