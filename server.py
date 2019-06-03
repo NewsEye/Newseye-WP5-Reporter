@@ -130,7 +130,7 @@ def get_languages() -> Dict[str, List[str]]:
 
 @app.route('/api/formats')
 @allow_cors
-def get_languages() -> Dict[str, List[str]]:
+def get_formats() -> Dict[str, List[str]]:
     return {"formats": FORMATS}
 
 
