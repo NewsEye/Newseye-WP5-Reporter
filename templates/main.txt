@@ -9,44 +9,34 @@ de: es gibt {result_value} Einträge zu {result_key}
 | analysis_type = topic_count
 
 en: {timestamp_from}, the number of entries related to {result_key} {result_value}
+en: the number of entries related to {result_key} {result_value} {timestamp_from}
 fi: {timestamp_from}, tulosten lukumäärä liittyen {result_key} {result_value}
 de: {timestamp_from}, die Anzahl der Einträge im Zusammenhang mit {result_key} {result_value}
 | analysis_type = step_detection
 
-en: there were {result_value} entries about {result_key}
-fi: {result_key} tuloksia {result_value}
-de: es gibt {result_value} Einträge zu {result_key}
-| analysis_type = facet_count_subject_geo_ssim
-
-en: there were {result_value} entries about {result_key}
-fi: {result_key} tuloksia {result_value}
-de: es gibt {result_value} Einträge über {result_key}
-| analysis_type = facet_count_subject_era_ssim
-
-en: there were {result_value} entries about {result_key}
-fi: {result_key} tuloksia {result_value}
-de: es gibt {result_value} Einträge zu {result_key}
-| analysis_type = facet_count_lc_1letter_ssim
-
-en: there were {result_value} entries about {result_key}
-fi: {result_key} tuloksia {result_value}
-de: es gibt {result_value} Einträge zu {result_key}
-| analysis_type = facet_count_subject_ssim
-
 en: there were {result_value} entries in {result_key}
 fi: {result_key} tuloksia {result_value}
 de: es gibt {result_value} Einträge auf {result_key}
-| analysis_type = facet_count_language_ssim
+| analysis_type = facet_count_language_ssi
 
-en: there were {result_value} entries {result_key}
+en: there were {result_value} entries published on {result_key}
+fi: löydettiin {result_key} tuloksia {result_value}
+de: es gibt {result_value} Einträge veröffentlicht in {result_key}
+| analysis_type = facet_count_date_created_dtsi
+
+en: there were {result_value} entries published {result_key}
 fi: {result_key} tuloksia {result_value}
 de: es gibt {result_value} Einträge veröffentlicht in {result_key}
-| analysis_type = facet_count_pub_date_ssim
+| analysis_type = facet_count_year_isi
+
+en: there were {result_value} {result_key}
+fi: löytyi {result_key} tulosta {result_value}
+| analysis_type = facet_count_member_of_collection_ids_ssim
 
 en: there were {result_value} entries in {result_key}
 fi: {result_key} tuloksia {result_value}
 de: es gibt {result_value} Einträge {result_key}
-| analysis_type = facet_count_format
+| analysis_type = facet_count_has_model_ssim
 
 en-head: Analysis of a corpus defined by the query {corpus}
 fi-head: Analyysi korpuksesta kyselyllä {corpus}
