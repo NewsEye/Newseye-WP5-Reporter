@@ -44,6 +44,16 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
             if not found_new:
                 log.error("Failed to parse a Message from {}. Utility={}".format(analysis, analysis.task_parameters.get('utility')))
 
+        # Filter out messages that share the same underlying fact. Can't be done with set() because of how the
+        # __hash__ and __eq__ are (not) defined.
+        facts = set()
+        uniq_messages = []
+        for m in messages:
+            if m.main_fact not in facts:
+                facts.add(m.main_fact)
+                uniq_messages.append(m)
+        messages = uniq_messages
+
         if not messages:
             raise NoMessagesForSelectionException()
 
@@ -77,7 +87,7 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
                     )]
                 )
             )
-        return list(set(messages))
+        return messages
 
     def _extract_facets_message_generator(self, analysis: 'TaskResult', other_analyses: List['TaskResult']) -> List[Message]:
         if analysis.task_parameters.get('utility') != 'extract_facets':
