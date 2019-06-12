@@ -1,8 +1,7 @@
 import json
 import logging
-import os
 from random import Random
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Tuple
 
 from reporter.core import Fact, NoMessagesForSelectionException, NLGPipelineComponent, Message, Registry
 
@@ -36,7 +35,7 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
         for analysis in analyses:
             found_new = False
             for message_generator in self.MESSAGE_GENERATORS:
-                new_messages = message_generator(analysis)
+                new_messages = message_generator(analysis, analyses)
                 for msg in new_messages:
                     log.debug('Generated message {}'.format(msg))
                 if new_messages:
@@ -50,7 +49,7 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
 
         return (messages, )
 
-    def _common_facet_values_message_generator(self, analysis: 'TaskResult') -> List[Message]:
+    def _common_facet_values_message_generator(self, analysis: 'TaskResult', other_analyses: List['TaskResult']) -> List[Message]:
         if analysis.task_parameters.get('utility') != 'common_facet_values':
             return []
 
@@ -58,11 +57,10 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
         corpus = '[q:{}]'.format(analysis.task_parameters['target_search']['q'])
 
         messages = []
-        for idx, result in enumerate(analysis.task_result['facet_counts']):
+        for result, interestingness in zip(analysis.task_result['result'], analysis.task_result['interestingness']):
             count = result['document_count']
-            facet_type = analysis.task_parameters['facet_name']
+            facet_type = analysis.task_parameters['utility_parameters']['facet_name']
             facet_value = result['facet_value']
-            interestingness = analysis.task_result['interestingness'][idx]
             messages.append(
                 Message(
                     # TODO: This needs to be a list for the thing not to crash despite efforts to allow non-lists, see Message
@@ -79,9 +77,9 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
                     )]
                 )
             )
-        return messages
+        return list(set(messages))
 
-    def _extract_facets_message_generator(self, analysis: 'TaskResult') -> List[Message]:
+    def _extract_facets_message_generator(self, analysis: 'TaskResult', other_analyses: List['TaskResult']) -> List[Message]:
         if analysis.task_parameters.get('utility') != 'extract_facets':
             return []
 
@@ -89,9 +87,8 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
         corpus = '[q:{}]'.format(analysis.task_parameters['target_search']['q'])
 
         messages = []
-        for facet, values_and_counts in analysis.task_result.items():
-            if 'example' in facet: continue
-            for facet_value, count in values_and_counts.items():
+        for (facet, facet_values_and_counts), (_, interestingness_values) in zip(analysis.task_result['result'].items(), analysis.task_result['interestingness'].items()):
+            for (facet_value, count), (_, interestingess) in zip(facet_values_and_counts.items(), interestingness_values.items()):
                 messages.append(
                     Message(
                         # TODO: This needs to be a list for the thing not to crash despite efforts to allow non-lists, see Message
@@ -104,28 +101,32 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
                             'facet_count_{}'.format(facet),  # analysis_type
                             "[{}:{}]".format(facet, facet_value),  # result_key
                             count,  # result_value
-                            5,  # outlierness
+                            interestingess,  # outlierness
                         )]
                     )
             )
         return messages
 
-    def _find_steps_from_time_series_message_generator(self, analysis: 'TaskResult') -> List[Message]:
+    def _find_steps_from_time_series_message_generator(self, analysis: 'TaskResult', other_analyses: List['TaskResult']) -> List[Message]:
         if analysis.task_parameters.get('utility') != 'find_steps_from_time_series':
             return []
 
         corpus_type = 'query_result'
-        corpus = '[q:{}]'.format(analysis.task_parameters['target_search']['q'])
+
+        parent: 'TaskResult' = next(task for task in other_analyses if task.uuid == analysis.task_parameters.get('target_uuid'))
+        q = parent.task_parameters['target_search']['q']
+        corpus = '[q:{}]'.format(parent.task_parameters['target_search']['q'])
 
         messages = []
-        for facet_value, results in analysis.task_result.items():
-            facet_type = analysis.task_parameters.get('facet_name', 'WORD')
-            for result in results:
-                year = result[0]
-                before = round(result[1][0], 2)
-                after = round(result[1][1], 2)
-                variance = result[2]
-                interestingness = (abs(before - after) / variance) * 5 if variance != 0 else 0.000001
+        for result, interest in zip(analysis.task_result['result'], analysis.task_result['interestingness']):
+            facet_type = parent.task_parameters['utility_parameters']['facet_name']
+            facet_value = result['column']
+            for step, step_interestingess in zip(result['steps'], interest['steps']):
+                year = step['step_time']
+                before = step['step_start']
+                after = step['step_end']
+                error = step['step_error']
+                interestingness = (abs(before - after) / error) if error != 0 else 0.0000001
                 messages.append(
                     Message(
                         # TODO: This needs to be a list for the thing not to crash despite efforts to allow non-lists, see Message
@@ -137,7 +138,7 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
                             'year',  # timestamp_type
                             'step_detection',  # analysis_type
                             "[{}:{}]".format(facet_type, facet_value),  # result_key
-                            '[CHANGE:{}:{}]'.format(before, after),  # result_value
+                            '[CHANGE:{}:{}]'.format(round(before, 2), round(after, 2)),  # result_value
                             interestingness,  # outlierness
                         )]
                     )
