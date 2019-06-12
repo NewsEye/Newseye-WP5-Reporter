@@ -71,21 +71,21 @@ class RegexRealizer(SlotRealizerComponent):
 
     def __init__(self,
                  random: RandomState,
-                 language: str,
+                 languages: Union[str, List[str]],
                  regex: str,
                  extracted_groups: Union[int, Iterable[int]],
                  template: Union[str, Iterable[str]],
                  allowed: Optional[Callable[..., bool]] = None
              ) -> None:
         self.random = random
-        self.language = language
+        self.languages = languages if isinstance(languages, list) else [languages]
         self.regex = regex
         self.extracted_groups = extracted_groups if isinstance(extracted_groups, Iterable) else [extracted_groups]
         self.templates = [template] if isinstance(template, str) else template
         self.allowed = allowed
 
     def supported_languages(self) -> List[str]:
-        return [self.language]
+        return self.languages
 
     def realize(self, slot: Slot) -> Tuple[bool, int]:
         if not isinstance(slot.value, str):
