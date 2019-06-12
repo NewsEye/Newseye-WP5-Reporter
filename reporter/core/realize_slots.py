@@ -48,7 +48,7 @@ class SlotRealizer(NLGPipelineComponent):
     def _realize_value(self, language: str, slot: Slot) -> int:
         for slot_realizer in self._registry.get('slot-realizers'):
             assert isinstance(slot_realizer, SlotRealizerComponent)
-            if language in slot_realizer.supported_languages():
+            if language in slot_realizer.supported_languages() or 'ANY' in slot_realizer.supported_languages():
                 success, slots_added = slot_realizer.realize(slot)
                 if success:
                     return slots_added
