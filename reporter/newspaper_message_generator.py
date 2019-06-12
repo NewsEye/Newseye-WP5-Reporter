@@ -164,9 +164,9 @@ class TaskResult(object):
     def from_dict(json: Dict[str, Any]) -> 'TaskResult':
         return TaskResult(
             [TaskResult.from_dict(child) for child in json['children']] if 'children' in json else [],
-            json['hist_parent_id'],
-            json['task_parameters'],
-            json['task_result'],
-            json['task_type'],
-            json['uuid']
+            json.get('hist_parent_id'),
+            json.get('task_parameters'),
+            json.get('task_result'),
+            json.get('task_type'),
+            json.get('uuid')
         )
