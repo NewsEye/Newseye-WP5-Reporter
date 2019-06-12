@@ -14,10 +14,9 @@ from reporter.core.surface_realizer import BodyHTMLListSurfaceRealizer, BodyHTML
 
 from reporter.core.realize_slots import NumberRealizer
 
-from reporter.newspaper_slot_realizers import EnglishFormatRealizer, EnglishLanguageRealizer, EnglishCategoryRealizer, \
-    EnglishGeoRealizer, EnglishTopicRealizer, EnglishPubdateRealizer, EnglishSubjectRealizer, EnglishSubjectEraRealizer, \
-    EnglishChangeRealizerDecrease, EnglishChangeRealizerIncrease, EnglishYearRealizer, EnglishQueryRealizer, \
-    EnglishWordRealizer
+from reporter.newspaper_slot_realizers import EnglishFormatRealizer, EnglishLanguageRealizer, EnglishTopicRealizer, \
+    EnglishPubDateRealizer, EnglishChangeRealizerDecrease, EnglishChangeRealizerIncrease, EnglishYearRealizer, \
+    EnglishQueryRealizer, EnglishWordRealizer, EnglishNewsPaperNameRealizer, EnglishPubYearRealizer
 
 from reporter.newspaper_slot_realizers import FinnishFormatRealizer, FinnishLanguageRealizer, FinnishCategoryRealizer, \
     FinnishGeoRealizer, FinnishTopicRealizer, FinnishPubdateRealizer, FinnishSubjectRealizer, FinnishSubjectEraRealizer, \
@@ -73,49 +72,47 @@ class NewspaperNlgService(object):
                 NumberRealizer(),
 
                 # English
-                EnglishFormatRealizer(slot_realizer_random),
-                EnglishLanguageRealizer(slot_realizer_random),
-                EnglishCategoryRealizer(slot_realizer_random),
-                EnglishGeoRealizer(slot_realizer_random),
-                EnglishTopicRealizer(slot_realizer_random),
-                EnglishPubdateRealizer(slot_realizer_random),
-                EnglishSubjectRealizer(slot_realizer_random),
-                EnglishSubjectEraRealizer(slot_realizer_random),
-                EnglishChangeRealizerDecrease(slot_realizer_random),
-                EnglishChangeRealizerIncrease(slot_realizer_random),
-                EnglishYearRealizer(slot_realizer_random),
-                EnglishQueryRealizer(slot_realizer_random),
-                EnglishWordRealizer(slot_realizer_random),
+                EnglishFormatRealizer(self.registry),
+                EnglishLanguageRealizer(self.registry),
+                EnglishTopicRealizer(self.registry),
+                EnglishPubDateRealizer(self.registry),
+                EnglishPubYearRealizer(self.registry),
+                EnglishChangeRealizerDecrease(self.registry),
+                EnglishChangeRealizerIncrease(self.registry),
+                EnglishYearRealizer(self.registry),
+                EnglishQueryRealizer(self.registry),
+                EnglishWordRealizer(self.registry),
+                EnglishNewsPaperNameRealizer(self.registry),
 
                 # Finnish
-                FinnishFormatRealizer(slot_realizer_random),
-                FinnishLanguageRealizer(slot_realizer_random),
-                FinnishCategoryRealizer(slot_realizer_random),
-                FinnishGeoRealizer(slot_realizer_random),
-                FinnishTopicRealizer(slot_realizer_random),
-                FinnishPubdateRealizer(slot_realizer_random),
-                FinnishSubjectRealizer(slot_realizer_random),
-                FinnishSubjectEraRealizer(slot_realizer_random),
-                FinnishChangeRealizerDecrease(slot_realizer_random),
-                FinnishChangeRealizerIncrease(slot_realizer_random),
-                FinnishYearRealizer(slot_realizer_random),
-                FinnishQueryRealizer(slot_realizer_random),
-                FinnishWordRealizer(slot_realizer_random),
+                FinnishFormatRealizer(self.registry),
+                FinnishLanguageRealizer(self.registry),
+                FinnishCategoryRealizer(self.registry),
+                FinnishGeoRealizer(self.registry),
+                FinnishTopicRealizer(self.registry),
+                FinnishPubdateRealizer(self.registry),
+                FinnishSubjectRealizer(self.registry),
+                FinnishSubjectEraRealizer(self.registry),
+                FinnishChangeRealizerDecrease(self.registry),
+                FinnishChangeRealizerIncrease(self.registry),
+                FinnishYearRealizer(self.registry),
+                FinnishQueryRealizer(self.registry),
+                FinnishWordRealizer(self.registry),
 
                 # German
-                GermanFormatRealizer(slot_realizer_random),
-                GermanLanguageRealizer(slot_realizer_random),
-                GermanCategoryRealizer(slot_realizer_random),
-                GermanGeoRealizer(slot_realizer_random),
-                GermanTopicRealizer(slot_realizer_random),
-                GermanPubdateRealizer(slot_realizer_random),
-                GermanSubjectRealizer(slot_realizer_random),
-                GermanSubjectEraRealizer(slot_realizer_random),
-                GermanChangeRealizerDecrease(slot_realizer_random),
-                GermanChangeRealizerIncrease(slot_realizer_random),
-                GermanYearRealizer(slot_realizer_random),
-                GermanQueryRealizer(slot_realizer_random),
-                GermanWordRealizer(slot_realizer_random),
+                GermanFormatRealizer(self.registry),
+                GermanLanguageRealizer(self.registry),
+                GermanCategoryRealizer(self.registry),
+                GermanGeoRealizer(self.registry),
+                GermanTopicRealizer(self.registry),
+                GermanPubdateRealizer(self.registry),
+                GermanSubjectRealizer(self.registry),
+                GermanSubjectEraRealizer(self.registry),
+                GermanChangeRealizerDecrease(self.registry),
+                GermanChangeRealizerIncrease(self.registry),
+                GermanYearRealizer(self.registry),
+                GermanQueryRealizer(self.registry),
+                GermanWordRealizer(self.registry),
             ]
         )
 

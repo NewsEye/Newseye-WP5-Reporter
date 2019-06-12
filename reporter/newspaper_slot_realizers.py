@@ -7,53 +7,32 @@ log = logging.getLogger('root')
 
 class EnglishFormatRealizer(RegexRealizer):
 
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'en',
-            r'\[format:([^\]]+)\]',
+            r'\[has_model_ssim:([^\]]+)\]',
             1,
             'the format "{}"'
         )
 
 class EnglishLanguageRealizer(RegexRealizer):
 
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'en',
-            r'\[language_ssim:([^\]]+)\]',
+            r'\[language_ssi:([^\]]+)\]',
             1,
-            'the {} language'
+            '[ENTITY:LANGUAGE:{}]'
         )
 
-class EnglishCategoryRealizer(RegexRealizer):
-
-    def __init__(self, random):
-        super().__init__(
-            random,
-            'en',
-            r'\[lc_1letter_ssim:\w - ([^\]]+)\]',
-            1,
-            'the category "{}"'
-        )
-
-class EnglishGeoRealizer(RegexRealizer):
-
-    def __init__(self, random):
-        super().__init__(
-            random,
-            'en',
-            r'\[subject_geo_ssim:([^\]]+)\]',
-            1,
-            'the location "{}"'
-        )
 
 class EnglishTopicRealizer(RegexRealizer):
 
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'en',
             r'\[TOPIC:([^\]]+)\]',
             1,
@@ -62,55 +41,59 @@ class EnglishTopicRealizer(RegexRealizer):
 
 class EnglishWordRealizer(RegexRealizer):
 
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'en',
             r'\[WORD:([^\]]+)\]',
             1,
             'the word "{}"'
         )
 
-class EnglishPubdateRealizer(RegexRealizer):
+class EnglishPubDateRealizer(RegexRealizer):
 
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'en',
-            r'\[pub_date_ssim:([^\]]+)\]',
+            r'\[date_created_dtsi:([^\]]+)\]',
             1,
-            'published in {}'
+            'published on [ENTITY:DATE:{}]'
         )
 
-class EnglishSubjectRealizer(RegexRealizer):
+class EnglishPubYearRealizer(RegexRealizer):
 
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'en',
-            r'\[subject_ssim:([^\]]+)\]',
+            r'\[PUB_YEAR:([^\]]+)\]',
             1,
-            'the subject "{}"'
+            (
+                'published during {}',
+                'published during the year {}',
+                'published in {}',
+            )
         )
 
-class EnglishSubjectEraRealizer(RegexRealizer):
+class EnglishNewsPaperNameRealizer(RegexRealizer):
 
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'en',
-            r'\[subject_era_ssim:([^\]]+)\]',
+            r'\[member_of_collection_ids_ssim:([^\]]+)\]',
             1,
-            '{}'
+            'published in [ENTITY:NEWSPAPER:{}]'
         )
 
 class EnglishYearRealizer(RegexRealizer):
 
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'en',
-            r'\[year:([^\]]+)\]',
+            r'\[year(?:_isi):([^\]]+)\]',
             1,
             (
                 'during {}',
@@ -121,9 +104,9 @@ class EnglishYearRealizer(RegexRealizer):
 
 class EnglishChangeRealizerIncrease(RegexRealizer):
 
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'en',
             r'\[CHANGE:([^\]:]+):([^\]:]+)\]',
             (1, 2),
@@ -137,9 +120,9 @@ class EnglishChangeRealizerIncrease(RegexRealizer):
 
 class EnglishChangeRealizerDecrease(RegexRealizer):
 
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'en',
             r'\[CHANGE:([^\]:]+):([^\]:]+)\]',
             (1, 2),
@@ -151,9 +134,9 @@ class EnglishChangeRealizerDecrease(RegexRealizer):
         )
 
 class EnglishQueryRealizer(RegexRealizer):
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'en',
             r'\[q:([^\]:]+)\]',
             1,
@@ -164,9 +147,9 @@ class EnglishQueryRealizer(RegexRealizer):
 
 class FinnishFormatRealizer(RegexRealizer):
 
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'fi',
             r'\[format:([^\]]+)\]',
             1,
@@ -175,20 +158,20 @@ class FinnishFormatRealizer(RegexRealizer):
 
 class FinnishLanguageRealizer(RegexRealizer):
 
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'fi',
-            r'\[language_ssim:([^\]]+)\]',
+            r'\[language_ssi:([^\]]+)\]',
             1,
             'kielellä {}'
         )
 
 class FinnishCategoryRealizer(RegexRealizer):
 
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'fi',
             r'\[lc_1letter_ssim:\w - ([^\]]+)\]',
             1,
@@ -197,9 +180,9 @@ class FinnishCategoryRealizer(RegexRealizer):
 
 class FinnishGeoRealizer(RegexRealizer):
 
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'fi',
             r'\[subject_geo_ssim:([^\]]+)\]',
             1,
@@ -208,9 +191,9 @@ class FinnishGeoRealizer(RegexRealizer):
 
 class FinnishTopicRealizer(RegexRealizer):
 
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'fi',
             r'\[TOPIC:([^\]]+)\]',
             1,
@@ -219,9 +202,9 @@ class FinnishTopicRealizer(RegexRealizer):
 
 class FinnishWordRealizer(RegexRealizer):
 
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'fi',
             r'\[WORD:([^\]]+)\]',
             1,
@@ -230,9 +213,9 @@ class FinnishWordRealizer(RegexRealizer):
 
 class FinnishPubdateRealizer(RegexRealizer):
 
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'fi',
             r'\[pub_date_ssim:([^\]]+)\]',
             1,
@@ -241,9 +224,9 @@ class FinnishPubdateRealizer(RegexRealizer):
 
 class FinnishSubjectRealizer(RegexRealizer):
 
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'fi',
             r'\[subject_ssim:([^\]]+)\]',
             1,
@@ -252,9 +235,9 @@ class FinnishSubjectRealizer(RegexRealizer):
 
 class FinnishSubjectEraRealizer(RegexRealizer):
 
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'fi',
             r'\[subject_era_ssim:([^\]]+)\]',
             1,
@@ -264,9 +247,9 @@ class FinnishSubjectEraRealizer(RegexRealizer):
 
 class FinnishYearRealizer(RegexRealizer):
 
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'fi',
             r'\[year:([^\]]+)\]',
             1,
@@ -278,9 +261,9 @@ class FinnishYearRealizer(RegexRealizer):
 
 class FinnishChangeRealizerIncrease(RegexRealizer):
 
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'fi',
             r'\[CHANGE:([^\]:]+):([^\]:]+)\]',
             (1, 2),
@@ -294,9 +277,9 @@ class FinnishChangeRealizerIncrease(RegexRealizer):
 
 class FinnishChangeRealizerDecrease(RegexRealizer):
 
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'fi',
             r'\[CHANGE:([^\]:]+):([^\]:]+)\]',
             (1, 2),
@@ -309,9 +292,9 @@ class FinnishChangeRealizerDecrease(RegexRealizer):
         )
 
 class FinnishQueryRealizer(RegexRealizer):
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'fi',
             r'\[q:([^\]:]+)\]',
             1,
@@ -323,9 +306,9 @@ class FinnishQueryRealizer(RegexRealizer):
 
 class GermanFormatRealizer(RegexRealizer):
 
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'de',
             r'\[format:([^\]]+)\]',
             1,
@@ -334,20 +317,20 @@ class GermanFormatRealizer(RegexRealizer):
 
 class GermanLanguageRealizer(RegexRealizer):
 
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'de',
-            r'\[language_ssim:([^\]]+)\]',
+            r'\[language_ssi:([^\]]+)\]',
             1,
             '{} Sprache'
         )
 
 class GermanCategoryRealizer(RegexRealizer):
 
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'de',
             r'\[lc_1letter_ssim:\w - ([^\]]+)\]',
             1,
@@ -356,9 +339,9 @@ class GermanCategoryRealizer(RegexRealizer):
 
 class GermanGeoRealizer(RegexRealizer):
 
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'de',
             r'\[subject_geo_ssim:([^\]]+)\]',
             1,
@@ -367,9 +350,9 @@ class GermanGeoRealizer(RegexRealizer):
 
 class GermanTopicRealizer(RegexRealizer):
 
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'de',
             r'\[TOPIC:([^\]]+)\]',
             1,
@@ -378,9 +361,9 @@ class GermanTopicRealizer(RegexRealizer):
 
 class GermanWordRealizer(RegexRealizer):
 
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'de',
             r'\[WORD:([^\]]+)\]',
             1,
@@ -389,9 +372,9 @@ class GermanWordRealizer(RegexRealizer):
 
 class GermanPubdateRealizer(RegexRealizer):
 
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'de',
             r'\[pub_date_ssim:([^\]]+)\]',
             1,
@@ -400,9 +383,9 @@ class GermanPubdateRealizer(RegexRealizer):
 
 class GermanSubjectRealizer(RegexRealizer):
 
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'de',
             r'\[subject_ssim:([^\]]+)\]',
             1,
@@ -411,9 +394,9 @@ class GermanSubjectRealizer(RegexRealizer):
 
 class GermanSubjectEraRealizer(RegexRealizer):
 
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'de',
             r'\[subject_era_ssim:([^\]]+)\]',
             1,
@@ -423,9 +406,9 @@ class GermanSubjectEraRealizer(RegexRealizer):
 
 class GermanYearRealizer(RegexRealizer):
 
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'de',
             r'\[year:([^\]]+)\]',
             1,
@@ -437,9 +420,9 @@ class GermanYearRealizer(RegexRealizer):
 
 class GermanChangeRealizerIncrease(RegexRealizer):
 
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'de',
             r'\[CHANGE:([^\]:]+):([^\]:]+)\]',
             (1, 2),
@@ -452,9 +435,9 @@ class GermanChangeRealizerIncrease(RegexRealizer):
 
 class GermanChangeRealizerDecrease(RegexRealizer):
 
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'de',
             r'\[CHANGE:([^\]:]+):([^\]:]+)\]',
             (1, 2),
@@ -465,9 +448,9 @@ class GermanChangeRealizerDecrease(RegexRealizer):
         )
 
 class GermanQueryRealizer(RegexRealizer):
-    def __init__(self, random):
+    def __init__(self, registry):
         super().__init__(
-            random,
+            registry,
             'de',
             r'\[q:([^\]:]+)\]',
             1,

@@ -82,14 +82,14 @@ class NumberRealizer(SlotRealizerComponent):
 class RegexRealizer(SlotRealizerComponent):
 
     def __init__(self,
-                 random: RandomState,
+                 registry: Registry,
                  languages: Union[str, List[str]],
                  regex: str,
                  extracted_groups: Union[int, Iterable[int]],
                  template: Union[str, Iterable[str]],
                  allowed: Optional[Callable[..., bool]] = None
              ) -> None:
-        self.random = random
+        self.registry = registry
         self.languages = languages if isinstance(languages, list) else [languages]
         self.regex = regex
         self.extracted_groups = extracted_groups if isinstance(extracted_groups, Iterable) else [extracted_groups]
@@ -106,7 +106,7 @@ class RegexRealizer(SlotRealizerComponent):
         if match:
             if self.allowed is not None and not self.allowed(*[match.group(i) for i in self.extracted_groups]):
                 return False, 0
-            template_idx = self.random.randint(0, len(self.templates))
+            template_idx = RandomState(self.registry.get('seed')).randint(0, len(self.templates))
             slot.value = lambda f: self.templates[template_idx].format(*[match.group(i) for i in self.extracted_groups])
             return True, 0
         return False, 0
