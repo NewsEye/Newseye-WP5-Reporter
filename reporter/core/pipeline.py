@@ -1,3 +1,4 @@
+from abc import ABC
 import logging
 from typing import Any, List, Optional, Tuple, Union
 
@@ -8,7 +9,7 @@ from .registry import Registry
 log = logging.getLogger('root')
 
 
-class NLGPipelineComponent(object):
+class NLGPipelineComponent(ABC):
 
     def __str__(self) -> str:
         return str(self.__class__.__name__)
