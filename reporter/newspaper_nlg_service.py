@@ -12,6 +12,8 @@ from reporter.core import Aggregator, BodyDocumentPlanner, BodyHTMLSurfaceRealiz
     Template, TemplateSelector
 from reporter.core.surface_realizer import BodyHTMLListSurfaceRealizer, BodyHTMLSurfaceRealizer, BodyHTMLOrderedListSurfaceRealizer
 
+from reporter.core.realize_slots import NumberRealizer
+
 from reporter.newspaper_slot_realizers import EnglishFormatRealizer, EnglishLanguageRealizer, EnglishCategoryRealizer, \
     EnglishGeoRealizer, EnglishTopicRealizer, EnglishPubdateRealizer, EnglishSubjectRealizer, EnglishSubjectEraRealizer, \
     EnglishChangeRealizerDecrease, EnglishChangeRealizerIncrease, EnglishYearRealizer, EnglishQueryRealizer, \
@@ -67,6 +69,9 @@ class NewspaperNlgService(object):
         self.registry.register(
             'slot-realizers',
             [
+                # Generic
+                NumberRealizer(),
+
                 # English
                 EnglishFormatRealizer(slot_realizer_random),
                 EnglishLanguageRealizer(slot_realizer_random),

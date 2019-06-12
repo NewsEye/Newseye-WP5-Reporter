@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 import logging
 import re
+from numbers import Number
 from typing import List, Tuple, Iterable, Union, Callable, Optional
 
 from numpy.random.mtrand import RandomState
@@ -65,6 +66,17 @@ class SlotRealizerComponent(ABC):
     @abstractmethod
     def realize(self, slot: Slot) -> Tuple[bool, int]:
         pass
+
+
+class NumberRealizer(SlotRealizerComponent):
+
+    def supported_languages(self) -> List[str]:
+        return ['ANY']
+
+    def realize(self, slot: Slot) -> Tuple[bool, int]:
+        if not isinstance(slot.value, Number):
+            return False, 0
+        return True, 0
 
 
 class RegexRealizer(SlotRealizerComponent):
