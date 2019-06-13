@@ -178,6 +178,7 @@ class BodyDocumentPlanner(NLGPipelineComponent):
 
     def _penalize_similarity(self, candidates: List[Message], nuclei: List[Message]) -> List[Message]:
         # TODO: This is domain specific, consider splitting this off to a domain-specific method in a subclass
+        return candidates
         if not nuclei:
             return candidates
         for nucleus in nuclei:
