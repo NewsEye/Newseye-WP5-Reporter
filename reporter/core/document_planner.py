@@ -1,6 +1,5 @@
 import logging
 from random import Random
-import re
 from typing import List, Union, Tuple, cast
 
 from .models import Fact, DocumentPlanNode, Message, Relation
