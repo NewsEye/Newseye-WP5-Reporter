@@ -6,7 +6,7 @@ from typing import List, Tuple, Iterable, Union, Callable, Optional
 
 from numpy.random.mtrand import RandomState
 
-from .models import DocumentPlanNode, Slot, TemplateComponent
+from .models import DocumentPlanNode, Slot, TemplateComponent, Literal, Message
 from .pipeline import NLGPipelineComponent
 from .registry import Registry
 
@@ -29,32 +29,35 @@ class SlotRealizer(NLGPipelineComponent):
         return (document_plan, )
 
     def _recurse(self, this: DocumentPlanNode, language: str) -> int:
-        if not isinstance(this, TemplateComponent):
+        if not isinstance(this, Message):
             log.debug("Visiting '{}'".format(this))
+            for child in this.children:
+                self._recurse(child, language)
+        else:
+            log.debug("Visiting {}".format(this))
 
             # Use indexes to iterate through the children since the template slots may be edited, added or replaced
             # during iteration. Ugly, but will do for now.
             idx = 0
             while idx < len(this.children):
-                slots_added = self._recurse(this.children[idx], language)
-                if slots_added:
-                    idx += slots_added
-                idx += 1
-        else:
-            log.debug("Visiting {}".format(this))
-            if isinstance(this, Slot):
-                return self._realize_value(language, this)
+                child = this.children[idx]
+                log.debug('Visiting child {}'.format(child))
+                if not isinstance(child, Slot):
+                    idx += 1
+                    continue
+                modified_components = self._realize_slot(language, child)
+                this.children[idx:idx+1] = modified_components
+                idx += len(modified_components)
 
-
-    def _realize_value(self, language: str, slot: Slot) -> int:
+    def _realize_slot(self, language: str, slot: Slot) -> List[TemplateComponent]:
         for slot_realizer in self._registry.get('slot-realizers'):
             assert isinstance(slot_realizer, SlotRealizerComponent)
             if language in slot_realizer.supported_languages() or 'ANY' in slot_realizer.supported_languages():
-                success, slots_added = slot_realizer.realize(slot)
+                success, components = slot_realizer.realize(slot)
                 if success:
-                    return slots_added
-        else:  # No break
-            log.warning("Unable to realize slot {} in language {} with any realizer".format(slot, language))
+                    return components
+        log.warning("Unable to realize slot {} in language {} with any realizer".format(slot, language))
+        return []
 
 
 class SlotRealizerComponent(ABC):
@@ -64,7 +67,7 @@ class SlotRealizerComponent(ABC):
         pass
 
     @abstractmethod
-    def realize(self, slot: Slot) -> Tuple[bool, int]:
+    def realize(self, slot: Slot) -> Tuple[bool, List[TemplateComponent]]:
         pass
 
 
@@ -73,10 +76,10 @@ class NumberRealizer(SlotRealizerComponent):
     def supported_languages(self) -> List[str]:
         return ['ANY']
 
-    def realize(self, slot: Slot) -> Tuple[bool, int]:
+    def realize(self, slot: Slot) -> Tuple[bool, List[TemplateComponent]]:
         if not isinstance(slot.value, Number):
-            return False, 0
-        return True, 0
+            return False, []
+        return True, [slot]
 
 
 class RegexRealizer(SlotRealizerComponent):
@@ -99,14 +102,31 @@ class RegexRealizer(SlotRealizerComponent):
     def supported_languages(self) -> List[str]:
         return self.languages
 
-    def realize(self, slot: Slot) -> Tuple[bool, int]:
+    def realize(self, slot: Slot) -> Tuple[bool, List[TemplateComponent]]:
         if not isinstance(slot.value, str):
-            return False, 0
+            return False, []
         match = re.fullmatch(self.regex, slot.value)
         if match:
             if self.allowed is not None and not self.allowed(*[match.group(i) for i in self.extracted_groups]):
-                return False, 0
+                return False, []
             template_idx = RandomState(self.registry.get('seed')).randint(0, len(self.templates))
-            slot.value = lambda f: self.templates[template_idx].format(*[match.group(i) for i in self.extracted_groups])
-            return True, 0
-        return False, 0
+            template = self.templates[template_idx]
+            log.info('Template: {}'.format(template))
+            string_realization = template.format(*[match.group(i) for i in self.extracted_groups])
+            log.info('String realization: {}'.format(string_realization))
+            components = []
+            for template_token, realization_token in zip(template.split(), string_realization.split()):
+                if '{}' in template_token:
+                    log.info('Token "{}", realized as "{}" is a slot'.format(template_token, realization_token))
+                    new_slot = slot.copy(include_fact=True)
+                    # An ugly hack that ensures the lambda correctly binds to the value of realization_token at this
+                    # time. Without this, all the lambdas bind to the final value of the realization_token variable, ie.
+                    # the final value at the end of the loop.  See https://stackoverflow.com/a/10452819
+                    new_slot.value = lambda f, realization_token=realization_token: realization_token
+                    components.append(new_slot)
+                else:
+                    log.info('Token "{}", realized as "{}" is a literal'.format(template_token, realization_token))
+                    components.append(Literal(realization_token))
+            log.info('Components: {}'.format([str(c) for c in components]))
+            return True, components
+        return False, []

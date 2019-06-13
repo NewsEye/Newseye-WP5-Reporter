@@ -426,9 +426,12 @@ class Slot(TemplateComponent):
     def value(self, f: Callable) -> None:
         self._to_value = f
 
-    def copy(self) -> 'Slot':
+    def copy(self, include_fact=False) -> 'Slot':
         # TODO: Is it intended that Fact is not copied over?
-        return Slot(self._to_value, self.attributes.copy())
+        if not include_fact:
+            return Slot(self._to_value, self.attributes.copy())
+        else:
+            return Slot(self._to_value, self.attributes.copy(), self.fact)
 
     def __str__(self) -> str:
         return "Slot({}{})".format(
