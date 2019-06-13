@@ -1,40 +1,40 @@
-en: there were {result_value} entries about {result_key}
-fi: {result_key} tuloksia {result_value}
+en: there were {result_value} entries {result_key}
+fi: löydettiin {result_value} {result_key} tulosta
 de: es gibt {result_value} Einträge zu {result_key}
 | analysis_type = facet_count
 
 en: there were {result_value} entries related to {result_key}
-fi: {result_key} tuloksia liittyen {result_value}
+fi: löydettiin {result_value} {result_key} tulosta
 de: es gibt {result_value} Einträge zu {result_key}
 | analysis_type = topic_count
 
-en: {timestamp_from}, the number of entries related to {result_key} {result_value}
-en: the number of entries related to {result_key} {result_value} {timestamp_from}
-fi: {timestamp_from}, tulosten lukumäärä liittyen {result_key} {result_value}
+en: {timestamp_from}, the number of entries {result_key} {result_value}
+en: the number of entries {result_key} {result_value} {timestamp_from}
+fi: {timestamp_from}, {result_key} tulosten lukumäärä {result_value}
 de: {timestamp_from}, die Anzahl der Einträge im Zusammenhang mit {result_key} {result_value}
 | analysis_type = step_detection
 
 en: there were {result_value} entries in {result_key}
-fi: {result_key} tuloksia {result_value}
+fi: kielellä {result_key} löytyi {result_value} osumaa
 de: es gibt {result_value} Einträge auf {result_key}
 | analysis_type = facet_count_language_ssi
 
-en: there were {result_value} entries published on {result_key}
-fi: löydettiin {result_key} tuloksia {result_value}
+en: there were {result_value} entries {result_key}
+fi: löydettiin {result_value} osumaa jotka oli julkaistu {result_key}
 de: es gibt {result_value} Einträge veröffentlicht in {result_key}
 | analysis_type = facet_count_date_created_dtsi
 
 en: there were {result_value} entries published {result_key}
-fi: {result_key} tuloksia {result_value}
+fi: löydettiin {result_value} osumaa jotka oli julkaistu vuonna {result_key}
 de: es gibt {result_value} Einträge veröffentlicht in {result_key}
 | analysis_type = facet_count_year_isi
 
-en: there were {result_value} {result_key}
-fi: löytyi {result_key} tulosta {result_value}
+en: there were {result_value} hits in {result_key}
+fi: löytyi {result_value} tulosta jotka oli julkaistu lehdessä {result_key}
 | analysis_type = facet_count_member_of_collection_ids_ssim
 
 en: there were {result_value} entries in {result_key}
-fi: {result_key} tuloksia {result_value}
+fi: löydettiin {result_value} osumaa jotka olivat {result_key} -tyyppisissä dokumenteissa
 de: es gibt {result_value} Einträge {result_key}
 | analysis_type = facet_count_has_model_ssim
 

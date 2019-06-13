@@ -76,13 +76,25 @@ class EnglishPubYearRealizer(RegexRealizer):
             )
         )
 
-class EnglishNewsPaperNameRealizer(RegexRealizer):
+
+class EnglishCollectionNameRealizer(RegexRealizer):
 
     def __init__(self, registry):
         super().__init__(
             registry,
             'en',
             r'\[member_of_collection_ids_ssim:([^\]]+)\]',
+            1,
+            '[ENTITY:NEWSPAPER:{}]'
+        )
+
+class EnglishNewspaperNameRealizer(RegexRealizer):
+
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            'en',
+            r'\[NEWSPAPER_NAME:([^\]]+)\]',
             1,
             'published in [ENTITY:NEWSPAPER:{}]'
         )
@@ -93,7 +105,22 @@ class EnglishYearRealizer(RegexRealizer):
         super().__init__(
             registry,
             'en',
-            r'\[year(?:_isi):([^\]]+)\]',
+            r'\[year:([^\]]+)\]',
+            1,
+            (
+                'during {}',
+                'during the year {}',
+                'in {}',
+            )
+        )
+
+class EnglishYearIsiRealizer(RegexRealizer):
+
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            'en',
+            r'\[year_isi:([^\]]+)\]',
             1,
             (
                 'during {}',
@@ -144,16 +171,15 @@ class EnglishQueryRealizer(RegexRealizer):
         )
 
 # TODO: All Finnish language formats are not yet tested
-
 class FinnishFormatRealizer(RegexRealizer):
 
     def __init__(self, registry):
         super().__init__(
             registry,
             'fi',
-            r'\[format:([^\]]+)\]',
+            r'\[has_model_ssim:([^\]]+)\]',
             1,
-            '"{}"-muodossa'
+            '"{}"'
         )
 
 class FinnishLanguageRealizer(RegexRealizer):
@@ -164,30 +190,9 @@ class FinnishLanguageRealizer(RegexRealizer):
             'fi',
             r'\[language_ssi:([^\]]+)\]',
             1,
-            'kielellä {}'
+            '[ENTITY:LANGUAGE:{}]'
         )
 
-class FinnishCategoryRealizer(RegexRealizer):
-
-    def __init__(self, registry):
-        super().__init__(
-            registry,
-            'fi',
-            r'\[lc_1letter_ssim:\w - ([^\]]+)\]',
-            1,
-            'kategoriassa "{}"'
-        )
-
-class FinnishGeoRealizer(RegexRealizer):
-
-    def __init__(self, registry):
-        super().__init__(
-            registry,
-            'fi',
-            r'\[subject_geo_ssim:([^\]]+)\]',
-            1,
-            'paikassa "{}"'
-        )
 
 class FinnishTopicRealizer(RegexRealizer):
 
@@ -197,7 +202,7 @@ class FinnishTopicRealizer(RegexRealizer):
             'fi',
             r'\[TOPIC:([^\]]+)\]',
             1,
-            'aiheeseen "{}"'
+            'aiheeseen "{}" liittyvää'
         )
 
 class FinnishWordRealizer(RegexRealizer):
@@ -208,42 +213,53 @@ class FinnishWordRealizer(RegexRealizer):
             'fi',
             r'\[WORD:([^\]]+)\]',
             1,
-            'sanaan "{}"'
+            'sanan "{}" sisältävää'
         )
 
-class FinnishPubdateRealizer(RegexRealizer):
+class FinnishPubDateRealizer(RegexRealizer):
 
     def __init__(self, registry):
         super().__init__(
             registry,
             'fi',
-            r'\[pub_date_ssim:([^\]]+)\]',
+            r'\[date_created_dtsi:([^\]]+)\]',
             1,
-            'julkaistu {}'
+            '[ENTITY:DATE:{}]'
         )
 
-class FinnishSubjectRealizer(RegexRealizer):
+class FinnishPubYearRealizer(RegexRealizer):
 
     def __init__(self, registry):
         super().__init__(
             registry,
             'fi',
-            r'\[subject_ssim:([^\]]+)\]',
+            r'\[PUB_YEAR:([^\]]+)\]',
             1,
-            'aiheesta "{}"'
+            'vuonna {} julkaistua',
         )
 
-class FinnishSubjectEraRealizer(RegexRealizer):
+
+class FinnishCollectionNameRealizer(RegexRealizer):
 
     def __init__(self, registry):
         super().__init__(
             registry,
             'fi',
-            r'\[subject_era_ssim:([^\]]+)\]',
+            r'\[member_of_collection_ids_ssim:([^\]]+)\]',
             1,
-            '{}'
+            '[ENTITY:NEWSPAPER:{}]'
         )
 
+class FinnishNewspaperNameRealizer(RegexRealizer):
+
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            'fi',
+            r'\[NEWSPAPER_NAME:([^\]]+)\]',
+            1,
+            'lehdessä [ENTITY:NEWSPAPER:{}] julkaistua'
+        )
 
 class FinnishYearRealizer(RegexRealizer):
 
@@ -253,10 +269,18 @@ class FinnishYearRealizer(RegexRealizer):
             'fi',
             r'\[year:([^\]]+)\]',
             1,
-            (
-                'vuonna {}',
-                'vuoden {} aikana',
-            )
+            '{}',
+        )
+
+class FinnishYearIsiRealizer(RegexRealizer):
+
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            'fi',
+            r'\[year_isi:([^\]]+)\]',
+            1,
+            '{}',
         )
 
 class FinnishChangeRealizerIncrease(RegexRealizer):
@@ -268,8 +292,8 @@ class FinnishChangeRealizerIncrease(RegexRealizer):
             r'\[CHANGE:([^\]:]+):([^\]:]+)\]',
             (1, 2),
             (
-                'kasvoi {} esiintymästä miljoonassa {}:ään ',
-                'nousi {} esiintymästä miljoonassa {}:ään ',
+                'kasvoi {} osumasta {} osumaan miljoonasta',
+                'nousi {} osumasta {} osumaan miljoonassa',
             ),
             lambda before, after: float(before) < float(after)
         )
@@ -284,9 +308,8 @@ class FinnishChangeRealizerDecrease(RegexRealizer):
             r'\[CHANGE:([^\]:]+):([^\]:]+)\]',
             (1, 2),
             (
-                'laski {} esiintymästä miljoonassa {}:ään ',
-                'putosi {} esiintymästä miljoonassa {}:ään ',
-                'tippui {} esiintymästä miljoonassa {}:ään ',
+                'laski {} osumasta {} osumaan miljoonasta',
+                'putosi {} osumasta {} osumaan miljoonassa',
             ),
             lambda before, after: float(before) > float(after)
         )
