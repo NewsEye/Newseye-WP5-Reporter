@@ -1,7 +1,15 @@
-PRONOUNS = {
+LANGUAGES = {
     'en': {
-        1: 'he',
-        2: 'she',
+        'fi': 'finnish',
+        'en': 'english',
+        'de': 'german',
+        'fr': 'french',
+    },
+    'fi': {
+        'fi': 'suomi',
+        'en': 'englanti',
+        'de': 'saksa',
+        'fr': 'ranska',
     }
 }
 
