@@ -153,7 +153,7 @@ class NewspaperNlgService(object):
         yield TemplateSelector()
         yield Aggregator()
         yield SlotRealizer()
-        # yield NewspaperEntityNameResolver()
+        yield NewspaperEntityNameResolver()
         if realizer == 'headline':
             yield HeadlineHTMLSurfaceRealizer()
         elif realizer == 'ol':

@@ -1,9 +1,10 @@
+from abc import abstractmethod
 from collections import defaultdict
 import logging
 from random import Random
 from typing import Set, Tuple, DefaultDict
 
-from .models import DocumentPlanNode, Relation
+from .models import DocumentPlanNode, Slot
 from .pipeline import NLGPipelineComponent
 from .registry import Registry
 
@@ -37,7 +38,7 @@ class EntityNameResolver(NLGPipelineComponent):
     # In this implementation, it is enough to define the multi-entity_type confusion groups, as we
     # can simply use the default parameter in dict.get() to return the key for other cases-
 
-    def run(self, registry: Registry, random: Random, language: str, document_plan: DocumentPlanNode):
+    def run(self, registry: Registry, random: Random, language: str, document_plan: DocumentPlanNode) -> Tuple[DocumentPlanNode]:
         """
         Run this pipeline component.
         """
@@ -57,42 +58,20 @@ class EntityNameResolver(NLGPipelineComponent):
 
     def _recurse(self, registry: Registry, random: Random, language: str, this: DocumentPlanNode,
                  previous_entities: DefaultDict[str, None], encountered: Set[str]) \
-            -> Tuple[int, DefaultDict[str, None], Set[str]]:
+            -> Tuple[Set[str], DefaultDict[str, None]]:
         """
         Traverses the DocumentPlan tree recursively in-order and modifies named
         entity to_value functions to return the chosen form of that NE's name.
         """
-
-        try:
-            # Try to use the current root as a non-leaf.
-            log.debug("Visiting non-leaf '{}'".format(this))
-            idx = 0
-            while idx < len(this.children):
-                slots_added, encountered, previous_entities = self._recurse(registry, random, language,
-                                                                            this.children[idx], previous_entities,
-                                                                            encountered)
-                if slots_added:
-                    idx += slots_added
-                idx += 1
-            try:
-                if this.relation == Relation.SEQUENCE:
-                    previous_entities = defaultdict(lambda: None)
-                    encountered = set()
-            except AttributeError:
-                pass
-            return 0, encountered, previous_entities
-        except AttributeError:
-            # Had no children, must be a leaf node
-
+        if isinstance(this, Slot):
             added_slots = 0
-            entity = this.value
 
-            if not self.is_entity(entity):
-                log.debug("Visited leaf non-NE leaf node {}".format(entity))
-                return added_slots, encountered, previous_entities
+            if not self.is_entity(this.value):
+                log.debug("Visited leaf non-NE leaf node {}".format(this.value))
+                return encountered, previous_entities
 
-            log.debug("Visiting NE leaf {}".format(entity))
-            entity_type = self.resolve_entity_type(entity)
+            log.debug("Visiting NE leaf {}".format(this.value))
+            entity_type, entity = self.parse_entity(this.value)
 
             if previous_entities[entity_type] == entity:
                 log.debug("Same as previous entity")
@@ -108,19 +87,29 @@ class EntityNameResolver(NLGPipelineComponent):
                 encountered.add(entity)
                 log.debug("Added entity to encountered, all encountered: {}".format(encountered))
 
-            added_slots = self.resolve_surface_form(registry, random, language, this)
+            added_slots = self.resolve_surface_form(registry, random, language, this, entity, entity_type)
             log.debug("Resolved entity name adding {} new slot(s)".format(added_slots))
 
             this.attributes['entity_type'] = entity_type
             previous_entities[entity_type] = entity
 
-            return added_slots, encountered, previous_entities
+            return encountered, previous_entities
+        elif isinstance(this, DocumentPlanNode):
+            log.debug("Visiting non-leaf '{}'".format(this))
+            for child in this.children:
+                encountered, previous_entities = self._recurse(registry, random, language, child, previous_entities, encountered)
+            return encountered, previous_entities
+        return encountered, previous_entities
 
-    def is_entity(self, maybe_entity):
+
+    @abstractmethod
+    def is_entity(self, maybe_entity: str) -> bool:
         raise NotImplementedError("Not implemented")
 
-    def resolve_entity_type(self, entity):
+    @abstractmethod
+    def parse_entity(self, entity:str) -> Tuple[str, str]:
         raise NotImplementedError("Not implemented")
 
-    def resolve_surface_form(self, registry, random, language, this):
+    @abstractmethod
+    def resolve_surface_form(self, registry: Registry, random: Random, language: str, slot: Slot, entity:str, entity_type: str) -> None:
         raise NotImplementedError("Not implemented")
