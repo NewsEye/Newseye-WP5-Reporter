@@ -346,18 +346,7 @@ class GermanLanguageRealizer(RegexRealizer):
             'de',
             r'\[language_ssi:([^\]]+)\]',
             1,
-            '{} Sprache'
-        )
-
-class GermanCategoryRealizer(RegexRealizer):
-
-    def __init__(self, registry):
-        super().__init__(
-            registry,
-            'de',
-            r'\[lc_1letter_ssim:\w - ([^\]]+)\]',
-            1,
-            'der Kategorie "{}"'
+            'auf [ENTITY:LANGUAGE:{}]'
         )
 
 class GermanGeoRealizer(RegexRealizer):
@@ -393,15 +382,52 @@ class GermanWordRealizer(RegexRealizer):
             'das Wort "{}"'
         )
 
-class GermanPubdateRealizer(RegexRealizer):
+class GermanPubDateRealizer(RegexRealizer):
 
     def __init__(self, registry):
         super().__init__(
             registry,
             'de',
-            r'\[pub_date_ssim:([^\]]+)\]',
+            r'\[date_created_dtsi:([^\]]+)\]',
             1,
-            '{}'
+            'published on [ENTITY:DATE:{}]'
+        )
+
+class GermanPubYearRealizer(RegexRealizer):
+
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            'de',
+            r'\[PUB_YEAR:([^\]]+)\]',
+            1,
+            (
+                'published during {}',
+                'published during the year {}',
+                'published in {}',
+            )
+        )
+
+class GermanCollectionNameRealizer(RegexRealizer):
+
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            'de',
+            r'\[member_of_collection_ids_ssim:([^\]]+)\]',
+            1,
+            '[ENTITY:NEWSPAPER:{}]'
+        )
+
+class GermanNewspaperNameRealizer(RegexRealizer):
+
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            'de',
+            r'\[NEWSPAPER_NAME:([^\]]+)\]',
+            1,
+            'published in [ENTITY:NEWSPAPER:{}]'
         )
 
 class GermanSubjectRealizer(RegexRealizer):
@@ -438,6 +464,21 @@ class GermanYearRealizer(RegexRealizer):
             (
                 'während des Jahres {}',
                 'im Jahre {}',
+            )
+        )
+
+class GermanYearIsiRealizer(RegexRealizer):
+
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            'de',
+            r'\[year_isi:([^\]]+)\]',
+            1,
+            (
+                'during {}',
+                'during the year {}',
+                'in {}',
             )
         )
 

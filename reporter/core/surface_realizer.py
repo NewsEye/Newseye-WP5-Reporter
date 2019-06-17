@@ -44,6 +44,7 @@ class SurfaceRealizer(NLGPipelineComponent):
         """
         log.info("Realizing to text")
         sequences = [c for c in document_plan.children]
+        log.info("Sequences {}".format(sequences))
         paragraphs = [self.realize(s, language) for s in sequences]
         output = ""
         for p in paragraphs:
