@@ -1,3 +1,5 @@
+${anyquery}: query, query_minmatches, query_minmatches_filter, filter, query_filter
+
 en: there were {result_value} entries {result_key}
 fi: löydettiin {result_value} {result_key} tulosta
 de: es gibt {result_value} Einträge zu {result_key}
@@ -7,6 +9,10 @@ en: there were {result_value} entries related to {result_key}
 fi: löydettiin {result_value} {result_key} tulosta
 de: es gibt {result_value} Einträge zu {result_key}
 | analysis_type = topic_count
+
+en: the corpus defined by {corpus} is associated with {result_key} with weight {result_value}
+fi: kysely {corpus} liittyy {result_key} painoarvolla {result_value}
+| analysis_type = topic_weight
 
 en: {timestamp_from}, the number of entries {result_key} {result_value}
 en: the number of entries {result_key} {result_value} {timestamp_from}
@@ -38,7 +44,7 @@ fi: löydettiin {result_value} osumaa jotka olivat {result_key} -tyyppisissä do
 de: es gibt {result_value} Einträge {result_key}
 | analysis_type = facet_count_has_model_ssim
 
-en-head: Analysis of a corpus defined by the query {corpus}
+en-head: Analysis of a corpus defined by {corpus}
 fi-head: Analyysi korpuksesta kyselyllä {corpus}
 de-head: Analyse mit der Abfrage {corpus}
-| corpus_type = query_result
+| corpus_type in {anyquery}

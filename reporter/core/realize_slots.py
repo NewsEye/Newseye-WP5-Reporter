@@ -25,17 +25,16 @@ class SlotRealizer(NLGPipelineComponent):
         log.info("Realizing slots")
         self._registry = registry
         self._random = random
-        self._recurse(document_plan, language.split('-')[0])
+        while self._recurse(document_plan, language.split('-')[0]): pass  # Repeat until no more changes
         return (document_plan, )
 
-    def _recurse(self, this: DocumentPlanNode, language: str) -> int:
+    def _recurse(self, this: DocumentPlanNode, language: str) -> bool:
         if not isinstance(this, Message):
             log.debug("Visiting '{}'".format(this))
-            for child in this.children:
-                self._recurse(child, language)
+            return any(self._recurse(child, language) for child in this.children)
         else:
             log.debug("Visiting {}".format(this))
-
+            any_modified = False
             # Use indexes to iterate through the children since the template slots may be edited, added or replaced
             # during iteration. Ugly, but will do for now.
             idx = 0
@@ -46,8 +45,11 @@ class SlotRealizer(NLGPipelineComponent):
                     idx += 1
                     continue
                 modified_components = self._realize_slot(language, child)
+                if modified_components != [child]:
+                    any_modified = True
                 this.children[idx:idx+1] = modified_components
                 idx += len(modified_components)
+            return any_modified
 
     def _realize_slot(self, language: str, slot: Slot) -> List[TemplateComponent]:
         for slot_realizer in self._registry.get('slot-realizers'):
@@ -56,8 +58,8 @@ class SlotRealizer(NLGPipelineComponent):
                 success, components = slot_realizer.realize(slot)
                 if success:
                     return components
-        log.warning("Unable to realize slot {} in language {} with any realizer".format(slot, language))
-        return []
+        log.debug("Unable to realize slot {} in language {} with any realizer".format(slot, language))
+        return [slot]
 
 
 class SlotRealizerComponent(ABC):
@@ -115,18 +117,13 @@ class RegexRealizer(SlotRealizerComponent):
             string_realization = template.format(*[match.group(i) for i in self.extracted_groups])
             log.info('String realization: {}'.format(string_realization))
             components = []
-            for template_token, realization_token in zip(template.split(), string_realization.split()):
-                if '{}' in template_token:
-                    log.info('Token "{}", realized as "{}" is a slot'.format(template_token, realization_token))
-                    new_slot = slot.copy(include_fact=True)
-                    # An ugly hack that ensures the lambda correctly binds to the value of realization_token at this
-                    # time. Without this, all the lambdas bind to the final value of the realization_token variable, ie.
-                    # the final value at the end of the loop.  See https://stackoverflow.com/a/10452819
-                    new_slot.value = lambda f, realization_token=realization_token: realization_token
-                    components.append(new_slot)
-                else:
-                    log.info('Token "{}", realized as "{}" is a literal'.format(template_token, realization_token))
-                    components.append(Literal(realization_token))
+            for realization_token in string_realization.split():
+                new_slot = slot.copy(include_fact=True)
+                # An ugly hack that ensures the lambda correctly binds to the value of realization_token at this
+                # time. Without this, all the lambdas bind to the final value of the realization_token variable, ie.
+                # the final value at the end of the loop.  See https://stackoverflow.com/a/10452819
+                new_slot.value = lambda f, realization_token=realization_token: realization_token
+                components.append(new_slot)
             log.info('Components: {}'.format([str(c) for c in components]))
             return True, components
         return False, []

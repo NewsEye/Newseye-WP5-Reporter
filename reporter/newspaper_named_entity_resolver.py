@@ -25,7 +25,7 @@ class NewspaperEntityNameResolver(EntityNameResolver):
 
     def resolve_surface_form(self, registry: Registry, random: Random, language: str, slot: Slot, entity:str, entity_type: str) -> None:
         if entity_type in ['NEWSPAPER_NAME', 'NEWSPAPER']:
-                value = entity.capitalize()
+                value = entity.replace('_', ' ').capitalize()
         elif entity_type == 'LANGUAGE':
             value = LANGUAGES.get(language, {}).get(entity)
         elif entity_type == 'DATE':
