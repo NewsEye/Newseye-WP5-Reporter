@@ -12,7 +12,7 @@ log = logging.getLogger('root')
 
 # For now, these parameters are hard-coded
 MIN_PARAGRAPHS_PER_DOC = 3  # Try really hard to get at least this many
-MAX_PARAGRAPHS_PER_DOC = 5
+MAX_PARAGRAPHS_PER_DOC = 100
 SENTENCES_PER_PARAGRAPH = 7
 # How many messages are we allowed to take from the expanded set
 MAX_EXPANDED_NUCLEI = 2
@@ -20,8 +20,8 @@ MAX_EXPANDED_NUCLEI = 2
 END_PARAGRAPH_RELATIVE_TRESHOLD = 0.0000001
 END_PARAGRAPH_ABSOLUTE_THRESHOLD = 0.0
 
-END_STORY_RELATIVE_TRESHOLD = 0.2
-END_STORY_ABSOLUTE_TRESHOLD = 1.0
+END_STORY_RELATIVE_TRESHOLD = 0.0000001
+END_STORY_ABSOLUTE_TRESHOLD = 0.0
 
 
 class HeadlineDocumentPlanner(NLGPipelineComponent):
