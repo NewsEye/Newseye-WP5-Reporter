@@ -1,7 +1,7 @@
 import json
 import logging
 from random import Random
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Optional
 
 from reporter.core import Fact, NoMessagesForSelectionException, NLGPipelineComponent, Message, Registry
 
@@ -63,8 +63,7 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
         if analysis.task_parameters.get('utility') != 'common_facet_values':
             return []
 
-        corpus_type = 'query_result'
-        corpus = '[q:{}]'.format(analysis.task_parameters['target_search']['q'])
+        corpus, corpus_type = self._build_corpus_fields(analysis, other_analyses)
 
         messages = []
         for result, interestingness in zip(analysis.task_result['result'], analysis.task_result['interestingness']):
@@ -93,8 +92,7 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
         if analysis.task_parameters.get('utility') != 'extract_facets':
             return []
 
-        corpus_type = 'query_result'
-        corpus = '[q:{}]'.format(analysis.task_parameters['target_search']['q'])
+        corpus, corpus_type = self._build_corpus_fields(analysis, other_analyses)
 
         messages = []
         for (facet, facet_values_and_counts), (_, interestingness_values) in zip(analysis.task_result['result'].items(), analysis.task_result['interestingness'].items()):
@@ -121,11 +119,8 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
         if analysis.task_parameters.get('utility') != 'find_steps_from_time_series':
             return []
 
-        corpus_type = 'query_result'
-
-        parent: 'TaskResult' = next(task for task in other_analyses if task.uuid == analysis.task_parameters.get('target_uuid'))
-        q = parent.task_parameters['target_search']['q']
-        corpus = '[q:{}]'.format(parent.task_parameters['target_search']['q'])
+        parent = self._get_parent(analysis, other_analyses)
+        corpus, corpus_type = self._build_corpus_fields(analysis, other_analyses)
 
         messages = []
         for result, interest in zip(analysis.task_result['result'], analysis.task_result['interestingness']):
@@ -154,6 +149,45 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
                     )
                 )
         return messages
+
+
+    def _get_parent(self, analysis: 'TaskResult', other_analyses: List['TaskResult']) -> Optional['TaskResult']:
+        parent_uuid = analysis.task_parameters.get('target_uuid')
+        if not parent_uuid:
+            return None
+
+        for other in other_analyses:
+            if other.uuid == parent_uuid:
+                return other
+
+        return None
+
+
+    def _build_corpus_fields(self, analysis: 'TaskResult', other_analyses: List['TaskResult']) -> Tuple[str, str]:
+        while not analysis.task_parameters.get('target_search'):
+            analysis = self._get_parent(analysis, other_analyses)
+            if not analysis:
+                return 'full_corpus', 'full_corpus'
+
+        corpus = []
+        corpus_type = []
+
+        q = analysis.task_parameters.get('target_search', {}).get('q')
+        if q:
+            corpus.append('[q:{}]'.format(q))
+            corpus_type.append('query')
+
+        mm = analysis.task_parameters.get('target_search', {}).get('mm')
+        if mm:
+            corpus.append('[mm:{}]'.format(mm))
+            corpus_type.append('minmatches')
+
+        fq = analysis.task_parameters.get('target_search', {}).get('fq')
+        if fq:
+            corpus.append('[fq:{}]'.format(fq))
+            corpus_type.append('filter')
+
+        return ' '.join(corpus), '_'.join(corpus_type)
 
 
 class TaskResult(object):
