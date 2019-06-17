@@ -15,6 +15,7 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
             self._common_facet_values_message_generator,
             self._find_steps_from_time_series_message_generator,
             self._extract_facets_message_generator,
+            self._query_topic_model_topic_weights_message_generator,
         ]
 
     def run(self, registry: Registry, random: Random, language: str, data:str) -> Tuple[List[Message]]:
@@ -148,6 +149,38 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
                         )]
                     )
                 )
+        return messages
+
+    def _query_topic_model_topic_weights_message_generator(self, analysis: 'TaskResult', other_analyses: List['TaskResult']) -> List[Message]:
+        if analysis.task_parameters.get('utility') != 'query_topic_model':
+            return []
+
+        corpus, corpus_type = self._build_corpus_fields(analysis, other_analyses)
+
+        model_type = analysis.task_parameters.get('utility_parameters', {}).get('model_type')
+        model_name = analysis.task_parameters.get('utility_parameters', {}).get('model_name')
+
+        messages = []
+        for (topic_idx, topic_weight), topic_weight_interestingess in zip(
+                enumerate(analysis.task_result['result']['topic_weights']),
+                analysis.task_result['interestingness']['topic_weights']):
+
+            messages.append(
+                Message(
+                    # TODO: This needs to be a list for the thing not to crash despite efforts to allow non-lists, see Message
+                    [Fact(
+                        corpus,  # corpus
+                        corpus_type,  # corpus_type
+                        None,  # timestamp_from
+                        None,  # timestamp_to
+                        'all_time',  # timestamp_type
+                        'topic_weight',  # analysis_type
+                        "[TOPIC:{}:{}:{}]".format(model_type, model_name, topic_idx),  # result_key
+                        '[TOPIC_WEIGHT:{}]'.format(topic_weight),  # result_value
+                        topic_weight_interestingess,  # outlierness
+                    )]
+                )
+            )
         return messages
 
 

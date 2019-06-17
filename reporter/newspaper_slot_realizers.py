@@ -1,9 +1,92 @@
 
 import logging
+import re
+import traceback
 
-from reporter.core import RegexRealizer
+import requests
+from typing import List, Tuple, Callable, Type
+
+from reporter.core import RegexRealizer, SlotRealizerComponent, TemplateComponent, Slot, Registry
+from reporter.constants import CONJUNCTIONS
 
 log = logging.getLogger('root')
+
+class AbstractTopicRealizer(SlotRealizerComponent):
+    parser_regex = re.compile(r'\[TOPIC:([^\]]+):([^\]]+):([^\]]+)\]')
+
+    def __init__(self, language: str, registry: Registry, backup_realizer_constructor: Type, template: str, value_order: Tuple[int, ...]) -> None:
+        self.registry = registry
+        self.language = language
+        self.backup_realizer = _BackupEnglishTopicRealizer(registry)
+        self.template = template
+        self.value_order = value_order
+
+    def supported_languages(self) -> List[str]:
+        return [self.language]
+
+    def realize(self, slot: Slot) -> Tuple[bool, List[TemplateComponent]]:
+        match = re.fullmatch(self.parser_regex, slot.value)
+        if not match:
+            return False, []
+        model_type, model_name, topic_id = match.groups()
+        try:
+            response = requests.post(
+                'https://newseye-wp4.cs.helsinki.fi/{}/describe-topic'.format(model_type),
+                json = {
+                    'model_name': model_name,
+                    'topic_id': topic_id,
+                    'lang': self.language
+                }
+            )
+            topic_words = response.json()['topic_desc'].split()
+            conjunction = CONJUNCTIONS.get(self.language, {}).get('default_combiner')
+            if conjunction:
+                topic_description = '"{}" {} "{}"'.format('", "'.join(topic_words[:4]), conjunction, topic_words[4])
+            else:
+                topic_description = '"{}"'.format('", "'.join(topic_words[:5]))
+            print(topic_description)
+            raw_values = [model_type.upper(), model_name.upper(), topic_id, topic_description]
+            values = [raw_values[idx] for idx in self.value_order]
+            string_realization = self.template.format(*values)
+            log.debug('String realization: {}'.format(string_realization))
+            components = []
+            for realization_token in string_realization.split():
+                new_slot = slot.copy(include_fact=True)
+                # An ugly hack that ensures the lambda correctly binds to the value of realization_token at this
+                # time. Without this, all the lambdas bind to the final value of the realization_token variable, ie.
+                # the final value at the end of the loop.  See https://stackoverflow.com/a/10452819
+                new_slot.value = lambda f, realization_token=realization_token: realization_token
+                components.append(new_slot)
+            log.info('Components: {}'.format([str(c) for c in components]))
+            return True, components
+
+        except Exception as ex:
+            log.warning('Failed to fetch topic description: {}'.format(ex))
+            traceback.print_tb(ex.__traceback__)
+            return self.backup_realizer.realize(slot)
+
+class _BackupEnglishTopicRealizer(RegexRealizer):
+
+        def __init__(self, registry):
+            super().__init__(
+                registry,
+                'en',
+                r'\[TOPIC:([^\]]+):([^\]]+):([^\]]+)\]',
+                (3, 1, 2),
+                'the topic "{}" of the {} topic model "{}"'
+            )
+
+class EnglishTopicRealizer(AbstractTopicRealizer):
+
+    def __init__(self, registry):
+        super().__init__(
+            'en',
+            registry,
+            _BackupEnglishTopicRealizer,
+            'the topic characterized by the words {} from the {} model {}',
+            (3, 0, 1) # 0 = model_type, 1 = model_name, 2 = topic_id, 3 = topic_desc
+        )
+
 
 class EnglishFormatRealizer(RegexRealizer):
 
@@ -28,16 +111,6 @@ class EnglishLanguageRealizer(RegexRealizer):
         )
 
 
-class EnglishTopicRealizer(RegexRealizer):
-
-    def __init__(self, registry):
-        super().__init__(
-            registry,
-            'en',
-            r'\[TOPIC:([^\]]+)\]',
-            1,
-            'the topic "{}"'
-        )
 
 class EnglishWordRealizer(RegexRealizer):
 
@@ -167,8 +240,50 @@ class EnglishQueryRealizer(RegexRealizer):
             'en',
             r'\[q:([^\]:]+)\]',
             1,
-            '"{}"'
+            'the query "{}"'
         )
+
+class EnglishQueryMmRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            'en',
+            r'\[q:([^\]:]+)\] \[mm:([^\]:]+)\]',
+            (1, 2),
+            'the query "{}" (min match = {})'
+        )
+
+class EnglishQueryMmFilterRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            'en',
+            r'\[q:([^\]:]+)\] \[mm:([^\]:]+)\] \[fq:([^\]]+)\]',
+            (1, 2, 3),
+            'the query "{}" (min match = {}) on data from [{}]'
+        )
+
+class EnglishQueryFilterRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            'en',
+            r'\[q:([^\]:]+)\] \[fq:([^\]]+)\]',
+            (1, 2),
+            'the query "{}" on data from [{}]'
+        )
+
+
+class EnglishTopicWeightRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            'en',
+            r'\[TOPIC_WEIGHT:([^\]:]+)\]',
+            1,
+            '{}'
+        )
+
 
 # TODO: All Finnish language formats are not yet tested
 class FinnishFormatRealizer(RegexRealizer):
@@ -193,16 +308,27 @@ class FinnishLanguageRealizer(RegexRealizer):
             '[ENTITY:LANGUAGE:{}]'
         )
 
-
-class FinnishTopicRealizer(RegexRealizer):
+class _BackupFinnishTopicRealizer(RegexRealizer):
 
     def __init__(self, registry):
         super().__init__(
             registry,
             'fi',
-            r'\[TOPIC:([^\]]+)\]',
-            1,
-            'aiheeseen "{}" liittyvää'
+            r'\[TOPIC:([^\]]+):([^\]]+):([^\]]+)\]',
+            (1, 2, 3),
+            '{}-aihemallin "{}" aiheeseen "{}" liittyvä'
+        )
+
+
+class FinnishTopicRealizer(AbstractTopicRealizer):
+
+    def __init__(self, registry):
+        super().__init__(
+            'fi',
+            registry,
+            _BackupFinnishTopicRealizer,
+            '{}-aihemallin {} sanojen {} kuvaamaan aiheeseen',
+            (0, 1, 3)  # 0 = model_type, 1 = model_name, 2 = topic_id, 3 = topic_desc
         )
 
 class FinnishWordRealizer(RegexRealizer):
@@ -323,6 +449,48 @@ class FinnishQueryRealizer(RegexRealizer):
             1,
             '"{}"'
         )
+        
+class FinnishQueryMmRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            'fi',
+            r'\[q:([^\]:]+)\] \[mm:([^\]:]+)\]',
+            (1, 2),
+            '"{}" (min match = {})'
+        )
+
+class FinnishQueryMmFilterRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            'fi',
+            r'\[q:([^\]:]+)\] \[mm:([^\]:]+)\] \[fq:([^\]]+)\]',
+            (1, 2, 3),
+            '"{}" (min match = {}) kohdistuen kokoelmaan [{}]'
+        )
+
+class FinnishQueryFilterRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            'fi',
+            r'\[q:([^\]:]+)\] \[fq:([^\]]+)\]',
+            (1, 2),
+            '"{}" kohdistuen kokoelmaan [{}]'
+        )
+
+
+class FinnishTopicWeightRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            'fi',
+            r'\[TOPIC_WEIGHT:([^\]:]+)\]',
+            1,
+            '{}'
+        )
+
 
 
 # TODO: All German language formats are not yet tested

@@ -17,12 +17,12 @@ from reporter.core.realize_slots import NumberRealizer
 from reporter.newspaper_slot_realizers import EnglishFormatRealizer, EnglishLanguageRealizer, EnglishTopicRealizer, \
     EnglishPubDateRealizer, EnglishChangeRealizerDecrease, EnglishChangeRealizerIncrease, EnglishYearRealizer, \
     EnglishQueryRealizer, EnglishWordRealizer, EnglishNewspaperNameRealizer, EnglishPubYearRealizer, EnglishYearIsiRealizer, \
-    EnglishCollectionNameRealizer
+    EnglishCollectionNameRealizer, EnglishTopicWeightRealizer, EnglishQueryMmFilterRealizer, EnglishQueryMmRealizer, EnglishQueryFilterRealizer
 
 from reporter.newspaper_slot_realizers import FinnishFormatRealizer, FinnishLanguageRealizer, FinnishTopicRealizer, \
     FinnishPubDateRealizer, FinnishChangeRealizerDecrease, FinnishChangeRealizerIncrease, FinnishYearRealizer, \
     FinnishQueryRealizer, FinnishWordRealizer, FinnishNewspaperNameRealizer, FinnishPubYearRealizer, FinnishYearIsiRealizer, \
-    FinnishCollectionNameRealizer
+    FinnishCollectionNameRealizer, FinnishQueryFilterRealizer, FinnishQueryMmFilterRealizer, FinnishQueryMmRealizer, FinnishTopicWeightRealizer \
 
 from reporter.newspaper_slot_realizers import GermanFormatRealizer, GermanLanguageRealizer, GermanCategoryRealizer, \
     GermanGeoRealizer, GermanTopicRealizer, GermanPubdateRealizer, GermanSubjectRealizer, GermanSubjectEraRealizer, \
@@ -86,6 +86,10 @@ class NewspaperNlgService(object):
                 EnglishNewspaperNameRealizer(self.registry),
                 EnglishYearIsiRealizer(self.registry),
                 EnglishCollectionNameRealizer(self.registry),
+                EnglishTopicWeightRealizer(self.registry),
+                EnglishQueryMmFilterRealizer(self.registry),
+                EnglishQueryMmRealizer(self.registry),
+                EnglishQueryFilterRealizer(self.registry),
 
                 # Finnish
                 FinnishFormatRealizer(self.registry),
@@ -101,6 +105,10 @@ class NewspaperNlgService(object):
                 FinnishNewspaperNameRealizer(self.registry),
                 FinnishYearIsiRealizer(self.registry),
                 FinnishCollectionNameRealizer(self.registry),
+                FinnishQueryFilterRealizer(self.registry), 
+                FinnishQueryMmFilterRealizer(self.registry), 
+                FinnishQueryMmRealizer(self.registry),
+                FinnishTopicWeightRealizer(self.registry),
 
                 # German
                 GermanFormatRealizer(self.registry),
