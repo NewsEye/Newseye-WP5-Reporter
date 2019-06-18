@@ -27,7 +27,7 @@ from reporter.newspaper_slot_realizers import FinnishFormatRealizer, FinnishLang
 from reporter.newspaper_slot_realizers import GermanFormatRealizer, GermanLanguageRealizer, GermanTopicRealizer, \
     GermanPubDateRealizer, GermanChangeRealizerDecrease, GermanChangeRealizerIncrease, GermanYearRealizer, \
     GermanQueryRealizer, GermanWordRealizer, GermanNewspaperNameRealizer, GermanPubYearRealizer, GermanYearIsiRealizer, \
-    GermanCollectionNameRealizer
+    GermanCollectionNameRealizer, GermanTopicWeightRealizer, GermanQueryMmFilterRealizer, GermanQueryMmRealizer, GermanQueryFilterRealizer
 
 from reporter.newspaper_named_entity_resolver import NewspaperEntityNameResolver
 from reporter.newspaper_importance_allocator import NewspaperImportanceSelector
@@ -111,7 +111,7 @@ class NewspaperNlgService(object):
                 FinnishTopicWeightRealizer(self.registry),
 
                 # German
-                GermanFormatRealizer(self.registry),
+                 GermanFormatRealizer(self.registry),
                 GermanLanguageRealizer(self.registry),
                 GermanTopicRealizer(self.registry),
                 GermanPubDateRealizer(self.registry),
@@ -124,6 +124,10 @@ class NewspaperNlgService(object):
                 GermanNewspaperNameRealizer(self.registry),
                 GermanYearIsiRealizer(self.registry),
                 GermanCollectionNameRealizer(self.registry),
+                GermanTopicWeightRealizer(self.registry),
+                GermanQueryMmFilterRealizer(self.registry),
+                GermanQueryMmRealizer(self.registry),
+                GermanQueryFilterRealizer(self.registry),
             ]
         )
 

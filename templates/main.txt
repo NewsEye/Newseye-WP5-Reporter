@@ -12,31 +12,33 @@ de: es gibt {result_value} Einträge zu {result_key}
 
 en: the corpus defined by {corpus} is associated with {result_key} with weight {result_value}
 fi: kysely {corpus} liittyy {result_key} painoarvolla {result_value}
+de: der Korpus definiert mit {corpus} ist mit {result_key} mit Gewicht {result_value} verbunden
 | analysis_type = topic_weight
 
 en: {timestamp_from}, the number of entries {result_key} {result_value}
 en: the number of entries {result_key} {result_value} {timestamp_from}
 fi: {timestamp_from}, {result_key} tulosten lukumäärä {result_value}
-de: {timestamp_from}, die Anzahl der Einträge im Zusammenhang mit {result_key} {result_value}
+de: die Anzahl der Einträge {result_key} {result_value} {timestamp_from}
 | analysis_type = step_detection
 
 en: there were {result_value} entries in {result_key}
 fi: kielellä {result_key} löytyi {result_value} osumaa
-de: es gibt {result_value} Einträge auf {result_key}
+de: es gibt {result_value} Einträge {result_key}
 | analysis_type = facet_count_language_ssi
 
 en: there were {result_value} entries {result_key}
 fi: löydettiin {result_value} osumaa jotka oli julkaistu {result_key}
-de: es gibt {result_value} Einträge veröffentlicht in {result_key}
+de: es gibt {result_value} Einträge veröffentlicht {result_key}
 | analysis_type = facet_count_date_created_dtsi
 
 en: there were {result_value} entries published {result_key}
 fi: löydettiin {result_value} osumaa jotka oli julkaistu vuonna {result_key}
-de: es gibt {result_value} Einträge veröffentlicht in {result_key}
+de: es gibt {result_value} Einträge veröffentlicht {result_key}
 | analysis_type = facet_count_year_isi
 
 en: there were {result_value} hits in {result_key}
-fi: löytyi {result_value} tulosta jotka oli julkaistu lehdessä {result_key}
+fi: löytyi {result_value} tulosta, jotka oli julkaistu lehdessä {result_key}
+de: es gibt {result_value} Ergebnisse in {result_key}
 | analysis_type = facet_count_member_of_collection_ids_ssim
 
 en: there were {result_value} entries in {result_key}
