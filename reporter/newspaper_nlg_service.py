@@ -24,10 +24,10 @@ from reporter.newspaper_slot_realizers import FinnishFormatRealizer, FinnishLang
     FinnishQueryRealizer, FinnishWordRealizer, FinnishNewspaperNameRealizer, FinnishPubYearRealizer, FinnishYearIsiRealizer, \
     FinnishCollectionNameRealizer, FinnishQueryFilterRealizer, FinnishQueryMmFilterRealizer, FinnishQueryMmRealizer, FinnishTopicWeightRealizer \
 
-from reporter.newspaper_slot_realizers import GermanFormatRealizer, GermanLanguageRealizer, GermanCategoryRealizer, \
-    GermanGeoRealizer, GermanTopicRealizer, GermanPubdateRealizer, GermanSubjectRealizer, GermanSubjectEraRealizer, \
-    GermanChangeRealizerDecrease, GermanChangeRealizerIncrease, GermanYearRealizer, GermanQueryRealizer, \
-    GermanWordRealizer
+from reporter.newspaper_slot_realizers import GermanFormatRealizer, GermanLanguageRealizer, GermanTopicRealizer, \
+    GermanPubDateRealizer, GermanChangeRealizerDecrease, GermanChangeRealizerIncrease, GermanYearRealizer, \
+    GermanQueryRealizer, GermanWordRealizer, GermanNewspaperNameRealizer, GermanPubYearRealizer, GermanYearIsiRealizer, \
+    GermanCollectionNameRealizer, GermanTopicWeightRealizer, GermanQueryMmFilterRealizer, GermanQueryMmRealizer, GermanQueryFilterRealizer
 
 from reporter.newspaper_named_entity_resolver import NewspaperEntityNameResolver
 from reporter.newspaper_importance_allocator import NewspaperImportanceSelector
@@ -111,19 +111,23 @@ class NewspaperNlgService(object):
                 FinnishTopicWeightRealizer(self.registry),
 
                 # German
-                GermanFormatRealizer(self.registry),
+                 GermanFormatRealizer(self.registry),
                 GermanLanguageRealizer(self.registry),
-                GermanCategoryRealizer(self.registry),
-                GermanGeoRealizer(self.registry),
                 GermanTopicRealizer(self.registry),
-                GermanPubdateRealizer(self.registry),
-                GermanSubjectRealizer(self.registry),
-                GermanSubjectEraRealizer(self.registry),
+                GermanPubDateRealizer(self.registry),
+                GermanPubYearRealizer(self.registry),
                 GermanChangeRealizerDecrease(self.registry),
                 GermanChangeRealizerIncrease(self.registry),
                 GermanYearRealizer(self.registry),
                 GermanQueryRealizer(self.registry),
                 GermanWordRealizer(self.registry),
+                GermanNewspaperNameRealizer(self.registry),
+                GermanYearIsiRealizer(self.registry),
+                GermanCollectionNameRealizer(self.registry),
+                GermanTopicWeightRealizer(self.registry),
+                GermanQueryMmFilterRealizer(self.registry),
+                GermanQueryMmRealizer(self.registry),
+                GermanQueryFilterRealizer(self.registry),
             ]
         )
 

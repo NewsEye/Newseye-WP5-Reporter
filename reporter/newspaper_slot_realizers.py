@@ -501,7 +501,7 @@ class GermanFormatRealizer(RegexRealizer):
         super().__init__(
             registry,
             'de',
-            r'\[format:([^\]]+)\]',
+            r'\[has_model_ssim:([^\]]+)\]',
             1,
             'im Format "{}"'
         )
@@ -514,18 +514,7 @@ class GermanLanguageRealizer(RegexRealizer):
             'de',
             r'\[language_ssi:([^\]]+)\]',
             1,
-            '{} Sprache'
-        )
-
-class GermanCategoryRealizer(RegexRealizer):
-
-    def __init__(self, registry):
-        super().__init__(
-            registry,
-            'de',
-            r'\[lc_1letter_ssim:\w - ([^\]]+)\]',
-            1,
-            'der Kategorie "{}"'
+            'auf [ENTITY:LANGUAGE:{}]'
         )
 
 class GermanGeoRealizer(RegexRealizer):
@@ -539,15 +528,26 @@ class GermanGeoRealizer(RegexRealizer):
             'der Standort "{}"'
         )
 
-class GermanTopicRealizer(RegexRealizer):
+class _BackupGermanTopicRealizer(RegexRealizer):
+
+        def __init__(self, registry):
+            super().__init__(
+                registry,
+                'de',
+                r'\[TOPIC:([^\]]+):([^\]]+):([^\]]+)\]',
+                (3, 1, 2),
+                'das Thema "{}" aus dem {} Modell "{}"'
+            )
+
+class GermanTopicRealizer(AbstractTopicRealizer):
 
     def __init__(self, registry):
         super().__init__(
-            registry,
             'de',
-            r'\[TOPIC:([^\]]+)\]',
-            1,
-            'das Thema "{}"'
+            registry,
+            _BackupEnglishTopicRealizer,
+            'das Thema, das durch die Wörter {} aus dem {} Modell {} gekennzeichnet ist',
+            (3, 0, 1) # 0 = model_type, 1 = model_name, 2 = topic_id, 3 = topic_desc
         )
 
 class GermanWordRealizer(RegexRealizer):
@@ -561,15 +561,50 @@ class GermanWordRealizer(RegexRealizer):
             'das Wort "{}"'
         )
 
-class GermanPubdateRealizer(RegexRealizer):
+class GermanPubDateRealizer(RegexRealizer):
 
     def __init__(self, registry):
         super().__init__(
             registry,
             'de',
-            r'\[pub_date_ssim:([^\]]+)\]',
+            r'\[date_created_dtsi:([^\]]+)\]',
             1,
-            '{}'
+            'in [ENTITY:DATE:{}] veröffentlicht'
+        )
+
+class GermanPubYearRealizer(RegexRealizer):
+
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            'de',
+            r'\[PUB_YEAR:([^\]]+)\]',
+            1,
+            (
+                'veröffentlicht im Jahr {}'
+            )
+        )
+
+class GermanCollectionNameRealizer(RegexRealizer):
+
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            'de',
+            r'\[member_of_collection_ids_ssim:([^\]]+)\]',
+            1,
+            '[ENTITY:NEWSPAPER:{}]'
+        )
+
+class GermanNewspaperNameRealizer(RegexRealizer):
+
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            'de',
+            r'\[NEWSPAPER_NAME:([^\]]+)\]',
+            1,
+            'in [ENTITY:NEWSPAPER:{}] veröffentlicht'
         )
 
 class GermanSubjectRealizer(RegexRealizer):
@@ -605,7 +640,20 @@ class GermanYearRealizer(RegexRealizer):
             1,
             (
                 'während des Jahres {}',
-                'im Jahre {}',
+                'im Jahr {}',
+            )
+        )
+
+class GermanYearIsiRealizer(RegexRealizer):
+
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            'de',
+            r'\[year_isi:([^\]]+)\]',
+            1,
+            (
+                'im Jahr {}'
             )
         )
 
@@ -618,7 +666,7 @@ class GermanChangeRealizerIncrease(RegexRealizer):
             r'\[CHANGE:([^\]:]+):([^\]:]+)\]',
             (1, 2),
             (
-                'erhöht von {} IPM auf {}',
+                'stieg von {} IPM auf {}',
             ),
             lambda before, after: float(before) < float(after)
         )
@@ -633,7 +681,7 @@ class GermanChangeRealizerDecrease(RegexRealizer):
             r'\[CHANGE:([^\]:]+):([^\]:]+)\]',
             (1, 2),
             (
-                'von {} auf {} IPM verringert',
+                'verringerte sich von {} auf {} IPM',
             ),
             lambda before, after: float(before) > float(after)
         )
@@ -646,4 +694,45 @@ class GermanQueryRealizer(RegexRealizer):
             r'\[q:([^\]:]+)\]',
             1,
             '"{}"'
+        )
+
+class GermanQueryMmRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            'de',
+            r'\[q:([^\]:]+)\] \[mm:([^\]:]+)\]',
+            (1, 2),
+            'die Abfrage "{}" (das Minimum Match = {})'
+        )
+
+class GermanQueryMmFilterRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            'de',
+            r'\[q:([^\]:]+)\] \[mm:([^\]:]+)\] \[fq:([^\]]+)\]',
+            (1, 2, 3),
+            'die Abfrage "{}" (das Minimum Match  = {}) nach Daten von [{}]'
+        )
+
+class GermanQueryFilterRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            'de',
+            r'\[q:([^\]:]+)\] \[fq:([^\]]+)\]',
+            (1, 2),
+            'die Abfrage "{}" nach Daten von [{}]'
+        )
+
+
+class GermanTopicWeightRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            'de',
+            r'\[TOPIC_WEIGHT:([^\]:]+)\]',
+            1,
+            '{}'
         )

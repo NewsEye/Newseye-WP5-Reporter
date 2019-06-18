@@ -10,6 +10,12 @@ LANGUAGES = {
         'en': 'englanti',
         'de': 'saksa',
         'fr': 'ranska',
+    },
+    'de': {
+        'fi': 'Finnisch',
+        'en': 'Englisch',
+        'de': 'Deutsch',
+        'fr': 'Französisch',
     }
 }
 

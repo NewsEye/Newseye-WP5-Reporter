@@ -109,9 +109,7 @@ def api_generate() -> Dict[str, str]:
     language = request.forms.get('language')
     format = request.forms.get('format')
     data = request.forms.get('data')
-
-    print(language)
-
+    
     if language not in LANGUAGES or format not in FORMATS:
         response.status = 400
         return
