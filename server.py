@@ -110,12 +110,6 @@ def api_generate() -> Dict[str, str]:
     format = request.forms.get('format')
     data = request.forms.get('data')
     
-    for key in request.forms:
-        log.info(f'{key}')
-        log.info(request.forms.get(key))
-
-    log.info("{}, {}, {}".format(language, format, data))
-
     if language not in LANGUAGES or format not in FORMATS:
         response.status = 400
         return
