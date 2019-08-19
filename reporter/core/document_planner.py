@@ -8,7 +8,7 @@ from .pipeline import NLGPipelineComponent
 from .registry import Registry
 from .template_selector import TemplateMessageChecker
 
-log = logging.getLogger('root')
+log = logging.getLogger("root")
 
 # For now, these parameters are hard-coded
 MIN_PARAGRAPHS_PER_DOC = 3  # Try really hard to get at least this many
@@ -25,9 +25,9 @@ END_STORY_ABSOLUTE_TRESHOLD = 0.0
 
 
 class HeadlineDocumentPlanner(NLGPipelineComponent):
-
-    def run(self, registry: Registry, random: Random, language: str, scored_messages) \
-            -> Tuple[DocumentPlanNode, List[Message]]:
+    def run(
+        self, registry: Registry, random: Random, language: str, scored_messages
+    ) -> Tuple[DocumentPlanNode, List[Message]]:
         """
         Run this pipeline component.
         """
@@ -52,7 +52,9 @@ class BodyDocumentPlanner(NLGPipelineComponent):
     NLGPipeline that creates a DocumentPlan from the given nuclei and satellites.
     """
 
-    def run(self, registry: Registry, random: Random, language: str, scored_messages: List[Message]) -> Tuple[DocumentPlanNode, List[Message]]:
+    def run(
+        self, registry: Registry, random: Random, language: str, scored_messages: List[Message]
+    ) -> Tuple[DocumentPlanNode, List[Message]]:
         """
         Run this pipeline component.
         """
@@ -67,7 +69,7 @@ class BodyDocumentPlanner(NLGPipelineComponent):
 
         # In the first paragraph, don't ever use a message that's been added during expansion
         # These are recognisable by having a <1 importance coefficient
-        core_messages = [sm for sm in scored_messages if sm.importance_coefficient >= 1.]
+        core_messages = [sm for sm in scored_messages if sm.importance_coefficient >= 1.0]
         if not core_messages:
             raise NoMessagesForSelectionException
 
@@ -105,15 +107,19 @@ class BodyDocumentPlanner(NLGPipelineComponent):
             if par_num >= MIN_PARAGRAPHS_PER_DOC:
                 if message.score < max_score * END_STORY_RELATIVE_TRESHOLD:
                     # We've dropped to vastly below the importance of the most important nucleus: time to stop nattering
-                    log.info("Nucleus score dropped below 20% of max score so far, stopping adding paragraphs")
+                    log.info(
+                        "Nucleus score dropped below 20% of max score so far, stopping adding paragraphs"
+                    )
                     break
                 if message.score < END_STORY_ABSOLUTE_TRESHOLD:
                     # This absolute score is simply very low, so we're probably scraping the bottom of the barrel
-                    log.info("Nucleus score dropped to a low absolute value, stopping adding paragraphs")
+                    log.info(
+                        "Nucleus score dropped to a low absolute value, stopping adding paragraphs"
+                    )
                     break
 
             # Check whether the added nucleus was from the expanded set
-            if message.importance_coefficient < 1.:
+            if message.importance_coefficient < 1.0:
                 expanded_nuclei += 1
 
             message.prevent_aggregation = True
@@ -127,14 +133,15 @@ class BodyDocumentPlanner(NLGPipelineComponent):
             par_length = 1
             satellite_candidates = self._encourage_similarity(scored_messages, message)
             for satellite in satellite_candidates:
-                if satellite.score == 0 \
-                        or satellite.score < END_PARAGRAPH_ABSOLUTE_THRESHOLD \
-                        or satellite.score < message.score * END_PARAGRAPH_RELATIVE_TRESHOLD:
+                if (
+                    satellite.score == 0
+                    or satellite.score < END_PARAGRAPH_ABSOLUTE_THRESHOLD
+                    or satellite.score < message.score * END_PARAGRAPH_RELATIVE_TRESHOLD
+                ):
                     log.info("No more interesting things to include in paragraph, ending it")
                     break
 
                 # TODO: Drop messages that have been EFFECTIVELY TOLD by another semantically-equivalent message
-
 
                 # TODO: use END_STORY_RELATIVE_TRESHOLD to block this thing
                 # Only use the fact if we have a template to express it
@@ -153,11 +160,13 @@ class BodyDocumentPlanner(NLGPipelineComponent):
                         break
 
                 else:
-                    log.warning('I wanted to express {}, but had no template for it'.format(satellite.main_fact))
+                    log.warning(
+                        "I wanted to express {}, but had no template for it".format(
+                            satellite.main_fact
+                        )
+                    )
 
-            dp.children.append(
-                DocumentPlanNode(children=messages, relation=Relation.SEQUENCE)
-            )
+            dp.children.append(DocumentPlanNode(children=messages, relation=Relation.SEQUENCE))
 
             max_score = max(message.score, max_score)
 
@@ -176,22 +185,34 @@ class BodyDocumentPlanner(NLGPipelineComponent):
                 todo.extend([c for c in m.children if c])
         return flat
 
-    def _penalize_similarity(self, candidates: List[Message], nuclei: List[Message]) -> List[Message]:
+    def _penalize_similarity(
+        self, candidates: List[Message], nuclei: List[Message]
+    ) -> List[Message]:
         # TODO: This is domain specific, consider splitting this off to a domain-specific method in a subclass
         return candidates
         if not nuclei:
             return candidates
         for nucleus in nuclei:
             # TODO: This is pretty meaningless in the toy dataset we are using now
-            candidates = [msg for msg in candidates if nucleus.main_fact.analysis_type != msg.main_fact.analysis_type]
+            candidates = [
+                msg
+                for msg in candidates
+                if nucleus.main_fact.analysis_type != msg.main_fact.analysis_type
+            ]
         return candidates
 
     def _encourage_similarity(self, candidates: List[Message], nucleus: Message) -> List[Message]:
         # TODO: This is domain specific, consider splitting this off to a domain-specific method in a subclass
         # TODO: This is pretty meaningless in the toy dataset we are using now
-        return [msg for msg in candidates if nucleus.main_fact.analysis_type == msg.main_fact.analysis_type]
+        return [
+            msg
+            for msg in candidates
+            if nucleus.main_fact.analysis_type == msg.main_fact.analysis_type
+        ]
 
-    def _add_satellite(self, satellite: Message, messages: List[Union[DocumentPlanNode, Message]]) -> None:
+    def _add_satellite(
+        self, satellite: Message, messages: List[Union[DocumentPlanNode, Message]]
+    ) -> None:
         for idx, msg in enumerate(messages):
             if not isinstance(msg, Message):
                 # It's not a Message, so it must be a non-leaf DPN
@@ -204,7 +225,10 @@ class BodyDocumentPlanner(NLGPipelineComponent):
                 assert isinstance(msg.children[-1], Message)
                 last_child = cast(Message, msg.children[-1])
 
-                if msg.relation == Relation.LIST and last_child.main_fact.analysis_type == satellite.main_fact.analysis_type:
+                if (
+                    msg.relation == Relation.LIST
+                    and last_child.main_fact.analysis_type == satellite.main_fact.analysis_type
+                ):
                     msg.children.append(satellite)
                     return
                 else:
@@ -214,7 +238,7 @@ class BodyDocumentPlanner(NLGPipelineComponent):
             for first, second in [(msg, satellite), (satellite, msg)]:
                 rel = self._get_suitable_relation(first, second)
                 if rel != Relation.SEQUENCE:
-                    children = [first ,second]
+                    children = [first, second]
                     messages[idx] = DocumentPlanNode(children, rel)
                     return
 

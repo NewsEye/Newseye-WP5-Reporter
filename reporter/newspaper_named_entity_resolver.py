@@ -5,8 +5,8 @@ from typing import Tuple
 
 from .core import EntityNameResolver, Registry, Slot
 
-class NewspaperEntityNameResolver(EntityNameResolver):
 
+class NewspaperEntityNameResolver(EntityNameResolver):
     def __init__(self) -> None:
         # [ENTITY:<group1>:<group2>] where group1 and group2 can contain anything but square brackets or double colon
         self._matcher = re.compile("\[ENTITY:([^\]:]*):([^\]]*)\]")
@@ -23,15 +23,22 @@ class NewspaperEntityNameResolver(EntityNameResolver):
         assert len(groups) == 2
         return tuple(groups)
 
-    def resolve_surface_form(self, registry: Registry, random: Random, language: str, slot: Slot, entity:str, entity_type: str) -> None:
-        if entity_type in ['NEWSPAPER_NAME', 'NEWSPAPER']:
-                value = entity.replace('_', ' ').capitalize()
-        elif entity_type == 'LANGUAGE':
+    def resolve_surface_form(
+        self,
+        registry: Registry,
+        random: Random,
+        language: str,
+        slot: Slot,
+        entity: str,
+        entity_type: str,
+    ) -> None:
+        if entity_type in ["NEWSPAPER_NAME", "NEWSPAPER"]:
+            value = entity.replace("_", " ").capitalize()
+        elif entity_type == "LANGUAGE":
             value = LANGUAGES.get(language, {}).get(entity)
-        elif entity_type == 'DATE':
+        elif entity_type == "DATE":
             value = entity[:10]
         else:
             return
         # Was one of the matching things
         slot.value = lambda f: value
-

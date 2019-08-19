@@ -6,7 +6,7 @@ from .models import DocumentPlanNode
 from .pipeline import NLGPipelineComponent
 from .registry import Registry
 
-log = logging.getLogger('root')
+log = logging.getLogger("root")
 
 
 class SurfaceRealizer(NLGPipelineComponent):
@@ -38,7 +38,9 @@ class SurfaceRealizer(NLGPipelineComponent):
     def fail_on_empty(self):
         raise NotImplementedError
 
-    def run(self, registry: Registry, random: Random, language: str, document_plan: DocumentPlanNode) -> str:
+    def run(
+        self, registry: Registry, random: Random, language: str, document_plan: DocumentPlanNode
+    ) -> str:
         """
         Run this pipeline component.
         """
@@ -57,11 +59,13 @@ class SurfaceRealizer(NLGPipelineComponent):
             template = message.template
             component_values = [str(component.value) for component in template.components]
 
-            sent = " ".join([component_value for component_value in component_values if component_value != ""]).rstrip()
+            sent = " ".join(
+                [component_value for component_value in component_values if component_value != ""]
+            ).rstrip()
             # Temp fix: remove extra spaces occurring with braces and sometimes before commas.
-            sent = re.sub(r'\(\s', r'(', sent)
-            sent = re.sub(r'\s\)', r')', sent)
-            sent = re.sub(r'\s,', r',', sent)
+            sent = re.sub(r"\(\s", r"(", sent)
+            sent = re.sub(r"\s\)", r")", sent)
+            sent = re.sub(r"\s,", r",", sent)
 
             if not sent:
                 if self.fail_on_empty:
@@ -88,12 +92,14 @@ class BodyHTMLSurfaceRealizer(SurfaceRealizer):
     sentence_start = ""
     fail_on_empty = False
 
+
 class BodyHTMLListSurfaceRealizer(SurfaceRealizer):
     paragraph_start = "<ul>"
     paragraph_end = "</ul>"
     sentence_end = ".</li>"
     sentence_start = "<li>"
     fail_on_empty = False
+
 
 class BodyHTMLOrderedListSurfaceRealizer(SurfaceRealizer):
     paragraph_start = "<ol>"

@@ -6,17 +6,15 @@ from numpy.random import RandomState
 
 from .registry import Registry
 
-log = logging.getLogger('root')
+log = logging.getLogger("root")
 
 
 class NLGPipelineComponent(ABC):
-
     def __str__(self) -> str:
         return str(self.__class__.__name__)
 
 
 class NLGPipeline(object):
-
     def __init__(self, registry: Registry, *components: NLGPipelineComponent) -> None:
         self._registry = registry
         self._components = components
@@ -29,7 +27,9 @@ class NLGPipeline(object):
     def components(self) -> Tuple[NLGPipelineComponent]:
         return self._components
 
-    def run(self, initial_inputs: Any, language: str, prng_seed: Optional[int] = None) -> Union[List[Any], Tuple[Any]]:
+    def run(
+        self, initial_inputs: Any, language: str, prng_seed: Optional[int] = None
+    ) -> Union[List[Any], Tuple[Any]]:
         log.info("Starting NLG pipeline")
         log.debug("PRNG seed is {}".format(prng_seed))
         prng = RandomState(prng_seed)

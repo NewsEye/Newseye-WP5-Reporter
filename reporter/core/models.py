@@ -5,19 +5,18 @@ from enum import Enum
 import logging
 from typing import Any, Callable, Dict, List, Optional, Union, Tuple
 
-log = logging.getLogger('root')
+log = logging.getLogger("root")
 
 
 class Document(object):
-
-    def __init__(self, language: str, document_plan: Optional['DocumentPlanNode'] = None):
+    def __init__(self, language: str, document_plan: Optional["DocumentPlanNode"] = None):
         self.language = language
         self.document_plan = document_plan
 
     def messages(self):
         return self._recursively_find_messages(self.document_plan)
 
-    def _recursively_find_messages(self, root: 'DocumentPlanNode') -> List['Message']:
+    def _recursively_find_messages(self, root: "DocumentPlanNode") -> List["Message"]:
         if isinstance(root, Message):
             yield root
         else:
@@ -29,6 +28,7 @@ class Relation(Enum):
     """
     Defines possible relations between the children of a DocumentPlan node.
     """
+
     ELABORATION = 1
     EXEMPLIFICATION = 2
     CONTRAST = 3
@@ -41,14 +41,16 @@ class DocumentPlanNode(object):
     A Node in the document plan. Has an ordered list of children, collectively connected by a Relation.
     """
 
-    def __init__(self,
-                 children: Optional[List['DocumentPlanNode']] = None,
-                 relation: Relation = Relation.SEQUENCE) -> None:
+    def __init__(
+        self,
+        children: Optional[List["DocumentPlanNode"]] = None,
+        relation: Relation = Relation.SEQUENCE,
+    ) -> None:
         self._children = children if children else []
         self._relation = relation
 
     @property
-    def children(self) -> List['DocumentPlanNode']:
+    def children(self) -> List["DocumentPlanNode"]:
         return self._children
 
     @property
@@ -58,7 +60,7 @@ class DocumentPlanNode(object):
     def __str__(self) -> str:
         return self.relation.name
 
-    def print_tree(self, indent: str = "", last: str = 'updown') -> None:
+    def print_tree(self, indent: str = "", last: str = "updown") -> None:
         """
         Prints the DocumentPlanNode as a tree.
         Modified from http://stackoverflow.com/a/30893896
@@ -84,39 +86,45 @@ class DocumentPlanNode(object):
             # Creation of balanced lists for "up" branch and "down" branch.
             branch_sizes = {child: rec_count(child) + 1 for child in self.children}
             up = list(self.children)
-            while up and sum(branch_sizes[node] for node in down) < sum(branch_sizes[node] for node in up):
+            while up and sum(branch_sizes[node] for node in down) < sum(
+                branch_sizes[node] for node in up
+            ):
                 down.insert(0, up.pop())
 
             # Printing of "up" branch.
             for child in up:
-                next_last = 'up' if up.index(child) is 0 else ''
-                next_indent = '{0}{1}{2}'.format(indent, ' ' if 'up' in last else '│', " " * len(str(self)))
+                next_last = "up" if up.index(child) is 0 else ""
+                next_indent = "{0}{1}{2}".format(
+                    indent, " " if "up" in last else "│", " " * len(str(self))
+                )
                 child.print_tree(indent=next_indent, last=next_last)
 
         # Printing of current node.
-        if last == 'up':
-            start_shape = '┌'
-        elif last == 'down':
-            start_shape = '└'
-        elif last == 'updown':
-            start_shape = ' '
+        if last == "up":
+            start_shape = "┌"
+        elif last == "down":
+            start_shape = "└"
+        elif last == "updown":
+            start_shape = " "
         else:
-            start_shape = '├'
+            start_shape = "├"
 
         if up:
-            end_shape = '┤'
+            end_shape = "┤"
         elif down:
-            end_shape = '┐'
+            end_shape = "┐"
         else:
-            end_shape = ''
+            end_shape = ""
 
-        print('{0}{1}{2}{3}'.format(indent, start_shape, str(output), end_shape))
+        print("{0}{1}{2}{3}".format(indent, start_shape, str(output), end_shape))
 
         if not isinstance(self, Message):
             # Printing of "down" branch.
             for child in down:
-                next_last = 'down' if down.index(child) is len(down) - 1 else ''
-                next_indent = '{0}{1}{2}'.format(indent, ' ' if 'down' in last else '│', " " * len(str(self)))
+                next_last = "down" if down.index(child) is len(down) - 1 else ""
+                next_indent = "{0}{1}{2}".format(
+                    indent, " " if "down" in last else "│", " " * len(str(self))
+                )
                 child.print_tree(indent=next_indent, last=next_last)
 
 
@@ -133,11 +141,13 @@ class Message(DocumentPlanNode):
 
     """
 
-    def __init__(self,
-                 facts: Union[List['Fact'], 'Fact'],
-                 importance_coefficient: float = 1.0,
-                 score: float = 0.0,
-                 polarity: float = 0.0) -> None:
+    def __init__(
+        self,
+        facts: Union[List["Fact"], "Fact"],
+        importance_coefficient: float = 1.0,
+        score: float = 0.0,
+        polarity: float = 0.0,
+    ) -> None:
         super().__init__()
 
         self._facts = [facts] if isinstance(facts, Fact) else facts
@@ -150,35 +160,35 @@ class Message(DocumentPlanNode):
         self.prevent_aggregation = False  # type: bool
 
     @property
-    def facts(self) -> List['Fact']:
+    def facts(self) -> List["Fact"]:
         return self._facts
 
     @facts.setter
-    def facts(self, facts: Union[List['Fact'], 'Fact']) -> None:
+    def facts(self, facts: Union[List["Fact"], "Fact"]) -> None:
         self._facts = [facts] if isinstance(facts, Fact) else facts
         self._main_fact = self._facts[0]
 
     # Added for backwards compatibility, returns by default the primary fact for this Message.
     @property
-    def main_fact(self) -> 'Fact':
+    def main_fact(self) -> "Fact":
         return self._main_fact
 
     @main_fact.setter
-    def main_fact(self, fact: 'Fact') -> None:
+    def main_fact(self, fact: "Fact") -> None:
         self._main_fact = fact
         if fact not in self._facts:
             self._facts.insert(0, fact)
 
     @property
-    def template(self) -> 'Template':
+    def template(self) -> "Template":
         return self._template
 
     @template.setter
-    def template(self, template: 'Template') -> None:
+    def template(self, template: "Template") -> None:
         self._template = template
 
     @property
-    def children(self) -> List['TemplateComponent']:
+    def children(self) -> List["TemplateComponent"]:
         if self.template:
             return self.template.components
         else:
@@ -197,17 +207,20 @@ class Message(DocumentPlanNode):
 
 # TODO: This has become project-specific and needs to be defined outside of Core. If it's needed within Core, some type
 # of an injection thingymabob is needed.
-Fact = namedtuple('fact', [
-    'corpus',  # The test corpus
-    'corpus_type',  # query
-    'timestamp_from',  # None
-    'timestamp_to',  # None
-    'timestamp_type',  # all_time
-    'analysis_type',  # count
-    'result_key',  # language_ssim:english
-    'result_value',  # 13
-    'outlierness',  # 1
-])
+Fact = namedtuple(
+    "fact",
+    [
+        "corpus",  # The test corpus
+        "corpus_type",  # query
+        "timestamp_from",  # None
+        "timestamp_to",  # None
+        "timestamp_type",  # all_time
+        "analysis_type",  # count
+        "result_key",  # language_ssim:english
+        "result_value",  # 13
+        "outlierness",  # 1
+    ],
+)
 
 
 class Template(DocumentPlanNode):
@@ -216,10 +229,12 @@ class Template(DocumentPlanNode):
     using the template.
     """
 
-    def __init__(self,
-                 components: List['TemplateComponent'],
-                 rules: Optional[List[Tuple[List['Matcher'], List[int]]]] = None,
-                 slot_map: Optional[Dict[str, 'Slot']] = None) -> None:
+    def __init__(
+        self,
+        components: List["TemplateComponent"],
+        rules: Optional[List[Tuple[List["Matcher"], List[int]]]] = None,
+        slot_map: Optional[Dict[str, "Slot"]] = None,
+    ) -> None:
 
         super().__init__()
 
@@ -231,7 +246,7 @@ class Template(DocumentPlanNode):
             c.parent = self
         self._slots = None
 
-    def get_slot(self, slot_type: str) -> 'Slot':
+    def get_slot(self, slot_type: str) -> "Slot":
         """
         First version of the slot_map: here we are making an assumption that there is only one instance per slot type,
         which is clearly not true after aggregation. Whether this will be a problem is still a bit unclear.
@@ -240,13 +255,15 @@ class Template(DocumentPlanNode):
         :return:
         """
         if slot_type not in self._slot_map.keys():
-            slot_of_correct_type = next((slot for slot in self.slots if slot.slot_type == slot_type), None)
+            slot_of_correct_type = next(
+                (slot for slot in self.slots if slot.slot_type == slot_type), None
+            )
             self._slot_map[slot_type] = slot_of_correct_type
         if self._slot_map[slot_type] is None:
             raise KeyError('No slot of type "{}" in Template {}'.format(slot_type, self))
         return self._slot_map[slot_type]
 
-    def add_slot(self, idx: int, slot: 'Slot') -> None:
+    def add_slot(self, idx: int, slot: "Slot") -> None:
         if len(self._components) > idx:
             self._components.insert(idx, slot)
         else:
@@ -258,14 +275,16 @@ class Template(DocumentPlanNode):
         self.components.insert(to_idx, self.components.pop(from_idx))
 
     @property
-    def components(self) -> List['TemplateComponent']:
+    def components(self) -> List["TemplateComponent"]:
         return self._components
 
     @property
     def facts(self) -> List[Fact]:
         return self._facts
 
-    def check(self, primary_message: Message, all_messages: List[Message], fill_slots: bool = False) -> List[Fact]:
+    def check(
+        self, primary_message: Message, all_messages: List[Message], fill_slots: bool = False
+    ) -> List[Fact]:
         """
         Like fill(), but doesn't modify the template data structure, just checks whether the given message,
         with the support from other messages, is compatible with the template.
@@ -334,7 +353,7 @@ class Template(DocumentPlanNode):
         return self.check(primary_message, all_messages, fill_slots=True)
 
     @property
-    def slots(self) -> List['Slot']:
+    def slots(self) -> List["Slot"]:
         # Cache the list of slots to avoid doing too many ifinstance checks
         # The slots are not guaranteed to be in the same order as they appear in the self._components
         if self._slots is None:
@@ -344,7 +363,7 @@ class Template(DocumentPlanNode):
     def has_slot_of_type(self, slot_type: str) -> bool:
         return any(slot.slot_type == slot_type for slot in self._slots)
 
-    def copy(self) -> 'Template':
+    def copy(self) -> "Template":
         """Makes a deep copy of this Template. The copy does not contain any messages."""
         component_copy = [c.copy() for c in self.components]
         return Template(component_copy, self._rules)
@@ -361,7 +380,6 @@ class Template(DocumentPlanNode):
 
 
 class DefaultTemplate(Template):
-
     def __init__(self, canned_text: str) -> None:
         super().__init__(components=[Literal(canned_text)])
 
@@ -381,18 +399,18 @@ class TemplateComponent(object):
         raise NotImplementedError
 
     @property
-    def parent(self) -> 'TemplateComponent':
+    def parent(self) -> "TemplateComponent":
         return self._parent
 
     @parent.setter
-    def parent(self, parent: 'TemplateComponent') -> None:
+    def parent(self, parent: "TemplateComponent") -> None:
         self._parent = parent
 
     def copy(self):
         raise NotImplementedError
 
     def __str__(self) -> str:
-        return '[AbstractTemplateComponent]'
+        return "[AbstractTemplateComponent]"
 
 
 class Slot(TemplateComponent):
@@ -402,8 +420,12 @@ class Slot(TemplateComponent):
     """
 
     # Todo: Are the values in "attributes" of a known type?
-    def __init__(self, to_value: 'SlotSource', attributes: Optional[Dict[str, Any]] = None,
-                 fact: Optional[Fact] = None) -> None:
+    def __init__(
+        self,
+        to_value: "SlotSource",
+        attributes: Optional[Dict[str, Any]] = None,
+        fact: Optional[Fact] = None,
+    ) -> None:
         """
         :param to_value: A callable that defines how to transform the message
             that fills this slot into a textual representation.
@@ -426,7 +448,7 @@ class Slot(TemplateComponent):
     def value(self, f: Callable) -> None:
         self._to_value = f
 
-    def copy(self, include_fact=False) -> 'Slot':
+    def copy(self, include_fact=False) -> "Slot":
         # TODO: Is it intended that Fact is not copied over?
         if not include_fact:
             return Slot(self._to_value, self.attributes.copy())
@@ -435,8 +457,7 @@ class Slot(TemplateComponent):
 
     def __str__(self) -> str:
         return "Slot({}{})".format(
-            self.value,
-            "".join(", {}={}".format(k, v) for (k, v) in self.attributes.items())
+            self.value, "".join(", {}={}".format(k, v) for (k, v) in self.attributes.items())
         )
 
 
@@ -454,13 +475,13 @@ class Literal(TemplateComponent):
 
     @property
     def slot_type(self) -> str:
-        return 'Literal'
+        return "Literal"
 
     @property
     def value(self) -> str:
         return self._string
 
-    def copy(self) -> 'Literal':
+    def copy(self) -> "Literal":
         return Literal(self.value)
 
     def __str__(self) -> str:
@@ -485,14 +506,14 @@ class FactFieldSource(SlotSource):
         return getattr(fact, self.field_name)
 
     def __str__(self) -> str:
-        return 'fact.{}'.format(self.field_name)
+        return "fact.{}".format(self.field_name)
 
 
 class LiteralSource(SlotSource):
     """Ignore the message and return a literal value"""
 
     def __init__(self, value: str) -> None:
-        super().__init__('literal')
+        super().__init__("literal")
         self.value = value
 
     def __call__(self, fact: Fact) -> Union[str, int]:
@@ -508,14 +529,17 @@ class TimeSource(SlotSource):
     """
 
     def __init__(self) -> None:
-        super().__init__('time')
+        super().__init__("time")
 
     def __call__(self, fact: Fact) -> str:
-        return '[TIME:{}:{}:{}]'.format(getattr(fact, 'timestamp_type'), getattr(fact, 'timestamp_from'),
-                                        getattr(fact, 'timestamp_to'))
+        return "[TIME:{}:{}:{}]".format(
+            getattr(fact, "timestamp_type"),
+            getattr(fact, "timestamp_from"),
+            getattr(fact, "timestamp_to"),
+        )
 
     def __str__(self):
-        return 'fact.time'
+        return "fact.time"
 
 
 class LhsExpr(object):
@@ -528,7 +552,7 @@ class LhsExpr(object):
     of the constraint.
     """
 
-    def __call__(self, fact: 'Fact', all_facts: List['Fact']) -> None:
+    def __call__(self, fact: "Fact", all_facts: List["Fact"]) -> None:
         # Required in subclasses
         raise NotImplementedError()
 
@@ -544,11 +568,11 @@ class FactField(LhsExpr):
     def __init__(self, field_name: str) -> None:
         self.field_name = field_name
 
-    def __call__(self, fact: 'Fact', all_facts: List['Fact']) -> str:
+    def __call__(self, fact: "Fact", all_facts: List["Fact"]) -> str:
         return getattr(fact, self.field_name)
 
     def __str__(self) -> str:
-        return 'fact.{}'.format(self.field_name)
+        return "fact.{}".format(self.field_name)
 
 
 class ReferentialExpr(object):
@@ -557,35 +581,37 @@ class ReferentialExpr(object):
         self.field_name = field_name
         self.reference_idx = reference_idx
 
-    def __call__(self, fact: 'Fact', all_references: List[object]) -> str:
+    def __call__(self, fact: "Fact", all_references: List[object]) -> str:
         return getattr(all_references[self.reference_idx], self.field_name)
 
     def __str__(self) -> str:
-        return 'all[{}].{}'.format(self.reference_idx, self.field_name)
+        return "all[{}].{}".format(self.reference_idx, self.field_name)
 
 
 class Matcher(object):
-
     def _equal_op(a: Any, b: Any) -> bool:
         if type(b) is str:
-            return re.match('^' + b + '$', str(a)) is not None
+            return re.match("^" + b + "$", str(a)) is not None
         else:
             return operator.eq(a, b)
 
     OPERATORS = {
-        '=': _equal_op,
-        '!=': operator.ne,
-        '>': operator.gt,
-        '<': operator.lt,
-        '>=': operator.ge,
-        '<=': operator.le,
-        'in': lambda a, b: operator.contains(b, a),
+        "=": _equal_op,
+        "!=": operator.ne,
+        ">": operator.gt,
+        "<": operator.lt,
+        ">=": operator.ge,
+        "<=": operator.le,
+        "in": lambda a, b: operator.contains(b, a),
     }
 
     def __init__(self, lhs: LhsExpr, op: str, value: Any) -> None:
         if op not in Matcher.OPERATORS:
             raise ValueError(
-                "invalid matcher operator '{}'. Must be one of: {}".format(op, ", ".join(Matcher.OPERATORS)))
+                "invalid matcher operator '{}'. Must be one of: {}".format(
+                    op, ", ".join(Matcher.OPERATORS)
+                )
+            )
         self.value = value
         self.op = op
         self.lhs = lhs
@@ -601,8 +627,9 @@ class Matcher(object):
         return Matcher.OPERATORS[self.op](result, value)
 
     def __str__(self):
-        return "lambda msg, all: {} ({})     {}      {} ({})".format(self.lhs, type(self.lhs), self.op, self.value,
-                                                                     type(self.value))
+        return "lambda msg, all: {} ({})     {}      {} ({})".format(
+            self.lhs, type(self.lhs), self.op, self.value, type(self.value)
+        )
 
     def __repr__(self):
         return str(self)

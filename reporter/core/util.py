@@ -6,11 +6,16 @@ from .models import DocumentPlanNode, Message
 from .pipeline import NLGPipelineComponent
 from .registry import Registry
 
-log = logging.getLogger('root')
+log = logging.getLogger("root")
 
 
-def filter_messages(messages: List[Message], what_type: Optional[str] = None, what: Optional[str] = None,
-                    where_type: Optional[str] = None, where: Optional[str] = None) -> List[Message]:
+def filter_messages(
+    messages: List[Message],
+    what_type: Optional[str] = None,
+    what: Optional[str] = None,
+    where_type: Optional[str] = None,
+    where: Optional[str] = None,
+) -> List[Message]:
     """
     Filters a list of message so that only message that match the parameters are returned.
     """
@@ -25,7 +30,7 @@ def filter_messages(messages: List[Message], what_type: Optional[str] = None, wh
     return messages
 
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 def extend_or_append(collection: List[T], new_items: Union[T, List[T]]) -> List[T]:
@@ -41,13 +46,11 @@ def extend_or_append(collection: List[T], new_items: Union[T, List[T]]) -> List[
 
 
 class SquelchOutput(NLGPipelineComponent):
-
     def run(self, *_: Any) -> str:
         return ""
 
 
 class PrintMessages(NLGPipelineComponent):
-
     def run(self, registry: Registry, messages: List[Message]) -> str:
         for m in messages:
             log.info(m)
@@ -55,7 +58,6 @@ class PrintMessages(NLGPipelineComponent):
 
 
 class PrintNuclei(NLGPipelineComponent):
-
     def run(self, registry: Registry, nuclei: List[Message], non_nuclei: List[Message]) -> str:
         log.info("Nuclei:")
         for m in nuclei:
@@ -64,7 +66,6 @@ class PrintNuclei(NLGPipelineComponent):
 
 
 class PrintDocumentPlan(NLGPipelineComponent):
-
     def run(self, registry: Registry, dp: DocumentPlanNode, *args: Any) -> str:
         log.info("Printing tree to stdout")
         print()
@@ -74,7 +75,6 @@ class PrintDocumentPlan(NLGPipelineComponent):
 
 
 class PrintOutput(NLGPipelineComponent):
-
     def run(self, registry: Registry, output: Any) -> str:
         log.info("Printing output:")
         print("\n" + output + "\n")

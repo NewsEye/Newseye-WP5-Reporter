@@ -7,7 +7,7 @@ from .models import DefaultTemplate, DocumentPlanNode, Message, Template
 from .pipeline import NLGPipelineComponent
 from .registry import Registry
 
-log = logging.getLogger('root')
+log = logging.getLogger("root")
 
 # If we're starting a new paragraph and haven't mentioned the location for more than this number of
 # messages, say it again (if possible), even if it's not changed
@@ -20,24 +20,36 @@ class TemplateSelector(NLGPipelineComponent):
 
     """
 
-    def run(self, registry: Registry, random: Random, language: str, document_plan: DocumentPlanNode,
-            all_messages: List[Message]) -> Tuple[DocumentPlanNode]:
+    def run(
+        self,
+        registry: Registry,
+        random: Random,
+        language: str,
+        document_plan: DocumentPlanNode,
+        all_messages: List[Message],
+    ) -> Tuple[DocumentPlanNode]:
         """
         Run this pipeline component.
         """
         if log.isEnabledFor(logging.DEBUG):
             document_plan.print_tree()
 
-        templates = registry.get('templates')[language]
+        templates = registry.get("templates")[language]
 
         template_checker = TemplateMessageChecker(templates, all_messages)
         log.info("Selecting templates from {} templates".format(len(templates)))
         self._recurse(random, language, document_plan, all_messages, template_checker)
 
-        return (document_plan, )
+        return (document_plan,)
 
-    def _recurse(self, random: Random, language: str, this: DocumentPlanNode, all_messages: List[Message],
-                 template_checker: 'TemplateMessageChecker') -> None:
+    def _recurse(
+        self,
+        random: Random,
+        language: str,
+        this: DocumentPlanNode,
+        all_messages: List[Message],
+        template_checker: "TemplateMessageChecker",
+    ) -> None:
         """
         Recursively works through the tree, adding Templates to Messages.
         """
@@ -59,7 +71,9 @@ class TemplateSelector(NLGPipelineComponent):
                 self._recurse(random, language, child, all_messages, template_checker)
 
     @staticmethod
-    def _add_template_to_message(message: Message, template_original: Template, all_messages: List[Message]) -> None:
+    def _add_template_to_message(
+        message: Message, template_original: Template, all_messages: List[Message]
+    ) -> None:
         """
         Adds a matching template to a message, also adding the facts used by the template to the message.
 
@@ -74,8 +88,12 @@ class TemplateSelector(NLGPipelineComponent):
         if used_facts:
             log.debug("Successfully linked template to message")
         else:
-            log.error("Chosen template '{}' for fact '{}' could not be used! "
-                      "Falling back to default templates".format(template.display_template(), message.main_fact))
+            log.error(
+                "Chosen template '{}' for fact '{}' could not be used! "
+                "Falling back to default templates".format(
+                    template.display_template(), message.main_fact
+                )
+            )
             template = DefaultTemplate("")
         message.template = template
         message.facts = used_facts

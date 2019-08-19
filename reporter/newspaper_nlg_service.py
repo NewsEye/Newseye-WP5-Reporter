@@ -7,40 +7,101 @@ from typing import Callable, Dict, Iterable, List, Optional, TypeVar, Tuple
 
 from numpy.random.mtrand import RandomState
 
-from reporter.core import Aggregator, BodyDocumentPlanner, BodyHTMLSurfaceRealizer, HeadlineDocumentPlanner, \
-    HeadlineHTMLSurfaceRealizer, NLGPipeline, NLGPipelineComponent, read_templates_file, Registry, SlotRealizer, \
-    Template, TemplateSelector
-from reporter.core.surface_realizer import BodyHTMLListSurfaceRealizer, BodyHTMLSurfaceRealizer, BodyHTMLOrderedListSurfaceRealizer
+from reporter.core import (
+    Aggregator,
+    BodyDocumentPlanner,
+    BodyHTMLSurfaceRealizer,
+    HeadlineDocumentPlanner,
+    HeadlineHTMLSurfaceRealizer,
+    NLGPipeline,
+    NLGPipelineComponent,
+    read_templates_file,
+    Registry,
+    SlotRealizer,
+    Template,
+    TemplateSelector,
+)
+from reporter.core.surface_realizer import (
+    BodyHTMLListSurfaceRealizer,
+    BodyHTMLSurfaceRealizer,
+    BodyHTMLOrderedListSurfaceRealizer,
+)
 
 from reporter.core.realize_slots import NumberRealizer
 
-from reporter.newspaper_slot_realizers import EnglishFormatRealizer, EnglishLanguageRealizer, EnglishTopicRealizer, \
-    EnglishPubDateRealizer, EnglishChangeRealizerDecrease, EnglishChangeRealizerIncrease, EnglishYearRealizer, \
-    EnglishQueryRealizer, EnglishWordRealizer, EnglishNewspaperNameRealizer, EnglishPubYearRealizer, EnglishYearIsiRealizer, \
-    EnglishCollectionNameRealizer, EnglishTopicWeightRealizer, EnglishQueryMmFilterRealizer, EnglishQueryMmRealizer, EnglishQueryFilterRealizer
+from reporter.newspaper_slot_realizers import (
+    EnglishFormatRealizer,
+    EnglishLanguageRealizer,
+    EnglishTopicRealizer,
+    EnglishPubDateRealizer,
+    EnglishChangeRealizerDecrease,
+    EnglishChangeRealizerIncrease,
+    EnglishYearRealizer,
+    EnglishQueryRealizer,
+    EnglishWordRealizer,
+    EnglishNewspaperNameRealizer,
+    EnglishPubYearRealizer,
+    EnglishYearIsiRealizer,
+    EnglishCollectionNameRealizer,
+    EnglishTopicWeightRealizer,
+    EnglishQueryMmFilterRealizer,
+    EnglishQueryMmRealizer,
+    EnglishQueryFilterRealizer,
+)
 
-from reporter.newspaper_slot_realizers import FinnishFormatRealizer, FinnishLanguageRealizer, FinnishTopicRealizer, \
-    FinnishPubDateRealizer, FinnishChangeRealizerDecrease, FinnishChangeRealizerIncrease, FinnishYearRealizer, \
-    FinnishQueryRealizer, FinnishWordRealizer, FinnishNewspaperNameRealizer, FinnishPubYearRealizer, FinnishYearIsiRealizer, \
-    FinnishCollectionNameRealizer, FinnishQueryFilterRealizer, FinnishQueryMmFilterRealizer, FinnishQueryMmRealizer, FinnishTopicWeightRealizer \
-
-from reporter.newspaper_slot_realizers import GermanFormatRealizer, GermanLanguageRealizer, GermanTopicRealizer, \
-    GermanPubDateRealizer, GermanChangeRealizerDecrease, GermanChangeRealizerIncrease, GermanYearRealizer, \
-    GermanQueryRealizer, GermanWordRealizer, GermanNewspaperNameRealizer, GermanPubYearRealizer, GermanYearIsiRealizer, \
-    GermanCollectionNameRealizer, GermanTopicWeightRealizer, GermanQueryMmFilterRealizer, GermanQueryMmRealizer, GermanQueryFilterRealizer
+from reporter.newspaper_slot_realizers import (
+    FinnishFormatRealizer,
+    FinnishLanguageRealizer,
+    FinnishTopicRealizer,
+    FinnishPubDateRealizer,
+    FinnishChangeRealizerDecrease,
+    FinnishChangeRealizerIncrease,
+    FinnishYearRealizer,
+    FinnishQueryRealizer,
+    FinnishWordRealizer,
+    FinnishNewspaperNameRealizer,
+    FinnishPubYearRealizer,
+    FinnishYearIsiRealizer,
+    FinnishCollectionNameRealizer,
+    FinnishQueryFilterRealizer,
+    FinnishQueryMmFilterRealizer,
+    FinnishQueryMmRealizer,
+    FinnishTopicWeightRealizer,
+)
+from reporter.newspaper_slot_realizers import (
+    GermanFormatRealizer,
+    GermanLanguageRealizer,
+    GermanTopicRealizer,
+    GermanPubDateRealizer,
+    GermanChangeRealizerDecrease,
+    GermanChangeRealizerIncrease,
+    GermanYearRealizer,
+    GermanQueryRealizer,
+    GermanWordRealizer,
+    GermanNewspaperNameRealizer,
+    GermanPubYearRealizer,
+    GermanYearIsiRealizer,
+    GermanCollectionNameRealizer,
+    GermanTopicWeightRealizer,
+    GermanQueryMmFilterRealizer,
+    GermanQueryMmRealizer,
+    GermanQueryFilterRealizer,
+)
 
 from reporter.newspaper_named_entity_resolver import NewspaperEntityNameResolver
 from reporter.newspaper_importance_allocator import NewspaperImportanceSelector
-from reporter.newspaper_message_generator import NewspaperMessageGenerator, NoMessagesForSelectionException
+from reporter.newspaper_message_generator import (
+    NewspaperMessageGenerator,
+    NoMessagesForSelectionException,
+)
 
 from reporter.constants import ERRORS, CONJUNCTIONS
 
 
-log = logging.getLogger('root')
+log = logging.getLogger("root")
 
 
 class NewspaperNlgService(object):
-
     def __init__(self, random_seed: int = None, force_cache_refresh: bool = False) -> None:
         """
         :param random_seed: seed for random number generation, for repeatability
@@ -52,26 +113,23 @@ class NewspaperNlgService(object):
 
         # Templates
         self.registry.register(
-            'templates',
+            "templates",
             self._get_cached_or_compute(
-                '../data/templates.cache',
-                self._load_templates,
-                force_cache_refresh=True
-            )
+                "../data/templates.cache", self._load_templates, force_cache_refresh=True
+            ),
         )
-        self.registry.register('CONJUNCTIONS', CONJUNCTIONS)
+        self.registry.register("CONJUNCTIONS", CONJUNCTIONS)
         # PRNG seed
         self._set_seed(seed_val=random_seed)
 
         # SurfazeRealizers
 
-        slot_realizer_random = RandomState(self.registry.get('seed'))
+        slot_realizer_random = RandomState(self.registry.get("seed"))
         self.registry.register(
-            'slot-realizers',
+            "slot-realizers",
             [
                 # Generic
                 NumberRealizer(),
-
                 # English
                 EnglishFormatRealizer(self.registry),
                 EnglishLanguageRealizer(self.registry),
@@ -90,7 +148,6 @@ class NewspaperNlgService(object):
                 EnglishQueryMmFilterRealizer(self.registry),
                 EnglishQueryMmRealizer(self.registry),
                 EnglishQueryFilterRealizer(self.registry),
-
                 # Finnish
                 FinnishFormatRealizer(self.registry),
                 FinnishLanguageRealizer(self.registry),
@@ -105,13 +162,12 @@ class NewspaperNlgService(object):
                 FinnishNewspaperNameRealizer(self.registry),
                 FinnishYearIsiRealizer(self.registry),
                 FinnishCollectionNameRealizer(self.registry),
-                FinnishQueryFilterRealizer(self.registry), 
-                FinnishQueryMmFilterRealizer(self.registry), 
+                FinnishQueryFilterRealizer(self.registry),
+                FinnishQueryMmFilterRealizer(self.registry),
                 FinnishQueryMmRealizer(self.registry),
                 FinnishTopicWeightRealizer(self.registry),
-
                 # German
-                 GermanFormatRealizer(self.registry),
+                GermanFormatRealizer(self.registry),
                 GermanLanguageRealizer(self.registry),
                 GermanTopicRealizer(self.registry),
                 GermanPubDateRealizer(self.registry),
@@ -128,13 +184,18 @@ class NewspaperNlgService(object):
                 GermanQueryMmFilterRealizer(self.registry),
                 GermanQueryMmRealizer(self.registry),
                 GermanQueryFilterRealizer(self.registry),
-            ]
+            ],
         )
 
-    T = TypeVar('T')
+    T = TypeVar("T")
 
-    def _get_cached_or_compute(self, cache: str, compute: Callable[..., T], force_cache_refresh: bool = False,
-                               relative_path: bool = True) -> T:
+    def _get_cached_or_compute(
+        self,
+        cache: str,
+        compute: Callable[..., T],
+        force_cache_refresh: bool = False,
+        relative_path: bool = True,
+    ) -> T:
         if relative_path:
             cache = os.path.abspath(os.path.join(os.path.dirname(__file__), cache))
         if force_cache_refresh:
@@ -146,34 +207,35 @@ class NewspaperNlgService(object):
             result = compute()
             if not os.path.exists(os.path.dirname(cache)):
                 os.makedirs(os.path.dirname(cache))
-            with gzip.open(cache, 'wb') as f:
+            with gzip.open(cache, "wb") as f:
                 pickle.dump(result, f)
             return result
         else:
             log.info("Found cache at {}, decompressing and loading".format(cache))
-            with gzip.open(cache, 'rb') as f:
+            with gzip.open(cache, "rb") as f:
                 return pickle.load(f)
 
     def _load_templates(self) -> Dict[str, Template]:
-        log.info('Loading templates')
+        log.info("Loading templates")
         return read_templates_file(
-            os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "templates", "main.txt")))
+            os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "templates", "main.txt"))
+        )
 
     def _get_components(self, realizer: str) -> Iterable[NLGPipelineComponent]:
         # Put together the list of components
         # This varies depending on whether it's for headlines and whether we're using Omorphi
         yield NewspaperMessageGenerator()  # Don't expand facts for headlines!
         yield NewspaperImportanceSelector()
-        yield HeadlineDocumentPlanner() if realizer == 'headline' else BodyDocumentPlanner()
+        yield HeadlineDocumentPlanner() if realizer == "headline" else BodyDocumentPlanner()
         yield TemplateSelector()
         yield Aggregator()
         yield SlotRealizer()
         yield NewspaperEntityNameResolver()
-        if realizer == 'headline':
+        if realizer == "headline":
             yield HeadlineHTMLSurfaceRealizer()
-        elif realizer == 'ol':
+        elif realizer == "ol":
             yield BodyHTMLOrderedListSurfaceRealizer()
-        elif realizer == 'ul':
+        elif realizer == "ul":
             yield BodyHTMLListSurfaceRealizer()
         else:
             yield BodyHTMLSurfaceRealizer()
@@ -181,19 +243,17 @@ class NewspaperNlgService(object):
     def run_pipeline(self, language: str, format: str, data: str) -> Tuple[str, str]:
         log.info("Configuring Body NLG Pipeline")
         self.body_pipeline = NLGPipeline(self.registry, *self._get_components(format))
-        self.headline_pipeline = NLGPipeline(self.registry, *self._get_components('headline'))
+        self.headline_pipeline = NLGPipeline(self.registry, *self._get_components("headline"))
 
         log.info("Running Body NLG pipeline: language={}".format(language))
         try:
-            body = self.body_pipeline.run(
-                (data,),
-                language,
-                prng_seed=self.registry.get('seed'),
-            )
+            body = self.body_pipeline.run((data,), language, prng_seed=self.registry.get("seed"))
             log.info("Body pipeline complete")
         except NoMessagesForSelectionException as ex:
             log.error("%s", ex)
-            body = ERRORS.get(language, {}).get("no-messages-for-selection", "Something went wrong.")
+            body = ERRORS.get(language, {}).get(
+                "no-messages-for-selection", "Something went wrong."
+            )
         except Exception as ex:
             log.error("%s", ex)
             body = ERRORS.get(language, {}).get("general-error", "Something went wrong.")
@@ -202,13 +262,13 @@ class NewspaperNlgService(object):
         try:
             headline_lang = "{}-head".format(language)
             headline = self.headline_pipeline.run(
-                (data,),
-                headline_lang,
-                prng_seed=self.registry.get('seed'),
+                (data,), headline_lang, prng_seed=self.registry.get("seed")
             )
             log.info("Headline pipeline complete")
         except Exception as ex:
-            headline = ERRORS.get(language, {}).get("no-messages-for-selection", "Something went wrong.")
+            headline = ERRORS.get(language, {}).get(
+                "no-messages-for-selection", "Something went wrong."
+            )
             log.error("%s", ex)
 
         return headline, body
@@ -220,20 +280,20 @@ class NewspaperNlgService(object):
             log.info("No preset seed, using random seed {}".format(seed_val))
         else:
             log.info("Using preset seed {}".format(seed_val))
-        self.registry.register('seed', seed_val)
+        self.registry.register("seed", seed_val)
 
     def get_languages(self) -> List[str]:
-        return list(self.registry.get('templates').keys())
+        return list(self.registry.get("templates").keys())
 
 
 if __name__ == "__main__":
-    formatter = logging.Formatter(fmt='%(asctime)s - %(levelname)s - %(module)s - %(message)s')
+    formatter = logging.Formatter(fmt="%(asctime)s - %(levelname)s - %(module)s - %(message)s")
     handler = logging.StreamHandler()
     handler.setFormatter(formatter)
-    log = logging.getLogger('root')
+    log = logging.getLogger("root")
     log.setLevel(logging.DEBUG)
     # log.setLevel(5) # Enable for way too much logging, even more than DEBUG
     log.addHandler(handler)
 
     service = NewspaperNlgService()
-    print(service.run_pipeline('en'))
+    print(service.run_pipeline("en"))

@@ -7,12 +7,13 @@ from .pipeline import NLGPipelineComponent
 from .registry import Registry
 from .models import DocumentPlanNode, Message, Literal, Relation, Template, TemplateComponent, Slot
 
-log = logging.getLogger('root')
+log = logging.getLogger("root")
 
 
 class Aggregator(NLGPipelineComponent):
-
-    def run(self, registry: Registry, random: Random, language: str, document_plan: DocumentPlanNode) -> Tuple[DocumentPlanNode]:
+    def run(
+        self, registry: Registry, random: Random, language: str, document_plan: DocumentPlanNode
+    ) -> Tuple[DocumentPlanNode]:
         if log.isEnabledFor(logging.DEBUG):
             document_plan.print_tree()
 
@@ -22,9 +23,11 @@ class Aggregator(NLGPipelineComponent):
         if log.isEnabledFor(logging.DEBUG):
             document_plan.print_tree()
 
-        return (document_plan, )
+        return (document_plan,)
 
-    def _aggregate(self, registry: Registry, language: str, document_plan_node: DocumentPlanNode) -> DocumentPlanNode:
+    def _aggregate(
+        self, registry: Registry, language: str, document_plan_node: DocumentPlanNode
+    ) -> DocumentPlanNode:
         log.debug("Visiting {}".format(document_plan_node))
 
         # Cannot aggregate a single Message
@@ -37,7 +40,9 @@ class Aggregator(NLGPipelineComponent):
             return self._aggregate_list(registry, language, document_plan_node)
         return self._aggregate_sequence(registry, language, document_plan_node)
 
-    def _aggregate_sequence(self, registry: Registry, language: str, document_plan_node: DocumentPlanNode) -> DocumentPlanNode:
+    def _aggregate_sequence(
+        self, registry: Registry, language: str, document_plan_node: DocumentPlanNode
+    ) -> DocumentPlanNode:
         log.debug("Visiting {}".format(document_plan_node))
 
         num_children = len(document_plan_node.children)
@@ -50,13 +55,17 @@ class Aggregator(NLGPipelineComponent):
                 previous_child = None
             current_child = self._aggregate(registry, language, document_plan_node.children[idx])
 
-            #assert isinstance(current_child, Message)  # TODO: Logically, this should hold. But it doesn't and in fact the whole thing works anyways ¯\_(ツ)_/¯
+            # assert isinstance(current_child, Message)  # TODO: Logically, this should hold. But it doesn't and in fact the whole thing works anyways ¯\_(ツ)_/¯
 
             log.debug("previous_child={}, current_child={}".format(previous_child, current_child))
 
-            if self._same_prefix(previous_child, current_child) and not (previous_child.prevent_aggregation or current_child.prevent_aggregation):
+            if self._same_prefix(previous_child, current_child) and not (
+                previous_child.prevent_aggregation or current_child.prevent_aggregation
+            ):
                 log.debug("Combining")
-                new_children[-1] = self._combine(registry, language, new_children[-1], current_child)
+                new_children[-1] = self._combine(
+                    registry, language, new_children[-1], current_child
+                )
                 log.debug("Combined, New Children: {}".format(new_children))
 
             else:
@@ -67,11 +76,15 @@ class Aggregator(NLGPipelineComponent):
         document_plan_node.children.extend(new_children)
         return document_plan_node
 
-    def _aggregate_elaboration(self, registry: Registry, language: str, document_plan_node: DocumentPlanNode) -> DocumentPlanNode:
+    def _aggregate_elaboration(
+        self, registry: Registry, language: str, document_plan_node: DocumentPlanNode
+    ) -> DocumentPlanNode:
         # TODO: Re-implement this
         raise NotImplementedError
 
-    def _aggregate_list(self, registry: Registry, language: str, document_plan_node: DocumentPlanNode) -> Message:
+    def _aggregate_list(
+        self, registry: Registry, language: str, document_plan_node: DocumentPlanNode
+    ) -> Message:
         # TODO: Re-implement this
         raise NotImplementedError
 
@@ -81,8 +94,15 @@ class Aggregator(NLGPipelineComponent):
         except AttributeError:
             return False
 
-    def _combine(self, registry: Registry, language: str, first: Message, second: Message) -> Message:
-        log.debug("Combining {} and {}".format([c.value for c in first.template.components], [c.value for c in second.template.components]))
+    def _combine(
+        self, registry: Registry, language: str, first: Message, second: Message
+    ) -> Message:
+        log.debug(
+            "Combining {} and {}".format(
+                [c.value for c in first.template.components],
+                [c.value for c in second.template.components],
+            )
+        )
 
         combined = [c for c in first.template.components]
         for idx, other_component in enumerate(second.template.components):
@@ -95,18 +115,24 @@ class Aggregator(NLGPipelineComponent):
 
         log.debug("idx = {}".format(idx))
         # TODO At the moment everything is considered either positive or negative, which is sometimes weird. Add neutral sentences.
-        CONJUNCTIONS = registry.get('CONJUNCTIONS').get(language, None)
+        CONJUNCTIONS = registry.get("CONJUNCTIONS").get(language, None)
         if not CONJUNCTIONS:
-            CONJUNCTIONS = defaultdict(lambda x: 'NO-CONJUNCTION-DICT'),
+            CONJUNCTIONS = (defaultdict(lambda x: "NO-CONJUNCTION-DICT"),)
 
         if first.polarity != first.polarity:
-            combined.append(Literal(CONJUNCTIONS.get('inverse_combiner', 'MISSING-INVERSE-CONJUCTION')))
+            combined.append(
+                Literal(CONJUNCTIONS.get("inverse_combiner", "MISSING-INVERSE-CONJUCTION"))
+            )
         else:
-            combined.append(Literal(CONJUNCTIONS.get('default_combiner', 'MISSING-DEFAULT-CONJUCTION')))
+            combined.append(
+                Literal(CONJUNCTIONS.get("default_combiner", "MISSING-DEFAULT-CONJUCTION"))
+            )
         combined.extend(second.template.components[idx:])
         log.debug("Combined thing is {}".format([c.value for c in combined]))
-        new_message = Message(facts=first.facts + [fact for fact in second.facts if fact not in first.facts],
-                              importance_coefficient=first.importance_coefficient)
+        new_message = Message(
+            facts=first.facts + [fact for fact in second.facts if fact not in first.facts],
+            importance_coefficient=first.importance_coefficient,
+        )
         new_message.template = Template(combined)
         new_message.prevent_aggregation = True
         return new_message
