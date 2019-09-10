@@ -50,3 +50,8 @@ en-head: Analysis of a corpus defined by {corpus}
 fi-head: Analyysi korpuksesta kyselyllä {corpus}
 de-head: Analyse mit der Abfrage {corpus}
 | corpus_type in {anyquery}
+
+en-head: Analysis of the complete corpus
+fi-head: Analyysi koko korpuksesta
+de-head: Analyse des gesamten Korpus
+| corpus_type = full_corpus
