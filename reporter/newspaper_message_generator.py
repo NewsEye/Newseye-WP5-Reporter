@@ -21,6 +21,7 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
             self._find_steps_from_time_series_message_generator,
             self._extract_facets_message_generator,
             self._query_topic_model_topic_weights_message_generator,
+            self._compute_tf_idf_message_generator,
         ]
 
     def run(
@@ -225,6 +226,41 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
                     ]
                 )
             )
+        return messages
+
+    def _compute_tf_idf_message_generator(
+        self, analysis: "TaskResult", other_analyses: List["TaskResult"]
+    ) -> List[Message]:
+        if analysis.task_parameters.get("utility") != "compute_tf_idf":
+            return []
+
+        corpus, corpus_type = self._build_corpus_fields(analysis, other_analyses)
+
+        interestingness_values = analysis.task_result["interestingness"]
+
+        messages = []
+        for word, counts in analysis.task_result["result"].items():
+            if word not in interestingness_values:
+                continue
+            for count_key in ["count", "ipm", "tfidf"]:
+                messages.append(
+                    Message(
+                        # TODO: This needs to be a list for the thing not to crash despite efforts to allow non-lists, see Message
+                        [
+                            Fact(
+                                corpus,  # corpus
+                                corpus_type,  # corpus_type'
+                                None,  # timestamp_from
+                                None,  # timestamp_to
+                                "all_time",  # timestamp_type
+                                "word_{}".format(count_key),  # analysis_type
+                                "[WORD:{}]".format(word),  # result_key
+                                counts[count_key],  # result_value
+                                interestingness_values.get(word, 0),  # outlierness
+                            )
+                        ]
+                    )
+                )
         return messages
 
     def _get_parent(

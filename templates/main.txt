@@ -10,6 +10,16 @@ fi: löydettiin {result_value} {result_key} tulosta
 de: es gibt {result_value} Einträge zu {result_key}
 | analysis_type = topic_count
 
+en: {result_key} appeared {result_value} times
+| analysis_type = word_count
+
+en: {result_key} had a relative frequency of {result_value} instances per million words
+| analysis_type = word_ipm
+
+en: {result_key} had a TF-IDF value of {result_value}
+| analysis_type = word_tfidf
+
+
 en: the corpus defined by {corpus} is associated with {result_key} with weight {result_value}
 fi: kysely {corpus} liittyy {result_key} painoarvolla {result_value}
 de: der Korpus definiert mit {corpus} ist mit {result_key} mit Gewicht {result_value} verbunden
