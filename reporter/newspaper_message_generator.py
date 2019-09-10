@@ -52,7 +52,7 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
                         found_new = True
                         messages.extend(new_messages)
                 except Exception as ex:
-                    log.error("Message generator crashed: {}".format(ex))
+                    log.error("Message generator crashed: {}".format(ex), exc_info=True)
             if not found_new:
                 log.error(
                     "Failed to parse a Message from {}. Utility={}".format(
