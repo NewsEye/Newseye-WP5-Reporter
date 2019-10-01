@@ -266,7 +266,7 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
     def _get_parent(
         self, analysis: "TaskResult", other_analyses: List["TaskResult"]
     ) -> Optional["TaskResult"]:
-        parent_uuid = analysis.task_parameters.get("target_uuid")
+        parent_uuid = analysis.hist_parent_id
         if not parent_uuid:
             return None
 
@@ -279,7 +279,7 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
     def _build_corpus_fields(
         self, analysis: "TaskResult", other_analyses: List["TaskResult"]
     ) -> Tuple[str, str]:
-        while not analysis.task_parameters.get("target_search"):
+        while not analysis.task_parameters.get("search_query"):
             analysis = self._get_parent(analysis, other_analyses)
             if not analysis:
                 return "full_corpus", "full_corpus"
@@ -287,17 +287,17 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
         corpus = []
         corpus_type = []
 
-        q = analysis.task_parameters.get("target_search", {}).get("q")
+        q = analysis.task_parameters.get("search_query", {}).get("q")
         if q:
             corpus.append("[q:{}]".format(q))
             corpus_type.append("query")
 
-        mm = analysis.task_parameters.get("target_search", {}).get("mm")
+        mm = analysis.task_parameters.get("search_query", {}).get("mm")
         if mm:
             corpus.append("[mm:{}]".format(mm))
             corpus_type.append("minmatches")
 
-        fq = analysis.task_parameters.get("target_search", {}).get("fq")
+        fq = analysis.task_parameters.get("search_query", {}).get("fq")
         if fq:
             corpus.append("[fq:{}]".format(fq))
             corpus_type.append("filter")
