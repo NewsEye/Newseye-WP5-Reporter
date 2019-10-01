@@ -172,7 +172,7 @@ class EnglishChangeRealizerIncrease(RegexRealizer):
             "en",
             r"\[CHANGE:([^\]:]+):([^\]:]+)\]",
             (1, 2),
-            ("increased from {} IPM to {}", "rose from {} IPM to {}"),
+            ("increased from {} items per million to {}", "rose from {} items per million to {}"),
             lambda before, after: float(before) < float(after),
         )
 
@@ -184,7 +184,7 @@ class EnglishChangeRealizerDecrease(RegexRealizer):
             "en",
             r"\[CHANGE:([^\]:]+):([^\]:]+)\]",
             (1, 2),
-            ("decreased from {} IPM {} ", "fell from {} IPM to {}"),
+            ("decreased from {} items per million {} ", "fell from {} items per million to {}"),
             lambda before, after: float(before) > float(after),
         )
 
