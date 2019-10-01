@@ -47,6 +47,7 @@ from reporter.newspaper_slot_realizers import (
     EnglishQueryMmFilterRealizer,
     EnglishQueryMmRealizer,
     EnglishQueryFilterRealizer,
+    EnglishDocumentIdRealizer,
 )
 
 from reporter.newspaper_slot_realizers import (
@@ -148,6 +149,7 @@ class NewspaperNlgService(object):
                 EnglishQueryMmFilterRealizer(self.registry),
                 EnglishQueryMmRealizer(self.registry),
                 EnglishQueryFilterRealizer(self.registry),
+                EnglishDocumentIdRealizer(self.registry),
                 # Finnish
                 FinnishFormatRealizer(self.registry),
                 FinnishLanguageRealizer(self.registry),

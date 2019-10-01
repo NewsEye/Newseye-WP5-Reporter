@@ -139,9 +139,12 @@ class EnglishCollectionNameRealizer(RegexRealizer):
 
 class EnglishNewspaperNameRealizer(RegexRealizer):
     def __init__(self, registry):
-        super().__init__(
-            registry, "en", r"\[NEWSPAPER_NAME:([^\]]+)\]", 1, "published in [ENTITY:NEWSPAPER:{}]"
-        )
+        super().__init__(registry, "en", r"\[NEWSPAPER_NAME:([^\]]+)\]", 1, "published in {}")
+
+
+class EnglishDocumentIdRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(registry, "en", r"\[DOCUMENT_ID:([^\]]+)\]", 1, "document with ID {}")
 
 
 class EnglishYearRealizer(RegexRealizer):

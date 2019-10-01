@@ -19,6 +19,8 @@ en: {result_key} had a relative frequency of {result_value} instances per millio
 en: {result_key} had a TF-IDF value of {result_value}
 | analysis_type = word_tfidf
 
+en: the queried documents have distance {result_value} to {result_key}
+| analysis_type = tm_document_distance
 
 en: the corpus defined by {corpus} is associated with {result_key} with weight {result_value}
 fi: kysely {corpus} liittyy {result_key} painoarvolla {result_value}

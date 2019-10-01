@@ -22,6 +22,7 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
             self._extract_facets_message_generator,
             self._query_topic_model_topic_weights_message_generator,
             self._compute_tf_idf_message_generator,
+            self._tm_document_linking_message_generator,
         ]
 
     def run(
@@ -261,6 +262,40 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
                         ]
                     )
                 )
+        return messages
+
+    def _tm_document_linking_message_generator(
+        self, analysis: "TaskResult", other_analyses: List["TaskResult"]
+    ) -> List[Message]:
+        if analysis.task_parameters.get("utility") != "tm_document_linking":
+            return []
+
+        corpus, corpus_type = self._build_corpus_fields(analysis, other_analyses)
+
+        interestingness_values = analysis.task_result["interestingness"]
+        distances = analysis.task_result["result"]["distance"]
+        similar_docs = analysis.task_result["result"]["similar_docs"]
+
+        messages = []
+        for distance, doc, interestingess in zip(distances, similar_docs, interestingness_values):
+            messages.append(
+                Message(
+                    # TODO: This needs to be a list for the thing not to crash despite efforts to allow non-lists, see Message
+                    [
+                        Fact(
+                            corpus,  # corpus
+                            corpus_type,  # corpus_type'
+                            None,  # timestamp_from
+                            None,  # timestamp_to
+                            "all_time",  # timestamp_type
+                            "tm_document_distance",  # analysis_type
+                            "[DOCUMENT_ID:{}]".format(doc),  # result_key
+                            distance,  # result_value
+                            interestingess,  # outlierness
+                        )
+                    ]
+                )
+            )
         return messages
 
     def _get_parent(
