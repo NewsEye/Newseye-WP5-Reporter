@@ -68,6 +68,7 @@ from reporter.newspaper_slot_realizers import (
     FinnishQueryMmFilterRealizer,
     FinnishQueryMmRealizer,
     FinnishTopicWeightRealizer,
+    FinnishDocumentIdRealizer,
 )
 from reporter.newspaper_slot_realizers import (
     GermanFormatRealizer,
@@ -169,6 +170,7 @@ class NewspaperNlgService(object):
                 FinnishQueryMmFilterRealizer(self.registry),
                 FinnishQueryMmRealizer(self.registry),
                 FinnishTopicWeightRealizer(self.registry),
+                FinnishDocumentIdRealizer(self.registry),
                 # German
                 GermanFormatRealizer(self.registry),
                 GermanLanguageRealizer(self.registry),

@@ -302,6 +302,11 @@ class FinnishNewspaperNameRealizer(RegexRealizer):
         )
 
 
+class FinnishDocumentIdRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(registry, "fi", r"\[DOCUMENT_ID:([^\]]+)\]", 1, "dokumenttiin, jonka ID on {}")
+
+
 class FinnishYearRealizer(RegexRealizer):
     def __init__(self, registry):
         super().__init__(registry, "fi", r"\[year:([^\]]+)\]", 1, "{}")
