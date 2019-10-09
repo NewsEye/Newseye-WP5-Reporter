@@ -466,6 +466,11 @@ class GermanNewspaperNameRealizer(RegexRealizer):
         )
 
 
+class GermanDocumentIdRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(registry, "de", r"\[DOCUMENT_ID:([^\]]+)\]", 1, "Dokument mit der ID {}")
+
+
 class GermanSubjectRealizer(RegexRealizer):
     def __init__(self, registry):
         super().__init__(registry, "de", r"\[subject_ssim:([^\]]+)\]", 1, 'über das Thema "{}"')
@@ -495,7 +500,7 @@ class GermanChangeRealizerIncrease(RegexRealizer):
             "de",
             r"\[CHANGE:([^\]:]+):([^\]:]+)\]",
             (1, 2),
-            ("stieg von {} IPM auf {}",),
+            ("stieg von {} Teile pro Million auf {}",),
             lambda before, after: float(before) < float(after),
         )
 
@@ -507,7 +512,7 @@ class GermanChangeRealizerDecrease(RegexRealizer):
             "de",
             r"\[CHANGE:([^\]:]+):([^\]:]+)\]",
             (1, 2),
-            ("verringerte sich von {} auf {} IPM",),
+            ("verringerte sich von {} auf {} Teile pro Million",),
             lambda before, after: float(before) > float(after),
         )
 

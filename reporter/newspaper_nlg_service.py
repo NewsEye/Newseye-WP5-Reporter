@@ -87,6 +87,7 @@ from reporter.newspaper_slot_realizers import (
     GermanQueryMmFilterRealizer,
     GermanQueryMmRealizer,
     GermanQueryFilterRealizer,
+    GermanDocumentIdRealizer,
 )
 
 from reporter.newspaper_named_entity_resolver import NewspaperEntityNameResolver
@@ -186,6 +187,7 @@ class NewspaperNlgService(object):
                 GermanQueryMmFilterRealizer(self.registry),
                 GermanQueryMmRealizer(self.registry),
                 GermanQueryFilterRealizer(self.registry),
+                GermanDocumentIdRealizer(self.registry),
             ],
         )
 
