@@ -43,10 +43,9 @@ log = logging.getLogger("root")
 
 
 class NewspaperNlgService(object):
-    def __init__(self, random_seed: int = None, force_cache_refresh: bool = False) -> None:
+    def __init__(self, random_seed: int = None) -> None:
         """
         :param random_seed: seed for random number generation, for repeatability
-        :param force_cache_refresh: forces the recreation of all caches, taking significant amounts of time
         """
 
         # New registry and result importer
@@ -65,8 +64,6 @@ class NewspaperNlgService(object):
 
         # SurfazeRealizers
         inject_realizers(self.registry)
-
-        slot_realizer_random = RandomState(self.registry.get("seed"))
 
     T = TypeVar("T")
 

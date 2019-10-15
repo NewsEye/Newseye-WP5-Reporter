@@ -46,13 +46,13 @@ class SurfaceRealizer(NLGPipelineComponent):
         """
         log.info("Realizing to text")
         sequences = [c for c in document_plan.children]
-        paragraphs = [self.realize(s, language) for s in sequences]
+        paragraphs = [self.realize(s) for s in sequences]
         output = ""
         for p in paragraphs:
             output += self.paragraph_start + p + self.paragraph_end
         return output
 
-    def realize(self, sequence: DocumentPlanNode, language: str) -> str:
+    def realize(self, sequence: DocumentPlanNode) -> str:
         """Realizes a single paragraph."""
         output = ""
         for message in sequence.children:

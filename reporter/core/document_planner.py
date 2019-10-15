@@ -80,8 +80,7 @@ class BodyDocumentPlanner(NLGPipelineComponent):
         # as first elements.
         max_score = 0.0
         expanded_nuclei = 0
-        # Keep track of what location is currently being talked about
-        current_location = None
+
         for par_num in range(MAX_PARAGRAPHS_PER_DOC):
             if (par_num == 0 and len(core_messages)) or expanded_nuclei >= MAX_EXPANDED_NUCLEI:
                 penalized_candidates = self._penalize_similarity(core_messages, nuclei)

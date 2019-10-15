@@ -72,8 +72,6 @@ class EntityNameResolver(NLGPipelineComponent):
         entity to_value functions to return the chosen form of that NE's name.
         """
         if isinstance(this, Slot):
-            added_slots = 0
-
             if not self.is_entity(this.value):
                 log.debug("Visited leaf non-NE leaf node {}".format(this.value))
                 return encountered, previous_entities
@@ -95,10 +93,8 @@ class EntityNameResolver(NLGPipelineComponent):
                 encountered.add(entity)
                 log.debug("Added entity to encountered, all encountered: {}".format(encountered))
 
-            added_slots = self.resolve_surface_form(
-                registry, random, language, this, entity, entity_type
-            )
-            log.debug("Resolved entity name adding {} new slot(s)".format(added_slots))
+            self.resolve_surface_form(registry, random, language, this, entity, entity_type)
+            log.debug("Resolved entity name")
 
             this.attributes["entity_type"] = entity_type
             previous_entities[entity_type] = entity
