@@ -2,7 +2,7 @@ from abc import ABC
 import logging
 from typing import Any, List, Optional, Tuple, Union
 
-from numpy.random import RandomState
+from numpy import random
 
 from .registry import Registry
 
@@ -35,7 +35,7 @@ class NLGPipeline(object):
     ) -> Union[List[Any], Tuple[Any]]:
         log.info("Starting NLG pipeline")
         log.debug("PRNG seed is {}".format(prng_seed))
-        prng = RandomState(prng_seed)
+        prng = random.RandomState(prng_seed)
         log.info("First random is {}".format(prng.randint(1000000)))
         args = initial_inputs
         for component in self.components:
