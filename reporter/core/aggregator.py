@@ -55,7 +55,7 @@ class Aggregator(NLGPipelineComponent):
                 previous_child = None
             current_child = self._aggregate(registry, language, document_plan_node.children[idx])
 
-            # assert isinstance(current_child, Message)  # TODO: Logically, this should hold. But it doesn't and in fact the whole thing works anyways ¯\_(ツ)_/¯
+            # TODO: current_child should be a Message but seems to be a DocumentPlanNode instead ¯\_(ツ)_/¯
 
             log.debug("previous_child={}, current_child={}".format(previous_child, current_child))
 
@@ -105,6 +105,7 @@ class Aggregator(NLGPipelineComponent):
         )
 
         combined = [c for c in first.template.components]
+        # TODO: 'idx' and 'other_component' are left uninitialized if second.template.components is empty.
         for idx, other_component in enumerate(second.template.components):
             if idx >= len(combined):
                 break

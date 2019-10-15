@@ -182,6 +182,7 @@ class BodyDocumentPlanner(NLGPipelineComponent):
                 flat.append(m)
             else:
                 # Extend with non-None children
+                # TODO: "Expected type 'Iterable[Message]', got 'List[TemplateComponent]' instead"
                 todo.extend([c for c in m.children if c])
         return flat
 
