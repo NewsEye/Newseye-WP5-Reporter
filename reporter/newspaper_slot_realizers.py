@@ -92,7 +92,7 @@ class AbstractTopicRealizer(SlotRealizerComponent):
     ) -> None:
         self.registry = registry
         self.language = language
-        self.backup_realizer = _BackupEnglishTopicRealizer(registry)
+        self.backup_realizer = backup_realizer_constructor(registry)
         self.template = template
         self.value_order = value_order
 
