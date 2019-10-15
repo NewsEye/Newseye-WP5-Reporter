@@ -164,16 +164,3 @@ class NewspaperNlgService(object):
 
     def get_languages(self) -> List[str]:
         return list(self.registry.get("templates").keys())
-
-
-if __name__ == "__main__":
-    formatter = logging.Formatter(fmt="%(asctime)s - %(levelname)s - %(module)s - %(message)s")
-    handler = logging.StreamHandler()
-    handler.setFormatter(formatter)
-    log = logging.getLogger("root")
-    log.setLevel(logging.DEBUG)
-    # log.setLevel(5) # Enable for way too much logging, even more than DEBUG
-    log.addHandler(handler)
-
-    service = NewspaperNlgService()
-    print(service.run_pipeline("en"))
