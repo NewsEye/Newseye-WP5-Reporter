@@ -565,7 +565,7 @@ def blank_line_split(seq):
 def group_indented_lines(seq):
     group = [seq[0].strip()]
     for line in seq[1:]:
-        if re.match("\s", line):
+        if re.match(r"\s", line):
             # Indented line, group with the previous
             group.append(line.strip())
         else:

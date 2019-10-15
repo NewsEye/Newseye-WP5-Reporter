@@ -9,7 +9,7 @@ from .core import EntityNameResolver, Registry, Slot
 class NewspaperEntityNameResolver(EntityNameResolver):
     def __init__(self) -> None:
         # [ENTITY:<group1>:<group2>] where group1 and group2 can contain anything but square brackets or double colon
-        self._matcher = re.compile("\[ENTITY:([^\]:]*):([^\]]*)\]")
+        self._matcher = re.compile(r"\[ENTITY:([^\]:]*):([^\]]*)\]")
 
     def is_entity(self, maybe_entity: str) -> bool:
         # Match and convert the result to boolean
