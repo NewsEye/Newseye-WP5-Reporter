@@ -40,6 +40,11 @@ log = logging.getLogger("root")
 
 
 class NewspaperNlgService(object):
+
+    # These are (re)initialized every time run_pipeline is called
+    body_pipeline = None
+    headline_pipeline = None
+
     def __init__(self, random_seed: int = None) -> None:
         """
         :param random_seed: seed for random number generation, for repeatability

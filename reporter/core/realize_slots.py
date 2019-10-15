@@ -16,6 +16,7 @@ log = logging.getLogger("root")
 class SlotRealizer(NLGPipelineComponent):
     def __init__(self) -> None:
         self._random = None
+        self._registry = None
 
     def run(
         self,
