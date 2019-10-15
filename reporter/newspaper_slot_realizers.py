@@ -518,7 +518,7 @@ class GermanPubDateRealizer(RegexRealizer):
 
 class GermanPubYearRealizer(RegexRealizer):
     def __init__(self, registry):
-        super().__init__(registry, "de", r"\[PUB_YEAR:([^\]]+)\]", 1, ("veröffentlicht im Jahr {}"))
+        super().__init__(registry, "de", r"\[PUB_YEAR:([^\]]+)\]", 1, "veröffentlicht im Jahr {}")
 
 
 class GermanCollectionNameRealizer(RegexRealizer):
@@ -567,7 +567,7 @@ class GermanYearRealizer(RegexRealizer):
 
 class GermanYearIsiRealizer(RegexRealizer):
     def __init__(self, registry):
-        super().__init__(registry, "de", r"\[year_isi:([^\]]+)\]", 1, ("im Jahr {}"))
+        super().__init__(registry, "de", r"\[year_isi:([^\]]+)\]", 1, "im Jahr {}")
 
 
 class GermanChangeRealizerIncrease(RegexRealizer):
