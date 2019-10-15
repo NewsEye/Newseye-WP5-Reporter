@@ -27,69 +27,7 @@ from reporter.core.surface_realizer import (
     BodyHTMLOrderedListSurfaceRealizer,
 )
 
-from reporter.core.realize_slots import NumberRealizer
-
-from reporter.newspaper_slot_realizers import (
-    EnglishFormatRealizer,
-    EnglishLanguageRealizer,
-    EnglishTopicRealizer,
-    EnglishPubDateRealizer,
-    EnglishChangeRealizerDecrease,
-    EnglishChangeRealizerIncrease,
-    EnglishYearRealizer,
-    EnglishQueryRealizer,
-    EnglishWordRealizer,
-    EnglishNewspaperNameRealizer,
-    EnglishPubYearRealizer,
-    EnglishYearIsiRealizer,
-    EnglishCollectionNameRealizer,
-    EnglishTopicWeightRealizer,
-    EnglishQueryMmFilterRealizer,
-    EnglishQueryMmRealizer,
-    EnglishQueryFilterRealizer,
-    EnglishDocumentIdRealizer,
-)
-
-from reporter.newspaper_slot_realizers import (
-    FinnishFormatRealizer,
-    FinnishLanguageRealizer,
-    FinnishTopicRealizer,
-    FinnishPubDateRealizer,
-    FinnishChangeRealizerDecrease,
-    FinnishChangeRealizerIncrease,
-    FinnishYearRealizer,
-    FinnishQueryRealizer,
-    FinnishWordRealizer,
-    FinnishNewspaperNameRealizer,
-    FinnishPubYearRealizer,
-    FinnishYearIsiRealizer,
-    FinnishCollectionNameRealizer,
-    FinnishQueryFilterRealizer,
-    FinnishQueryMmFilterRealizer,
-    FinnishQueryMmRealizer,
-    FinnishTopicWeightRealizer,
-    FinnishDocumentIdRealizer,
-)
-from reporter.newspaper_slot_realizers import (
-    GermanFormatRealizer,
-    GermanLanguageRealizer,
-    GermanTopicRealizer,
-    GermanPubDateRealizer,
-    GermanChangeRealizerDecrease,
-    GermanChangeRealizerIncrease,
-    GermanYearRealizer,
-    GermanQueryRealizer,
-    GermanWordRealizer,
-    GermanNewspaperNameRealizer,
-    GermanPubYearRealizer,
-    GermanYearIsiRealizer,
-    GermanCollectionNameRealizer,
-    GermanTopicWeightRealizer,
-    GermanQueryMmFilterRealizer,
-    GermanQueryMmRealizer,
-    GermanQueryFilterRealizer,
-    GermanDocumentIdRealizer,
-)
+from reporter.newspaper_slot_realizers import inject_realizers
 
 from reporter.newspaper_named_entity_resolver import NewspaperEntityNameResolver
 from reporter.newspaper_importance_allocator import NewspaperImportanceSelector
@@ -126,72 +64,9 @@ class NewspaperNlgService(object):
         self._set_seed(seed_val=random_seed)
 
         # SurfazeRealizers
+        inject_realizers(self.registry)
 
         slot_realizer_random = RandomState(self.registry.get("seed"))
-        self.registry.register(
-            "slot-realizers",
-            [
-                # Generic
-                NumberRealizer(),
-                # English
-                EnglishFormatRealizer(self.registry),
-                EnglishLanguageRealizer(self.registry),
-                EnglishTopicRealizer(self.registry),
-                EnglishPubDateRealizer(self.registry),
-                EnglishPubYearRealizer(self.registry),
-                EnglishChangeRealizerDecrease(self.registry),
-                EnglishChangeRealizerIncrease(self.registry),
-                EnglishYearRealizer(self.registry),
-                EnglishQueryRealizer(self.registry),
-                EnglishWordRealizer(self.registry),
-                EnglishNewspaperNameRealizer(self.registry),
-                EnglishYearIsiRealizer(self.registry),
-                EnglishCollectionNameRealizer(self.registry),
-                EnglishTopicWeightRealizer(self.registry),
-                EnglishQueryMmFilterRealizer(self.registry),
-                EnglishQueryMmRealizer(self.registry),
-                EnglishQueryFilterRealizer(self.registry),
-                EnglishDocumentIdRealizer(self.registry),
-                # Finnish
-                FinnishFormatRealizer(self.registry),
-                FinnishLanguageRealizer(self.registry),
-                FinnishTopicRealizer(self.registry),
-                FinnishPubDateRealizer(self.registry),
-                FinnishPubYearRealizer(self.registry),
-                FinnishChangeRealizerDecrease(self.registry),
-                FinnishChangeRealizerIncrease(self.registry),
-                FinnishYearRealizer(self.registry),
-                FinnishQueryRealizer(self.registry),
-                FinnishWordRealizer(self.registry),
-                FinnishNewspaperNameRealizer(self.registry),
-                FinnishYearIsiRealizer(self.registry),
-                FinnishCollectionNameRealizer(self.registry),
-                FinnishQueryFilterRealizer(self.registry),
-                FinnishQueryMmFilterRealizer(self.registry),
-                FinnishQueryMmRealizer(self.registry),
-                FinnishTopicWeightRealizer(self.registry),
-                FinnishDocumentIdRealizer(self.registry),
-                # German
-                GermanFormatRealizer(self.registry),
-                GermanLanguageRealizer(self.registry),
-                GermanTopicRealizer(self.registry),
-                GermanPubDateRealizer(self.registry),
-                GermanPubYearRealizer(self.registry),
-                GermanChangeRealizerDecrease(self.registry),
-                GermanChangeRealizerIncrease(self.registry),
-                GermanYearRealizer(self.registry),
-                GermanQueryRealizer(self.registry),
-                GermanWordRealizer(self.registry),
-                GermanNewspaperNameRealizer(self.registry),
-                GermanYearIsiRealizer(self.registry),
-                GermanCollectionNameRealizer(self.registry),
-                GermanTopicWeightRealizer(self.registry),
-                GermanQueryMmFilterRealizer(self.registry),
-                GermanQueryMmRealizer(self.registry),
-                GermanQueryFilterRealizer(self.registry),
-                GermanDocumentIdRealizer(self.registry),
-            ],
-        )
 
     T = TypeVar("T")
 

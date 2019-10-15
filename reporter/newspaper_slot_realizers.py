@@ -6,9 +6,77 @@ import requests
 from typing import List, Tuple, Callable, Type
 
 from reporter.core import RegexRealizer, SlotRealizerComponent, TemplateComponent, Slot, Registry
+from reporter.core.realize_slots import NumberRealizer
 from reporter.constants import CONJUNCTIONS
 
 log = logging.getLogger("root")
+
+
+def inject_realizers(registry: Registry) -> None:
+    registry.register(
+        "slot-realizers",
+        [
+            # Generic
+            NumberRealizer(),
+            # English
+            EnglishFormatRealizer(registry),
+            EnglishLanguageRealizer(registry),
+            EnglishTopicRealizer(registry),
+            EnglishPubDateRealizer(registry),
+            EnglishPubYearRealizer(registry),
+            EnglishChangeRealizerDecrease(registry),
+            EnglishChangeRealizerIncrease(registry),
+            EnglishYearRealizer(registry),
+            EnglishQueryRealizer(registry),
+            EnglishWordRealizer(registry),
+            EnglishNewspaperNameRealizer(registry),
+            EnglishYearIsiRealizer(registry),
+            EnglishCollectionNameRealizer(registry),
+            EnglishTopicWeightRealizer(registry),
+            EnglishQueryMmFilterRealizer(registry),
+            EnglishQueryMmRealizer(registry),
+            EnglishQueryFilterRealizer(registry),
+            EnglishDocumentIdRealizer(registry),
+            # Finnish
+            FinnishFormatRealizer(registry),
+            FinnishLanguageRealizer(registry),
+            FinnishTopicRealizer(registry),
+            FinnishPubDateRealizer(registry),
+            FinnishPubYearRealizer(registry),
+            FinnishChangeRealizerDecrease(registry),
+            FinnishChangeRealizerIncrease(registry),
+            FinnishYearRealizer(registry),
+            FinnishQueryRealizer(registry),
+            FinnishWordRealizer(registry),
+            FinnishNewspaperNameRealizer(registry),
+            FinnishYearIsiRealizer(registry),
+            FinnishCollectionNameRealizer(registry),
+            FinnishQueryFilterRealizer(registry),
+            FinnishQueryMmFilterRealizer(registry),
+            FinnishQueryMmRealizer(registry),
+            FinnishTopicWeightRealizer(registry),
+            FinnishDocumentIdRealizer(registry),
+            # German
+            GermanFormatRealizer(registry),
+            GermanLanguageRealizer(registry),
+            GermanTopicRealizer(registry),
+            GermanPubDateRealizer(registry),
+            GermanPubYearRealizer(registry),
+            GermanChangeRealizerDecrease(registry),
+            GermanChangeRealizerIncrease(registry),
+            GermanYearRealizer(registry),
+            GermanQueryRealizer(registry),
+            GermanWordRealizer(registry),
+            GermanNewspaperNameRealizer(registry),
+            GermanYearIsiRealizer(registry),
+            GermanCollectionNameRealizer(registry),
+            GermanTopicWeightRealizer(registry),
+            GermanQueryMmFilterRealizer(registry),
+            GermanQueryMmRealizer(registry),
+            GermanQueryFilterRealizer(registry),
+            GermanDocumentIdRealizer(registry),
+        ],
+    )
 
 
 class AbstractTopicRealizer(SlotRealizerComponent):
