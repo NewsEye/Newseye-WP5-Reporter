@@ -10,6 +10,9 @@ log = logging.getLogger("root")
 
 
 class NLGPipelineComponent(ABC):
+    def run(self, *args):
+        raise NotImplementedError
+
     def __str__(self) -> str:
         return str(self.__class__.__name__)
 
