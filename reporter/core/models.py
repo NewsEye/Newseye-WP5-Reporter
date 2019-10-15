@@ -589,6 +589,7 @@ class ReferentialExpr(object):
 
 
 class Matcher(object):
+    @staticmethod
     def _equal_op(a: Any, b: Any) -> bool:
         if type(b) is str:
             return re.match("^" + b + "$", str(a)) is not None
