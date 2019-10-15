@@ -615,4 +615,4 @@ def expand_alternatives(line):
 class TemplateReadingError(Exception):
     def __init__(self, *args, **kwargs):
         self.raw_text = kwargs.pop("raw_text", None)
-        super(TemplateReadingError, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
