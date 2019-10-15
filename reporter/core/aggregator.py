@@ -116,17 +116,17 @@ class Aggregator(NLGPipelineComponent):
 
         log.debug("idx = {}".format(idx))
         # TODO At the moment everything is considered either positive or negative, which is sometimes weird. Add neutral sentences.
-        CONJUNCTIONS = registry.get("CONJUNCTIONS").get(language, None)
-        if not CONJUNCTIONS:
-            CONJUNCTIONS = (defaultdict(lambda x: "NO-CONJUNCTION-DICT"),)
+        conjunctions = registry.get("CONJUNCTIONS").get(language, None)
+        if not conjunctions:
+            conjunctions = (defaultdict(lambda x: "NO-CONJUNCTION-DICT"),)
 
         if first.polarity != first.polarity:
             combined.append(
-                Literal(CONJUNCTIONS.get("inverse_combiner", "MISSING-INVERSE-CONJUCTION"))
+                Literal(conjunctions.get("inverse_combiner", "MISSING-INVERSE-CONJUCTION"))
             )
         else:
             combined.append(
-                Literal(CONJUNCTIONS.get("default_combiner", "MISSING-DEFAULT-CONJUCTION"))
+                Literal(conjunctions.get("default_combiner", "MISSING-DEFAULT-CONJUCTION"))
             )
         combined.extend(second.template.components[idx:])
         log.debug("Combined thing is {}".format([c.value for c in combined]))

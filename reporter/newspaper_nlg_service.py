@@ -121,9 +121,9 @@ class NewspaperNlgService(object):
         else:
             yield BodyHTMLSurfaceRealizer()
 
-    def run_pipeline(self, language: str, format: str, data: str) -> Tuple[str, str]:
+    def run_pipeline(self, language: str, output_format: str, data: str) -> Tuple[str, str]:
         log.info("Configuring Body NLG Pipeline")
-        self.body_pipeline = NLGPipeline(self.registry, *self._get_components(format))
+        self.body_pipeline = NLGPipeline(self.registry, *self._get_components(output_format))
         self.headline_pipeline = NLGPipeline(self.registry, *self._get_components("headline"))
 
         log.info("Running Body NLG pipeline: language={}".format(language))

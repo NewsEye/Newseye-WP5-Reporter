@@ -358,14 +358,14 @@ class TaskResult(object):
         self.uuid = uuid
 
     @staticmethod
-    def from_dict(json: Dict[str, Any]) -> "TaskResult":
+    def from_dict(object_as_dict: Dict[str, Any]) -> "TaskResult":
         return TaskResult(
-            [TaskResult.from_dict(child) for child in json["children"]]
-            if "children" in json
+            [TaskResult.from_dict(child) for child in object_as_dict["children"]]
+            if "children" in object_as_dict
             else [],
-            json.get("hist_parent_id"),
-            json.get("task_parameters"),
-            json.get("task_result"),
-            json.get("task_type"),
-            json.get("uuid"),
+            object_as_dict.get("hist_parent_id"),
+            object_as_dict.get("task_parameters"),
+            object_as_dict.get("task_result"),
+            object_as_dict.get("task_type"),
+            object_as_dict.get("uuid"),
         )
