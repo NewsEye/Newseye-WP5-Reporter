@@ -5,14 +5,10 @@ import logging
 from random import randint
 from typing import Callable, Dict, Iterable, List, Optional, TypeVar, Tuple
 
-from numpy.random.mtrand import RandomState
-
 from reporter.core import (
     Aggregator,
     BodyDocumentPlanner,
-    BodyHTMLSurfaceRealizer,
     HeadlineDocumentPlanner,
-    HeadlineHTMLSurfaceRealizer,
     NLGPipeline,
     NLGPipelineComponent,
     read_templates_file,
@@ -25,6 +21,7 @@ from reporter.core.surface_realizer import (
     BodyHTMLListSurfaceRealizer,
     BodyHTMLSurfaceRealizer,
     BodyHTMLOrderedListSurfaceRealizer,
+    HeadlineHTMLSurfaceRealizer,
 )
 
 from reporter.newspaper_slot_realizers import inject_realizers

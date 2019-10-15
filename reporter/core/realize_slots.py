@@ -6,7 +6,7 @@ from typing import List, Tuple, Iterable, Union, Callable, Optional
 
 from numpy.random.mtrand import RandomState
 
-from .models import DocumentPlanNode, Slot, TemplateComponent, Literal, Message
+from .models import DocumentPlanNode, Slot, TemplateComponent, Message
 from .pipeline import NLGPipelineComponent
 from .registry import Registry
 

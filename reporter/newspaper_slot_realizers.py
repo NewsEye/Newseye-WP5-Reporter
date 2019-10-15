@@ -3,7 +3,7 @@ import re
 import traceback
 
 import requests
-from typing import List, Tuple, Callable, Type
+from typing import List, Tuple, Type
 
 from reporter.core import RegexRealizer, SlotRealizerComponent, TemplateComponent, Slot, Registry
 from reporter.core.realize_slots import NumberRealizer
