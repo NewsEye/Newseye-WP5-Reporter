@@ -10,5 +10,5 @@ class NoMessagesForSelectionException(Exception):
     pass
 
 
-class MessageGenerator(ABC, NLGPipelineComponent):
+class MessageGenerator(NLGPipelineComponent):
     pass
