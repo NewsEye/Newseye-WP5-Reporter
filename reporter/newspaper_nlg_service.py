@@ -17,6 +17,7 @@ from reporter.core import (
     Template,
     TemplateSelector,
 )
+from reporter.core.document_planner import NoInterestingMessagesException
 from reporter.core.surface_realizer import (
     BodyHTMLListSurfaceRealizer,
     BodyHTMLSurfaceRealizer,
@@ -33,8 +34,7 @@ from reporter.newspaper_message_generator import (
     NoMessagesForSelectionException,
 )
 
-from reporter.constants import ERRORS, CONJUNCTIONS
-
+from reporter.constants import ERRORS, CONJUNCTIONS, get_error_message
 
 log = logging.getLogger("root")
 
@@ -131,12 +131,13 @@ class NewspaperNlgService(object):
             log.info("Body pipeline complete")
         except NoMessagesForSelectionException as ex:
             log.error("%s", ex)
-            body = ERRORS.get(language, {}).get(
-                "no-messages-for-selection", "Something went wrong."
-            )
+            body = get_error_message(language, "no-messages-for-selection")
+        except NoInterestingMessagesException as ex:
+            log.info("%s", ex)
+            body = get_error_message(language, "no-interesting-messages-for-selection")
         except Exception as ex:
-            log.error("%s", ex)
-            body = ERRORS.get(language, {}).get("general-error", "Something went wrong.")
+            log.exception("%s", ex)
+            body = get_error_message(language, "general-error")
 
         log.info("Running headline NLG pipeline")
         try:
@@ -145,11 +146,15 @@ class NewspaperNlgService(object):
                 (data,), headline_lang, prng_seed=self.registry.get("seed")
             )
             log.info("Headline pipeline complete")
-        except Exception as ex:
-            headline = ERRORS.get(language, {}).get(
-                "no-messages-for-selection", "Something went wrong."
-            )
+        except NoMessagesForSelectionException as ex:
             log.error("%s", ex)
+            headline = get_error_message(language, "no-messages-for-selection")
+        except NoInterestingMessagesException as ex:
+            log.info("%s", ex)
+            headline = get_error_message(language, "no-interesting-messages-for-selection")
+        except Exception as ex:
+            log.exception("%s", ex)
+            headline = get_error_message(language, "general-error")
 
         return headline, body
 
