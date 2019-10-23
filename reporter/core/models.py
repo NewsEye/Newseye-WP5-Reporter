@@ -588,13 +588,14 @@ class ReferentialExpr(object):
         return "all[{}].{}".format(self.reference_idx, self.field_name)
 
 
+def _equal_op(a: Any, b: Any) -> bool:
+    if type(b) is str:
+        return re.match("^" + b + "$", str(a)) is not None
+    else:
+        return operator.eq(a, b)
+
+
 class Matcher(object):
-    @staticmethod
-    def _equal_op(a: Any, b: Any) -> bool:
-        if type(b) is str:
-            return re.match("^" + b + "$", str(a)) is not None
-        else:
-            return operator.eq(a, b)
 
     OPERATORS = {
         "=": _equal_op,
