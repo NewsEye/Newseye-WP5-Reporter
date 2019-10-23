@@ -1,6 +1,7 @@
 import logging
-from numpy import random
 import re
+
+from numpy import random
 
 from .models import DocumentPlanNode
 from .pipeline import NLGPipelineComponent

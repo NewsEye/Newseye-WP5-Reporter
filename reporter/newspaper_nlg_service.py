@@ -1,10 +1,11 @@
 import gzip
+import logging
 import os
 import pickle
-import logging
 import random
 from typing import Callable, Dict, Iterable, List, Optional, TypeVar, Tuple
 
+from reporter.constants import CONJUNCTIONS, get_error_message
 from reporter.core import (
     Aggregator,
     BodyDocumentPlanner,
@@ -24,17 +25,13 @@ from reporter.core.surface_realizer import (
     BodyHTMLOrderedListSurfaceRealizer,
     HeadlineHTMLSurfaceRealizer,
 )
-
-from reporter.newspaper_slot_realizers import inject_realizers
-
-from reporter.newspaper_named_entity_resolver import NewspaperEntityNameResolver
 from reporter.newspaper_importance_allocator import NewspaperImportanceSelector
 from reporter.newspaper_message_generator import (
     NewspaperMessageGenerator,
     NoMessagesForSelectionException,
 )
-
-from reporter.constants import ERRORS, CONJUNCTIONS, get_error_message
+from reporter.newspaper_named_entity_resolver import NewspaperEntityNameResolver
+from reporter.newspaper_slot_realizers import inject_realizers
 
 log = logging.getLogger("root")
 

@@ -1,11 +1,12 @@
-from collections import defaultdict
 import logging
-from numpy.random import Generator
+from collections import defaultdict
 from typing import List, Tuple
 
+from numpy.random import Generator
+
+from .models import DocumentPlanNode, Message, Literal, Relation, Template, TemplateComponent, Slot
 from .pipeline import NLGPipelineComponent
 from .registry import Registry
-from .models import DocumentPlanNode, Message, Literal, Relation, Template, TemplateComponent, Slot
 
 log = logging.getLogger("root")
 

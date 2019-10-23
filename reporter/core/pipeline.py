@@ -1,5 +1,5 @@
-from abc import ABC
 import logging
+from abc import ABC
 from typing import Any, List, Optional, Tuple, Union
 
 from numpy import random

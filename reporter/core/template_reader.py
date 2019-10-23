@@ -35,9 +35,9 @@ This is exactly equivalent to putting the expanded templates explicitly on conse
 the same language specifier).
 
 """
+import logging
 import re
 import warnings
-import logging
 from typing import Optional, List, Union, Tuple, Dict
 
 from .models import (

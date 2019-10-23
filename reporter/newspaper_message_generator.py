@@ -1,7 +1,8 @@
 import json
 import logging
-from numpy.random import Generator
 from typing import Any, Dict, List, Tuple, Optional
+
+from numpy.random import Generator
 
 from reporter.core import (
     Fact,

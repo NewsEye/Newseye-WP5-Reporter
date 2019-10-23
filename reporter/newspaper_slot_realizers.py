@@ -1,15 +1,14 @@
 import logging
 import re
 import traceback
-
-import requests
 from typing import List, Tuple, Type
 
+import requests
 from numpy.random.generator import Generator
 
+from reporter.constants import CONJUNCTIONS
 from reporter.core import RegexRealizer, SlotRealizerComponent, TemplateComponent, Slot, Registry
 from reporter.core.realize_slots import NumberRealizer
-from reporter.constants import CONJUNCTIONS
 
 log = logging.getLogger("root")
 

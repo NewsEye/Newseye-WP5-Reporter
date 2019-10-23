@@ -1,5 +1,5 @@
-from collections.abc import Iterable
 import logging
+from collections.abc import Iterable
 from typing import Any, List, Optional, TypeVar, Union
 
 from .models import DocumentPlanNode, Message

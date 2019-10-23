@@ -1,6 +1,7 @@
 import logging
-from numpy.random import Generator
 from typing import List, Union, Tuple, cast
+
+from numpy.random import Generator
 
 from .models import Fact, DocumentPlanNode, Message, Relation
 from .pipeline import NLGPipelineComponent

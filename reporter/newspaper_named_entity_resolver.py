@@ -1,9 +1,10 @@
 import logging
-from reporter.constants import LANGUAGES
-from numpy.random import Generator
 import re
 from typing import Tuple
 
+from numpy.random import Generator
+
+from reporter.constants import LANGUAGES
 from .core import EntityNameResolver, Registry, Slot
 
 log = logging.getLogger("root")

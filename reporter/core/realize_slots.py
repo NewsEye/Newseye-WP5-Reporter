@@ -1,6 +1,6 @@
-from abc import ABC, abstractmethod
 import logging
 import re
+from abc import ABC, abstractmethod
 from numbers import Number
 from typing import List, Tuple, Iterable, Union, Callable, Optional
 

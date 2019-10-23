@@ -1,8 +1,8 @@
+import logging
 import operator
 import re
 from collections import namedtuple
 from enum import Enum
-import logging
 from typing import Any, Callable, Dict, List, Optional, Union, Tuple
 
 log = logging.getLogger("root")

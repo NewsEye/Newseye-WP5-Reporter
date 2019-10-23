@@ -1,8 +1,9 @@
+import logging
 from abc import abstractmethod
 from collections import defaultdict
-import logging
-from numpy.random import Generator
 from typing import Set, Tuple, DefaultDict
+
+from numpy.random import Generator
 
 from .models import DocumentPlanNode, Slot
 from .pipeline import NLGPipelineComponent

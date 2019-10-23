@@ -1,4 +1,5 @@
 from unittest import main, TestCase
+
 from reporter.core.models import (
     Message,
     Fact,

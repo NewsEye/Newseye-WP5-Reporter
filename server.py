@@ -1,14 +1,11 @@
-import argparse
 import json
-import os
-import logging
 import logging.handlers
-import sys
+import os
 from typing import Callable, Dict, List, Tuple
 
-from reporter.newspaper_nlg_service import NewspaperNlgService
-
 from bottle import Bottle, request, response, run, TEMPLATE_PATH
+
+from reporter.newspaper_nlg_service import NewspaperNlgService
 
 #
 # START INIT

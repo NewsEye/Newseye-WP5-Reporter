@@ -1,7 +1,8 @@
-from functools import lru_cache
 import logging
-from numpy.random import Generator
+from functools import lru_cache
 from typing import Iterator, List, Tuple
+
+from numpy.random import Generator
 
 from .models import DefaultTemplate, DocumentPlanNode, Message, Template
 from .pipeline import NLGPipelineComponent
