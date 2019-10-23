@@ -10,7 +10,16 @@ log = logging.getLogger("root")
 
 
 class NLGPipelineComponent(ABC):
-    def run(self, *args):
+
+    # TODO: We'd want this to be along the lines of "run(self, registry: Registry, ..., *args: Any) but that's not possible with the current implementation of
+    def run(self, *args, **kwargs):
+        """
+        The real signature is (self, registry: Registry, random: numpy.random.Generator, language: str, *args)
+        but that cannot be expressed as a Python type hint. Or rather, that type hint then requires a LITERAL "*args*"
+        in all implementing subclasses which is not what we want to convey.
+
+        See e.g. https://github.com/python/mypy/issues/5876 for discussion.
+        """
         raise NotImplementedError
 
     def __str__(self) -> str:
