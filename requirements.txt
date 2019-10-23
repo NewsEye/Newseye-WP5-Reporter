@@ -1,6 +1,5 @@
-bottle==0.12.13
-meinheld==0.6.1
+bottle==0.12.17
+meinheld==1.0.1
 numpy==1.17.2
-pandas==0.20.3
 uWSGI==2.0.18
-requests==2.21.0
+requests==2.22.0
