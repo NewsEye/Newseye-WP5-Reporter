@@ -62,7 +62,6 @@ class HdfStore(DataStore):
             )
 
     def query(self, query: str) -> DataFrame:
-        # print("Running query {}".format(query))
         query = self._mangle_where_in_query(query)
         df = self.store.select(self.table, where=query)
         self._unmangle_where(df)

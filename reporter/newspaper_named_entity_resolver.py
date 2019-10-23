@@ -1,9 +1,12 @@
+import logging
 from reporter.constants import LANGUAGES
 from numpy.random import Generator
 import re
 from typing import Tuple
 
 from .core import EntityNameResolver, Registry, Slot
+
+log = logging.getLogger("root")
 
 
 class NewspaperEntityNameResolver(EntityNameResolver):
@@ -16,7 +19,9 @@ class NewspaperEntityNameResolver(EntityNameResolver):
         try:
             return self._matcher.fullmatch(maybe_entity) is not None
         except TypeError:
-            print("EntityNameResolver got a number: {} instead of a string".format(maybe_entity))
+            log.error(
+                "EntityNameResolver got a number: {} instead of a string".format(maybe_entity)
+            )
 
     def parse_entity(self, entity: str) -> Tuple[str, str]:
         groups: Tuple[str, str] = tuple(self._matcher.match(entity).groups())

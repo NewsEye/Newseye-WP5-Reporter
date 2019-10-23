@@ -119,7 +119,6 @@ class AbstractTopicRealizer(SlotRealizerComponent):
                 )
             else:
                 topic_description = '"{}"'.format('", "'.join(topic_words[:5]))
-            print(topic_description)
             raw_values = [model_type.upper(), model_name.upper(), topic_id, topic_description]
             values = [raw_values[idx] for idx in self.value_order]
             string_realization = self.template.format(*values)
