@@ -3,7 +3,6 @@ from random import Random
 from typing import List, Union, Tuple, cast
 
 from .models import Fact, DocumentPlanNode, Message, Relation
-from .message_generator import NoMessagesForSelectionException
 from .pipeline import NLGPipelineComponent
 from .registry import Registry
 from .template_selector import TemplateMessageChecker
@@ -22,6 +21,10 @@ END_PARAGRAPH_ABSOLUTE_THRESHOLD = 0.0
 
 END_STORY_RELATIVE_TRESHOLD = 0.0000001
 END_STORY_ABSOLUTE_TRESHOLD = 0.0
+
+
+class NoInterestingMessagesException(Exception):
+    pass
 
 
 class HeadlineDocumentPlanner(NLGPipelineComponent):
@@ -71,7 +74,7 @@ class BodyDocumentPlanner(NLGPipelineComponent):
         # These are recognisable by having a <1 importance coefficient
         core_messages = [sm for sm in scored_messages if sm.importance_coefficient >= 1.0]
         if not core_messages:
-            raise NoMessagesForSelectionException
+            raise NoInterestingMessagesException
 
         # Prepare a template checker
         template_checker = TemplateMessageChecker(registry.get("templates")[language], all_messages)
