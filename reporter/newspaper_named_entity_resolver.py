@@ -1,5 +1,5 @@
 from reporter.constants import LANGUAGES
-from random import Random
+from numpy.random import Generator
 import re
 from typing import Tuple
 
@@ -26,7 +26,7 @@ class NewspaperEntityNameResolver(EntityNameResolver):
     def resolve_surface_form(
         self,
         registry: Registry,
-        random: Random,
+        random: Generator,
         language: str,
         slot: Slot,
         entity: str,

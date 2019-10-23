@@ -1,6 +1,6 @@
 from collections import defaultdict
 import logging
-from random import Random
+from numpy.random import Generator
 from typing import List, Tuple
 
 from .pipeline import NLGPipelineComponent
@@ -12,7 +12,7 @@ log = logging.getLogger("root")
 
 class Aggregator(NLGPipelineComponent):
     def run(
-        self, registry: Registry, random: Random, language: str, document_plan: DocumentPlanNode
+        self, registry: Registry, random: Generator, language: str, document_plan: DocumentPlanNode
     ) -> Tuple[DocumentPlanNode]:
         if log.isEnabledFor(logging.DEBUG):
             document_plan.print_tree()

@@ -2,7 +2,7 @@ import gzip
 import os
 import pickle
 import logging
-from random import randint
+import random
 from typing import Callable, Dict, Iterable, List, Optional, TypeVar, Tuple
 
 from reporter.core import (
@@ -161,7 +161,7 @@ class NewspaperNlgService(object):
     def _set_seed(self, seed_val: Optional[int] = None) -> None:
         log.info("Selecting seed for NLG pipeline")
         if not seed_val:
-            seed_val = randint(1, 10000000)
+            seed_val = random.randint(1, 10000000)
             log.info("No preset seed, using random seed {}".format(seed_val))
         else:
             log.info("Using preset seed {}".format(seed_val))

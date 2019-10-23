@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from collections import defaultdict
 import logging
-from random import Random
+from numpy.random import Generator
 from typing import Set, Tuple, DefaultDict
 
 from .models import DocumentPlanNode, Slot
@@ -39,7 +39,7 @@ class EntityNameResolver(NLGPipelineComponent):
     # can simply use the default parameter in dict.get() to return the key for other cases-
 
     def run(
-        self, registry: Registry, random: Random, language: str, document_plan: DocumentPlanNode
+        self, registry: Registry, random: Generator, language: str, document_plan: DocumentPlanNode
     ) -> Tuple[DocumentPlanNode]:
         """
         Run this pipeline component.
@@ -61,7 +61,7 @@ class EntityNameResolver(NLGPipelineComponent):
     def _recurse(
         self,
         registry: Registry,
-        random: Random,
+        random: Generator,
         language: str,
         this: DocumentPlanNode,
         previous_entities: DefaultDict[str, None],
@@ -121,7 +121,7 @@ class EntityNameResolver(NLGPipelineComponent):
     def resolve_surface_form(
         self,
         registry: Registry,
-        random: Random,
+        random: Generator,
         language: str,
         slot: Slot,
         entity: str,

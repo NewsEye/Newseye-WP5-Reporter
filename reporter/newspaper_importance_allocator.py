@@ -1,6 +1,7 @@
-from random import Random
 import logging
 from typing import List, Tuple
+
+from numpy.random import Generator
 
 from .core import Message, NLGPipelineComponent, Registry
 
@@ -9,7 +10,7 @@ log = logging.getLogger("root")
 
 class NewspaperImportanceSelector(NLGPipelineComponent):
     def run(
-        self, registry: Registry, random: Random, language: str, messages: List[Message]
+        self, registry: Registry, random: Generator, language: str, messages: List[Message]
     ) -> Tuple[List[Message]]:
         """
         Runs this pipeline component.

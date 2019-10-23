@@ -4,7 +4,7 @@ import re
 from numbers import Number
 from typing import List, Tuple, Iterable, Union, Callable, Optional
 
-from numpy.random.mtrand import RandomState
+from numpy.random import Generator
 
 from .models import DocumentPlanNode, Slot, TemplateComponent, Message
 from .pipeline import NLGPipelineComponent
@@ -19,11 +19,7 @@ class SlotRealizer(NLGPipelineComponent):
         self._registry = None
 
     def run(
-        self,
-        registry: Registry,
-        random: RandomState,
-        language: str,
-        document_plan: DocumentPlanNode,
+        self, registry: Registry, random: Generator, language: str, document_plan: DocumentPlanNode
     ) -> Tuple[DocumentPlanNode]:
         """
         Run this pipeline component.
@@ -65,7 +61,7 @@ class SlotRealizer(NLGPipelineComponent):
                 language in slot_realizer.supported_languages()
                 or "ANY" in slot_realizer.supported_languages()
             ):
-                success, components = slot_realizer.realize(slot)
+                success, components = slot_realizer.realize(slot, self._random)
                 if success:
                     return components
         log.debug(
@@ -80,7 +76,7 @@ class SlotRealizerComponent(ABC):
         pass
 
     @abstractmethod
-    def realize(self, slot: Slot) -> Tuple[bool, List[TemplateComponent]]:
+    def realize(self, slot: Slot, random: Generator) -> Tuple[bool, List[TemplateComponent]]:
         pass
 
 
@@ -88,7 +84,7 @@ class NumberRealizer(SlotRealizerComponent):
     def supported_languages(self) -> List[str]:
         return ["ANY"]
 
-    def realize(self, slot: Slot) -> Tuple[bool, List[TemplateComponent]]:
+    def realize(self, slot: Slot, random: Generator) -> Tuple[bool, List[TemplateComponent]]:
         if not isinstance(slot.value, Number):
             return False, []
         return True, [slot]
@@ -116,7 +112,7 @@ class RegexRealizer(SlotRealizerComponent):
     def supported_languages(self) -> List[str]:
         return self.languages
 
-    def realize(self, slot: Slot) -> Tuple[bool, List[TemplateComponent]]:
+    def realize(self, slot: Slot, random: Generator) -> Tuple[bool, List[TemplateComponent]]:
         if not isinstance(slot.value, str):
             return False, []
         match = re.fullmatch(self.regex, slot.value)
@@ -125,8 +121,7 @@ class RegexRealizer(SlotRealizerComponent):
                 *[match.group(i) for i in self.extracted_groups]
             ):
                 return False, []
-            template_idx = RandomState(self.registry.get("seed")).randint(0, len(self.templates))
-            template = self.templates[template_idx]
+            template = random.choice(self.templates)
             log.info("Template: {}".format(template))
             string_realization = template.format(*[match.group(i) for i in self.extracted_groups])
             log.info("String realization: {}".format(string_realization))

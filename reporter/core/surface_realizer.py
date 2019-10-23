@@ -1,5 +1,5 @@
 import logging
-from random import Random
+from numpy import random
 import re
 
 from .models import DocumentPlanNode
@@ -39,7 +39,11 @@ class SurfaceRealizer(NLGPipelineComponent):
         raise NotImplementedError
 
     def run(
-        self, registry: Registry, random: Random, language: str, document_plan: DocumentPlanNode
+        self,
+        registry: Registry,
+        random: random.Generator,
+        language: str,
+        document_plan: DocumentPlanNode,
     ) -> str:
         """
         Run this pipeline component.

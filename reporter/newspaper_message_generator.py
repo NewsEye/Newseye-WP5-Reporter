@@ -1,6 +1,6 @@
 import json
 import logging
-from random import Random
+from numpy.random import Generator
 from typing import Any, Dict, List, Tuple, Optional
 
 from reporter.core import (
@@ -26,7 +26,7 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
         ]
 
     def run(
-        self, registry: Registry, random: Random, language: str, data: str
+        self, registry: Registry, random: Generator, language: str, data: str
     ) -> Tuple[List[Message]]:
         """
         Run this pipeline component.

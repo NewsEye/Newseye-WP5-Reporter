@@ -1,6 +1,6 @@
 bottle==0.12.13
 meinheld==0.6.1
-numpy==1.13.1
+numpy==1.17.2
 pandas==0.20.3
 uWSGI==2.0.18
 requests==2.21.0

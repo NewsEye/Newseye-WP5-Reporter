@@ -1,6 +1,6 @@
 from functools import lru_cache
 import logging
-from random import Random
+from numpy.random import Generator
 from typing import Iterator, List, Tuple
 
 from .models import DefaultTemplate, DocumentPlanNode, Message, Template
@@ -23,7 +23,7 @@ class TemplateSelector(NLGPipelineComponent):
     def run(
         self,
         registry: Registry,
-        random: Random,
+        random: Generator,
         language: str,
         document_plan: DocumentPlanNode,
         all_messages: List[Message],
@@ -44,7 +44,7 @@ class TemplateSelector(NLGPipelineComponent):
 
     def _recurse(
         self,
-        random: Random,
+        random: Generator,
         language: str,
         this: DocumentPlanNode,
         all_messages: List[Message],

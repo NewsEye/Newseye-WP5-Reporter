@@ -1,5 +1,5 @@
 import logging
-from random import Random
+from numpy.random import Generator
 from typing import List, Union, Tuple, cast
 
 from .models import Fact, DocumentPlanNode, Message, Relation
@@ -29,7 +29,7 @@ class NoInterestingMessagesException(Exception):
 
 class HeadlineDocumentPlanner(NLGPipelineComponent):
     def run(
-        self, registry: Registry, random: Random, language: str, scored_messages
+        self, registry: Registry, random: Generator, language: str, scored_messages
     ) -> Tuple[DocumentPlanNode, List[Message]]:
         """
         Run this pipeline component.
@@ -56,7 +56,7 @@ class BodyDocumentPlanner(NLGPipelineComponent):
     """
 
     def run(
-        self, registry: Registry, random: Random, language: str, scored_messages: List[Message]
+        self, registry: Registry, random: Generator, language: str, scored_messages: List[Message]
     ) -> Tuple[DocumentPlanNode, List[Message]]:
         """
         Run this pipeline component.

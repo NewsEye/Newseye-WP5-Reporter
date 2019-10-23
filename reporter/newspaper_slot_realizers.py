@@ -5,6 +5,8 @@ import traceback
 import requests
 from typing import List, Tuple, Type
 
+from numpy.random.generator import Generator
+
 from reporter.core import RegexRealizer, SlotRealizerComponent, TemplateComponent, Slot, Registry
 from reporter.core.realize_slots import NumberRealizer
 from reporter.constants import CONJUNCTIONS
@@ -99,7 +101,7 @@ class AbstractTopicRealizer(SlotRealizerComponent):
     def supported_languages(self) -> List[str]:
         return [self.language]
 
-    def realize(self, slot: Slot) -> Tuple[bool, List[TemplateComponent]]:
+    def realize(self, slot: Slot, random: Generator) -> Tuple[bool, List[TemplateComponent]]:
         match = re.fullmatch(self.parser_regex, slot.value)
         if not match:
             return False, []

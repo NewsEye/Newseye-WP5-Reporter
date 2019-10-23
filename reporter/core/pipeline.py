@@ -35,8 +35,8 @@ class NLGPipeline(object):
     ) -> Union[List[Any], Tuple[Any]]:
         log.info("Starting NLG pipeline")
         log.debug("PRNG seed is {}".format(prng_seed))
-        prng = random.RandomState(prng_seed)
-        log.info("First random is {}".format(prng.randint(1000000)))
+        prng = random.default_rng(prng_seed)  # type: random.Generator
+        log.info("First random is {}".format(prng.integers(0, 1000000)))
         args = initial_inputs
         for component in self.components:
             log.info("Running component {}".format(component))
