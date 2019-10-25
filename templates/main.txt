@@ -41,7 +41,7 @@ fi: {timestamp_from}, {result_key} tulosten lukumäärä {result_value}
 de: die Anzahl der Einträge {result_key} {result_value} {timestamp_from}
 | analysis_type = step_detection
 
-en: there were {result_value} entries in {result_key}
+en: there were {result_value} entries {result_key}
 fi: kielellä {result_key} löytyi {result_value} osumaa
 de: es gibt {result_value} Einträge {result_key}
 | analysis_type = facet_count_language_ssi
