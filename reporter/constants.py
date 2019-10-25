@@ -2,10 +2,10 @@
 
 LANGUAGES = {
     "en": {
-        "fi": "finnish",
-        "en": "english",
-        "de": "german",
-        "fr": "french",
+        "fi": "Finnish",
+        "en": "English",
+        "de": "German",
+        "fr": "French",
     },
     "fi": {
         "fi": "suomi",
