@@ -22,5 +22,3 @@ from .registry import ComponentNameCollisionError, UnknownComponentException, Re
 from .surface_realizer import BodyHTMLSurfaceRealizer, HeadlineHTMLSurfaceRealizer, SurfaceRealizer
 from .template_reader import read_templates_file
 from .template_selector import TemplateMessageChecker, TemplateSelector
-from .util import PrintDocumentPlan, PrintMessages, PrintNuclei, PrintOutput, SquelchOutput
-from .util import extend_or_append, filter_messages
