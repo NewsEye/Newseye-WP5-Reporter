@@ -19,6 +19,7 @@ class TaskResult:
     def __init__(
         self,
         uuid: str,
+        search_query: Any,
         processor: str,
         parameters: Dict[str, Any],
         task_status: str,
@@ -27,6 +28,7 @@ class TaskResult:
         task_result: Any
      ) -> None:
         self.uuid = uuid
+        self.search_query = search_query
         self.processor = processor
         self.parameters = parameters
         self.task_status = task_status
@@ -38,6 +40,7 @@ class TaskResult:
     def from_dict(o: Dict[str, Any]) -> "TaskResult":
         return TaskResult(
             o.get("uuid"),
+            o.get("search_query"),
             o.get("processor"),
             o.get('parameters'),
             o.get('task_status'),
