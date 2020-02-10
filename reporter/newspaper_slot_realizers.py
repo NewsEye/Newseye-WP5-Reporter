@@ -168,8 +168,9 @@ class EnglishFormatRealizer(RegexRealizer):
 
 class EnglishLanguageRealizer(RegexRealizer):
     def __init__(self, registry):
-        super().__init__(registry, "en", r"\[(?:language_ssi|LANGUAGE):([^\]]+)\]", 1, "in [ENTITY:LANGUAGE:{}]")
-
+        super().__init__(
+            registry, "en", r"\[(?:language_ssi|LANGUAGE):([^\]]+)\]", 1, "in [ENTITY:LANGUAGE:{}]"
+        )
 
 
 class EnglishWordRealizer(RegexRealizer):
@@ -311,7 +312,9 @@ class FinnishFormatRealizer(RegexRealizer):
 
 class FinnishLanguageRealizer(RegexRealizer):
     def __init__(self, registry):
-        super().__init__(registry, "fi", r"\[(?:language_ssi|LANGUAGE):([^\]]+)\]", 1, "[ENTITY:LANGUAGE:{}]")
+        super().__init__(
+            registry, "fi", r"\[(?:language_ssi|LANGUAGE):([^\]]+)\]", 1, "[ENTITY:LANGUAGE:{}]"
+        )
 
 
 class _BackupFinnishTopicRealizer(RegexRealizer):

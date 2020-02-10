@@ -5,7 +5,7 @@ from typing import Tuple
 from numpy.random import Generator
 
 from reporter.constants import LANGUAGES
-from .core import EntityNameResolver, Registry, Slot
+from reporter.core import EntityNameResolver, Registry, Slot
 
 log = logging.getLogger("root")
 

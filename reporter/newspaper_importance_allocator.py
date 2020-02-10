@@ -3,7 +3,7 @@ from typing import List, Tuple
 
 from numpy.random import Generator
 
-from .core import Message, NLGPipelineComponent, Registry
+from reporter.core import Registry, Message, NLGPipelineComponent
 
 log = logging.getLogger("root")
 
