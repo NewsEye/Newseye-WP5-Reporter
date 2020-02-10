@@ -36,6 +36,8 @@ class ExtractWordsResource(ProcessorResource):
             log.error("Unexpected unit '{}', expected 'tokens'".format(task_result.parameters.get("unit")))
             return []
 
+        corpus, corpus_type = self.build_corpus_fields(task_result)
+
         messages = []
         for word in task_result.task_result['result']['vocabulary']:
             for result_idx, result_name in enumerate(['Count', 'RelativeCount', 'TFIDF']):
@@ -45,8 +47,8 @@ class ExtractWordsResource(ProcessorResource):
                         [
                             Fact(
                                 # TODO: Add corpus and corpus_type parsing once investigator output is fixed
-                                "UNKNOWN_CORPUS",  # corpus
-                                "full_corpus",  # corpus_type
+                                corpus,  # corpus
+                                corpus_type,  # corpus_type
                                 None,  # timestamp_from
                                 None,  # timestamp_to
                                 "all_time",  # timestamp_type
