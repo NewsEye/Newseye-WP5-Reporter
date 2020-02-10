@@ -33,13 +33,8 @@ from reporter.newspaper_message_generator import (
 )
 from reporter.newspaper_named_entity_resolver import NewspaperEntityNameResolver
 from reporter.newspaper_slot_realizers import inject_realizers
-from reporter.resources.facet_count_resource import FacetCountResource
 from reporter.resources.newspaper_corpus_resource import NewspaperCorpusResource
 from reporter.resources.processor_resource import ProcessorResource
-from reporter.resources.step_detection_resource import StepDetectionResource
-from reporter.resources.topic_linking_resource import TopicLinkingResource
-from reporter.resources.topic_weights_resource import TopicWeightsResource
-from reporter.resources.word_statistics_resource import WordStatisticsResource
 
 log = logging.getLogger("root")
 
@@ -63,11 +58,6 @@ class NewspaperNlgService(object):
         # Per-processor resources
         self.processor_resources = [
             NewspaperCorpusResource(),
-            FacetCountResource(),
-            StepDetectionResource(),
-            TopicLinkingResource(),
-            TopicWeightsResource(),
-            WordStatisticsResource(),
         ]
 
         # Templates
