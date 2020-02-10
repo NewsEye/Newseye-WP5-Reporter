@@ -35,6 +35,7 @@ from reporter.newspaper_named_entity_resolver import NewspaperEntityNameResolver
 from reporter.newspaper_slot_realizers import inject_realizers
 from reporter.resources.newspaper_corpus_resource import NewspaperCorpusResource
 from reporter.resources.processor_resource import ProcessorResource
+from reporter.resources.extract_words_resource import ExtractWordsResource
 
 log = logging.getLogger("root")
 
@@ -58,6 +59,7 @@ class NewspaperNlgService(object):
         # Per-processor resources
         self.processor_resources = [
             NewspaperCorpusResource(),
+            ExtractWordsResource()
         ]
 
         # Templates
@@ -76,6 +78,12 @@ class NewspaperNlgService(object):
 
         # SurfazeRealizers
         inject_realizers(self.registry)
+
+        # Message Generators
+        self.registry.register("message-parsers", [])
+        for processor_resource in self.processor_resources:
+            self.registry.get('message-parsers').append(processor_resource.parse_messages)
+
 
     T = TypeVar("T")
 

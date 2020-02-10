@@ -1,3 +1,7 @@
+from typing import List
+
+from reporter.core import Message
+from reporter.newspaper_message_generator import TaskResult
 from reporter.resources.processor_resource import ProcessorResource
 
 TEMPLATE = """
@@ -16,5 +20,10 @@ de-head: Analyse des gesamten Korpus
 
 
 class NewspaperCorpusResource(ProcessorResource):
+
     def templates_string(self) -> str:
         return TEMPLATE
+
+    def parse_messages(self, task_result: TaskResult, context: List[TaskResult]) -> List[Message]:
+        return []
+
