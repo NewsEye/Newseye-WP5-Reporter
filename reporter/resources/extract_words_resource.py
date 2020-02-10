@@ -10,24 +10,21 @@ log = logging.getLogger("root")
 
 
 TEMPLATE = """
-en: {result_key} appeared {result_value} times
-fi: {result_key} esiintyi {result_value} kertaa
+en: the token {result_key} appeared {result_value} times
+fi: sane {result_key} esiintyi {result_value} kertaa
 | analysis_type = ExtractWords:Count
 
-en: {result_key} had a relative count of {result_value}
-en: {result_key, case=gen} relative count was {result_value}
-fi: {result_key, case=gen} suhteellinen osuus kaikista saneista oli {result_value}
+en: the token {result_key} had a relative count of {result_value}
+fi: saneen {result_key} suhteellinen osuus kaikista saneista oli {result_value}
 | analysis_type = ExtractWords:RelativeCount
 
-en: {result_key} had a TF-IDF score of {result_value} 
-en: {result_key, case=gen} TF-IDF was {result_value}
-fi: {result_key, case=gen} TF-IDF -luku oli {result_value}
+en: the token {result_key} had a TF-IDF score of {result_value}
+fi: saneen {result_key} TF-IDF -luku oli {result_value}
 | analysis_type = ExtractWords:TFIDF
 """
 
 
 class ExtractWordsResource(ProcessorResource):
-
     def templates_string(self) -> str:
         return TEMPLATE
 
