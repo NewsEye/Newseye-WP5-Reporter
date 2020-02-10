@@ -1,7 +1,7 @@
 import logging
-from typing import List
+from typing import List, Type
 
-from reporter.core import Message, Fact
+from reporter.core import Message, Fact, SlotRealizerComponent, RegexRealizer
 from reporter.newspaper_message_generator import TaskResult
 from reporter.resources.processor_resource import ProcessorResource
 
@@ -62,3 +62,10 @@ class ExtractWordsResource(ProcessorResource):
                 )
         return messages
 
+    def slot_realizer_components(self) -> List[Type[SlotRealizerComponent]]:
+        return [TokenRealizer]
+
+
+class TokenRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(registry, "en", r"\[TOKEN:([^\]]+)\]", 1, '"{}"')

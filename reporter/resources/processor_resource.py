@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Tuple, Type
 
-from reporter.core import Message
+from reporter.core import Message, SlotRealizerComponent
 from reporter.newspaper_message_generator import TaskResult
 
 
@@ -15,6 +15,10 @@ class ProcessorResource(ABC):
 
     @abstractmethod
     def parse_messages(self, task_result: TaskResult, context: List[TaskResult]) -> List[Message]:
+        pass
+
+    @abstractmethod
+    def slot_realizer_components(self) -> List[Type[SlotRealizerComponent]]:
         pass
 
     def build_corpus_fields(self, task_result: "TaskResult") -> Tuple[str, str]:

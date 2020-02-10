@@ -32,7 +32,6 @@ from reporter.newspaper_message_generator import (
     NoMessagesForSelectionException,
 )
 from reporter.newspaper_named_entity_resolver import NewspaperEntityNameResolver
-from reporter.newspaper_slot_realizers import inject_realizers
 from reporter.resources.newspaper_corpus_resource import NewspaperCorpusResource
 from reporter.resources.processor_resource import ProcessorResource
 from reporter.resources.extract_words_resource import ExtractWordsResource
@@ -76,14 +75,19 @@ class NewspaperNlgService(object):
         # PRNG seed
         self._set_seed(seed_val=random_seed)
 
-        # SurfazeRealizers
-        inject_realizers(self.registry)
-
         # Message Parsers
         self.registry.register("message-parsers", [])
         for processor_resource in self.processor_resources:
             self.registry.get("message-parsers").append(processor_resource.parse_messages)
 
+        # Slot Realizers Components
+        self.registry.register("slot-realizers", [])
+        for processor_resource in self.processor_resources:
+            components = [
+                component(self.registry)
+                for component in processor_resource.slot_realizer_components()
+            ]
+            self.registry.get("slot-realizers").extend(components)
 
     T = TypeVar("T")
 
