@@ -79,10 +79,10 @@ class NewspaperNlgService(object):
         # SurfazeRealizers
         inject_realizers(self.registry)
 
-        # Message Generators
+        # Message Parsers
         self.registry.register("message-parsers", [])
         for processor_resource in self.processor_resources:
-            self.registry.get('message-parsers').append(processor_resource.parse_messages)
+            self.registry.get("message-parsers").append(processor_resource.parse_messages)
 
 
     T = TypeVar("T")

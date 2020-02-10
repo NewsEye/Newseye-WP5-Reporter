@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Any, Dict, List, Tuple, Optional, Callable
+from typing import Any, Dict, List, Tuple, Callable
 
 from numpy.random import Generator
 
@@ -25,8 +25,8 @@ class TaskResult:
         task_status: str,
         task_started: str,
         task_finished: str,
-        task_result: Any
-     ) -> None:
+        task_result: Any,
+    ) -> None:
         self.uuid = uuid
         self.search_query = search_query
         self.processor = processor
@@ -42,23 +42,24 @@ class TaskResult:
             o.get("uuid"),
             o.get("search_query"),
             o.get("processor"),
-            o.get('parameters'),
-            o.get('task_status'),
-            o.get('task_started'),
-            o.get('task_finished'),
-            o.get('task_result'),
+            o.get("parameters"),
+            o.get("task_status"),
+            o.get("task_started"),
+            o.get("task_finished"),
+            o.get("task_result"),
         )
 
 
 class NewspaperMessageGenerator(NLGPipelineComponent):
-
     def run(
         self, registry: Registry, random: Generator, language: str, data: str
     ) -> Tuple[List[Message]]:
         """
         Run this pipeline component.
         """
-        message_parsers: List[Callable[[TaskResult, List[TaskResult]], List[Message]]] = registry.get('message-parsers')
+        message_parsers: List[
+            Callable[[TaskResult, List[TaskResult]], List[Message]]
+        ] = registry.get("message-parsers")
 
         if not data:
             raise NoMessagesForSelectionException("No data at all!")
