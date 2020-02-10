@@ -33,14 +33,19 @@ class ExtractWordsResource(ProcessorResource):
             return []
 
         if task_result.parameters.get("unit") != "tokens":
-            log.error("Unexpected unit '{}', expected 'tokens'".format(task_result.parameters.get("unit")))
+            log.error(
+                "Unexpected unit '{}', expected 'tokens'".format(task_result.parameters.get("unit"))
+            )
             return []
 
         corpus, corpus_type = self.build_corpus_fields(task_result)
 
         messages = []
-        for word in task_result.task_result['result']['vocabulary']:
-            for result_idx, result_name in enumerate(['Count', 'RelativeCount', 'TFIDF']):
+        for word in task_result.task_result["result"]["vocabulary"]:
+            interestingness = task_result.task_result["interestingness"].get(
+                word, ProcessorResource.EPSILON
+            )
+            for result_idx, result_name in enumerate(["Count", "RelativeCount", "TFIDF"]):
                 result = task_result.task_result["result"]["vocabulary"][word][result_idx]
                 messages.append(
                     Message(
@@ -55,7 +60,7 @@ class ExtractWordsResource(ProcessorResource):
                                 "ExtractWords:" + result_name,  # analysis_type
                                 "[TOKEN:{}]".format(word),  # result_key
                                 result,  # result_value
-                                task_result.task_result['interestingness'].get(word, ProcessorResource.EPSILON)  # outlierness
+                                interestingness,  # outlierness
                             )
                         ]
                     )
