@@ -3,8 +3,10 @@ import logging
 import os
 import pickle
 import random
+from collections import defaultdict
 from typing import Callable, Dict, Iterable, List, Optional, TypeVar, Tuple
 
+from reporter.core.template_reader import read_templates
 from reporter.constants import CONJUNCTIONS, get_error_message
 from reporter.core import (
     Aggregator,
@@ -12,7 +14,6 @@ from reporter.core import (
     HeadlineDocumentPlanner,
     NLGPipeline,
     NLGPipelineComponent,
-    read_templates_file,
     Registry,
     SlotRealizer,
     Template,
@@ -32,11 +33,20 @@ from reporter.newspaper_message_generator import (
 )
 from reporter.newspaper_named_entity_resolver import NewspaperEntityNameResolver
 from reporter.newspaper_slot_realizers import inject_realizers
+from reporter.resources.facet_count_resource import FacetCountResource
+from reporter.resources.newspaper_corpus_resource import NewspaperCorpusResource
+from reporter.resources.processor_resource import ProcessorResource
+from reporter.resources.step_detection_resource import StepDetectionResource
+from reporter.resources.topic_linking_resource import TopicLinkingResource
+from reporter.resources.topic_weights_resource import TopicWeightsResource
+from reporter.resources.word_statistics_resource import WordStatisticsResource
 
 log = logging.getLogger("root")
 
 
 class NewspaperNlgService(object):
+
+    processor_resources: List[ProcessorResource] = []
 
     # These are (re)initialized every time run_pipeline is called
     body_pipeline = None
@@ -50,6 +60,16 @@ class NewspaperNlgService(object):
         # New registry and result importer
         self.registry = Registry()
 
+        # Per-processor resources
+        self.processor_resources = [
+            NewspaperCorpusResource(),
+            FacetCountResource(),
+            StepDetectionResource(),
+            TopicLinkingResource(),
+            TopicWeightsResource(),
+            WordStatisticsResource(),
+        ]
+
         # Templates
         self.registry.register(
             "templates",
@@ -57,7 +77,10 @@ class NewspaperNlgService(object):
                 "../data/templates.cache", self._load_templates, force_cache_refresh=True
             ),
         )
+
+        # Misc language data
         self.registry.register("CONJUNCTIONS", CONJUNCTIONS)
+
         # PRNG seed
         self._set_seed(seed_val=random_seed)
 
@@ -94,9 +117,11 @@ class NewspaperNlgService(object):
 
     def _load_templates(self) -> Dict[str, List[Template]]:
         log.info("Loading templates")
-        return read_templates_file(
-            os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "templates", "main.txt"))
-        )
+        templates: Dict[str, List[Template]] = defaultdict(list)
+        for resource in self.processor_resources:
+            for language, new_templates in read_templates(resource.templates_string())[0].items():
+                templates[language].extend(new_templates)
+        return templates
 
     def _get_components(self, realizer: str) -> Iterable[NLGPipelineComponent]:
         # Put together the list of components
