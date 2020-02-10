@@ -92,7 +92,7 @@ class NewspaperNlgService(object):
             with gzip.open(cache, "rb") as f:
                 return pickle.load(f)
 
-    def _load_templates(self) -> Dict[str, Template]:
+    def _load_templates(self) -> Dict[str, List[Template]]:
         log.info("Loading templates")
         return read_templates_file(
             os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "templates", "main.txt"))

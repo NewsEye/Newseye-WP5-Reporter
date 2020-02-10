@@ -120,7 +120,7 @@ def read_templates_file(
 
 def read_templates(
     data: str, initial_language: Optional[str] = None, return_what_types: bool = False
-) -> Union[Dict[str, Template], Tuple[Dict[str, Template], List[str]]]:
+) -> Tuple[Dict[str, List[Template]], Optional[List[str]]]:
     """
     Parse the template specifications in the given string.
 
@@ -168,7 +168,7 @@ def read_templates(
     if return_what_types:
         return templates, seen_what_types
     else:
-        return templates
+        return templates, None
 
 
 def read_template_group(
