@@ -71,4 +71,4 @@ class ExtractWordsResource(ProcessorResource):
 
 class TokenRealizer(RegexRealizer):
     def __init__(self, registry):
-        super().__init__(registry, "en", r"\[TOKEN:([^\]]+)\]", 1, '"{}"')
+        super().__init__(registry, "ANY", r"\[TOKEN:([^\]]+)\]", 1, '"{}"')
