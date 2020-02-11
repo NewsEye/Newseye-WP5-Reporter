@@ -32,6 +32,7 @@ from reporter.newspaper_message_generator import (
     NoMessagesForSelectionException,
 )
 from reporter.newspaper_named_entity_resolver import NewspaperEntityNameResolver
+from reporter.resources.extract_bigrams_resource import ExtractBigramsResource
 from reporter.resources.newspaper_corpus_resource import NewspaperCorpusResource
 from reporter.resources.processor_resource import ProcessorResource
 from reporter.resources.extract_words_resource import ExtractWordsResource
@@ -58,7 +59,8 @@ class NewspaperNlgService(object):
         # Per-processor resources
         self.processor_resources = [
             NewspaperCorpusResource(),
-            ExtractWordsResource()
+            ExtractWordsResource(),
+            ExtractBigramsResource(),
         ]
 
         # Templates
