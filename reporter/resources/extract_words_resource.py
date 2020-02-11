@@ -5,7 +5,6 @@ from reporter.core import Message, Fact, SlotRealizerComponent, RegexRealizer
 from reporter.newspaper_message_generator import TaskResult
 from reporter.resources.processor_resource import ProcessorResource
 
-
 log = logging.getLogger("root")
 
 
@@ -51,7 +50,6 @@ class ExtractWordsResource(ProcessorResource):
                     Message(
                         [
                             Fact(
-                                # TODO: Add corpus and corpus_type parsing once investigator output is fixed
                                 corpus,  # corpus
                                 corpus_type,  # corpus_type
                                 None,  # timestamp_from

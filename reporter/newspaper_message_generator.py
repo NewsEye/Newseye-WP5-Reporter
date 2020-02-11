@@ -4,13 +4,7 @@ from typing import Any, Dict, List, Tuple, Callable
 
 from numpy.random import Generator
 
-from reporter.core import (
-    Fact,
-    NoMessagesForSelectionException,
-    NLGPipelineComponent,
-    Message,
-    Registry,
-)
+from reporter.core import NoMessagesForSelectionException, NLGPipelineComponent, Message, Registry
 
 log = logging.getLogger("root")
 
