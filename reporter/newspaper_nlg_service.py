@@ -10,6 +10,7 @@ from reporter.constants import CONJUNCTIONS, get_error_message
 from reporter.core.aggregator import Aggregator
 from reporter.core.document_planner import BodyDocumentPlanner, HeadlineDocumentPlanner, NoInterestingMessagesException
 from reporter.core.models import Template
+from reporter.core.morphological_realizer import MorphologicalRealizer
 from reporter.core.pipeline import NLGPipeline, NLGPipelineComponent
 from reporter.core.realize_slots import SlotRealizer
 from reporter.core.registry import Registry
@@ -21,6 +22,8 @@ from reporter.core.surface_realizer import (
 )
 from reporter.core.template_reader import read_templates
 from reporter.core.template_selector import TemplateSelector
+from reporter.english_newspaper_morphological_realizer import EnglishNewspaperMorphologicalRealizer
+from reporter.finnish_newspaper_morphological_realizer import FinnishNewspaperMorphologicalRealizer
 from reporter.newspaper_importance_allocator import NewspaperImportanceSelector
 from reporter.newspaper_message_generator import NewspaperMessageGenerator, NoMessagesForSelectionException
 from reporter.newspaper_named_entity_resolver import NewspaperEntityNameResolver
@@ -127,6 +130,11 @@ class NewspaperNlgService(object):
         yield Aggregator()
         yield SlotRealizer()
         yield NewspaperEntityNameResolver()
+
+        yield MorphologicalRealizer(
+            {"fi": FinnishNewspaperMorphologicalRealizer(), "en": EnglishNewspaperMorphologicalRealizer()}
+        )
+
         if realizer == "headline":
             yield HeadlineHTMLSurfaceRealizer()
         elif realizer == "ol":
