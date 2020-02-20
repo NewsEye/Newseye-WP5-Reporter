@@ -93,14 +93,18 @@ class RegexRealizer(SlotRealizerComponent):
         regex: str,
         extracted_groups: Union[int, Iterable[int]],
         template: Union[str, Iterable[str]],
-        allowed: Optional[Callable[..., bool]] = None,
+        group_requirements: Optional[Callable[..., bool]] = None,
+        slot_requirements: Optional[Callable[[Slot], bool]] = None,
+        attach_attributes_to: Optional[Iterable[int]] = None,
     ) -> None:
         self.registry = registry
         self.languages = languages if isinstance(languages, list) else [languages]
         self.regex = regex
         self.extracted_groups = extracted_groups if isinstance(extracted_groups, Iterable) else [extracted_groups]
         self.templates = [template] if isinstance(template, str) else template
-        self.allowed = allowed
+        self.group_requirements = group_requirements
+        self.slot_requirements = slot_requirements
+        self.attach_attributes_to = attach_attributes_to if attach_attributes_to is not None else []
 
     def supported_languages(self) -> List[str]:
         return self.languages
@@ -111,21 +115,40 @@ class RegexRealizer(SlotRealizerComponent):
             return False, []
 
         match = re.fullmatch(self.regex, slot.value)
-        if match:
-            if self.allowed is not None and not self.allowed(*[match.group(i) for i in self.extracted_groups]):
-                return False, []
-            template = random.choice(self.templates)
-            log.info("Template: {}".format(template))
-            string_realization = template.format(*[match.group(i) for i in self.extracted_groups])
-            log.info("String realization: {}".format(string_realization))
-            components = []
-            for realization_token in string_realization.split():
-                new_slot = slot.copy(include_fact=True)
-                # An ugly hack that ensures the lambda correctly binds to the value of realization_token at this
-                # time. Without this, all the lambdas bind to the final value of the realization_token variable, ie.
-                # the final value at the end of the loop.  See https://stackoverflow.com/a/10452819
-                new_slot.value = lambda f, realization_token=realization_token: realization_token
-                components.append(new_slot)
-            log.info("Components: {}".format([str(c) for c in components]))
-            return True, components
-        return False, []
+
+        if not match:
+            return False, []
+
+        groups = [match.group(i) for i in self.extracted_groups]
+
+        # Check that the requirements placed on the groups are fulfilled
+        if self.group_requirements is not None and not self.group_requirements(*groups):
+            return False, []
+
+        # Check that the requirements placed on the slot are fulfilled
+        if self.slot_requirements is not None and not self.slot_requirements(slot):
+            return False, []
+
+        template = random.choice(self.templates)
+        log.info("Template: {}".format(template))
+
+        string_realization = template.format(*groups)
+        log.info("String realization: {}".format(string_realization))
+
+        components = []
+        for idx, realization_token in enumerate(string_realization.split()):
+            new_slot = slot.copy(include_fact=True)
+
+            # By default, copy copies the attributes too. In case attach_attributes_to was set,
+            # we need to explicitly reset the attributes for all those slots NOT explicitly mentioned
+            if idx not in self.attach_attributes_to:
+                new_slot.attributes = {}
+
+            # An ugly hack that ensures the lambda correctly binds to the value of realization_token at this
+            # time. Without this, all the lambdas bind to the final value of the realization_token variable, ie.
+            # the final value at the end of the loop.  See https://stackoverflow.com/a/10452819
+            new_slot.value = lambda f, realization_token=realization_token: realization_token
+            components.append(new_slot)
+        log.info("Components: {}".format([str(c) for c in components]))
+
+        return True, components
