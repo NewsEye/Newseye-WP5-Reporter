@@ -10,16 +10,16 @@ log = logging.getLogger("root")
 
 
 TEMPLATE = """
-en: the bigram {result_key} appeared {result_value} times
-fi: sanepari {result_key} esiintyi {result_value} kertaa
+en: {result_key} appeared {result_value} times
+fi: {result_key} esiintyi {result_value} kertaa
 | analysis_type = ExtractBigrams:Count
 
-en: the bigram {result_key} had a relative count of {result_value}
-fi: saneparin {result_key} suhteellinen osuus kaikista saneista oli {result_value}
+en: {result_key} had a relative count of {result_value}
+fi: {result_key, case=gen} suhteellinen osuus kaikista saneista oli {result_value}
 | analysis_type = ExtractBigrams:RelativeCount
 
-en: the bigram {result_key} had a Dice score of {result_value}
-fi: saneparin {result_key} TF-IDF -luku oli {result_value}
+en: {result_key} had a Dice score of {result_value}
+fi: {result_key, case=gen} TF-IDF -luku oli {result_value}
 | analysis_type = ExtractBigrams:DiceScore
 """
 
@@ -32,15 +32,19 @@ class ExtractBigramsResource(ProcessorResource):
         if not task_result.processor == "ExtractBigrams":
             return []
 
-        if task_result.parameters.get("unit") != "stems":
-            log.error("Unexpected unit '{}', expected 'stems'".format(task_result.parameters.get("unit")))
+        unit: str = task_result.parameters.get("unit")
+        if unit == "tokens":
+            unit = "TOKEN"
+        elif unit == "stems":
+            unit = "STEM"
+        else:
+            log.error("Unexpected unit '{}', expected 'tokens' or 'stems'".format(task_result.parameters.get("unit")))
             return []
-
         corpus, corpus_type = self.build_corpus_fields(task_result)
 
         messages = []
-        for word, results in task_result.task_result["result"].items():
-            interestingness = task_result.task_result["interestingness"].get(word, ProcessorResource.EPSILON)
+        for bigram, results in task_result.task_result["result"].items():
+            interestingness = task_result.task_result["interestingness"].get(bigram, ProcessorResource.EPSILON)
             for result_idx, result_name in enumerate(["Count", "RelativeCount", "DiceScore"]):
                 result = results[result_idx]
                 messages.append(
@@ -53,7 +57,7 @@ class ExtractBigramsResource(ProcessorResource):
                                 None,  # timestamp_to
                                 "all_time",  # timestamp_type
                                 "ExtractBigrams:" + result_name,  # analysis_type
-                                "[BIGRAM:{}]".format(word),  # result_key
+                                "[{}PAIR:{}]".format(unit, bigram),  # result_key
                                 result,  # result_value
                                 interestingness,  # outlierness
                             )
@@ -63,9 +67,24 @@ class ExtractBigramsResource(ProcessorResource):
         return messages
 
     def slot_realizer_components(self) -> List[Type[SlotRealizerComponent]]:
-        return [BigramRealizer]
+        return [EnglishStemPairRealizer, EnglishTokenPairRealizer, FinnishStemPairRealizer, FinnishTokenPairRealizer]
 
 
-class BigramRealizer(RegexRealizer):
+class EnglishTokenPairRealizer(RegexRealizer):
     def __init__(self, registry):
-        super().__init__(registry, "ANY", r"\[BIGRAM:([^\]]+)\]", 1, '"{}"')
+        super().__init__(registry, "ANY", r"\[TOKENPAIR:([^\]]+)\]", 1, 'the token pair "{}"')
+
+
+class EnglishStemPairRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(registry, "en", r"\[STEMPAIR:([^\]]+)\]", 1, 'the stem pair "{}"')
+
+
+class FinnishTokenPairRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(registry, "fi", r"\[TOKENPAIR:([^\]]+)\]", 1, 'sanepari "{}"', attach_attributes_to=[0])
+
+
+class FinnishStemPairRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(registry, "fi", r"\[STEMPAIR:([^\]]+)\]", 1, 'tyvipari "{}"', attach_attributes_to=[0])
