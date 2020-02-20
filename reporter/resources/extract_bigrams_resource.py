@@ -1,10 +1,10 @@
 import logging
 from typing import List, Type
 
-from reporter.core import Message, Fact, SlotRealizerComponent, RegexRealizer
+from reporter.core.models import Fact, Message
+from reporter.core.realize_slots import RegexRealizer, SlotRealizerComponent
 from reporter.newspaper_message_generator import TaskResult
 from reporter.resources.processor_resource import ProcessorResource
-
 
 log = logging.getLogger("root")
 
@@ -33,18 +33,14 @@ class ExtractBigramsResource(ProcessorResource):
             return []
 
         if task_result.parameters.get("unit") != "stems":
-            log.error(
-                "Unexpected unit '{}', expected 'stems'".format(task_result.parameters.get("unit"))
-            )
+            log.error("Unexpected unit '{}', expected 'stems'".format(task_result.parameters.get("unit")))
             return []
 
         corpus, corpus_type = self.build_corpus_fields(task_result)
 
         messages = []
         for word, results in task_result.task_result["result"].items():
-            interestingness = task_result.task_result["interestingness"].get(
-                word, ProcessorResource.EPSILON
-            )
+            interestingness = task_result.task_result["interestingness"].get(word, ProcessorResource.EPSILON)
             for result_idx, result_name in enumerate(["Count", "RelativeCount", "DiceScore"]):
                 result = results[result_idx]
                 messages.append(

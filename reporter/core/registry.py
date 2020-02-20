@@ -15,9 +15,7 @@ class Registry(object):
 
     def register(self, name: str, service: Any) -> None:
         if name in self._registry:
-            raise ComponentNameCollisionError(
-                "A component of name '{}' already exists".format(name)
-            )
+            raise ComponentNameCollisionError("A component of name '{}' already exists".format(name))
         else:
             self._registry[name] = service
 

@@ -1,10 +1,12 @@
 import json
 import logging
-from typing import Any, Dict, List, Tuple, Callable
+from typing import Any, Callable, Dict, List, Tuple
 
 from numpy.random import Generator
 
-from reporter.core import NoMessagesForSelectionException, NLGPipelineComponent, Message, Registry
+from reporter.core.message_generator import NoMessagesForSelectionException
+from reporter.core.models import Message
+from reporter.core.pipeline import NLGPipelineComponent, Registry
 
 log = logging.getLogger("root")
 
@@ -45,15 +47,11 @@ class TaskResult:
 
 
 class NewspaperMessageGenerator(NLGPipelineComponent):
-    def run(
-        self, registry: Registry, random: Generator, language: str, data: str
-    ) -> Tuple[List[Message]]:
+    def run(self, registry: Registry, random: Generator, language: str, data: str) -> Tuple[List[Message]]:
         """
         Run this pipeline component.
         """
-        message_parsers: List[
-            Callable[[TaskResult, List[TaskResult]], List[Message]]
-        ] = registry.get("message-parsers")
+        message_parsers: List[Callable[[TaskResult, List[TaskResult]], List[Message]]] = registry.get("message-parsers")
 
         if not data:
             raise NoMessagesForSelectionException("No data at all!")
@@ -75,11 +73,7 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
                     log.error("Message parser crashed: {}".format(ex), exc_info=True)
 
             if not generation_succeeded:
-                log.error(
-                    "Failed to parse a Message from {}. Processor={}".format(
-                        task_result, task_result.processor
-                    )
-                )
+                log.error("Failed to parse a Message from {}. Processor={}".format(task_result, task_result.processor))
 
         # Filter out messages that share the same underlying fact. Can't be done with set() because of how the
         # __hash__ and __eq__ are (not) defined.

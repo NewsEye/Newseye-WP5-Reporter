@@ -4,40 +4,32 @@ import os
 import pickle
 import random
 from collections import defaultdict
-from typing import Callable, Dict, Iterable, List, Optional, TypeVar, Tuple
+from typing import Callable, Dict, Iterable, List, Optional, Tuple, TypeVar
 
-from reporter.core.template_reader import read_templates
 from reporter.constants import CONJUNCTIONS, get_error_message
-from reporter.core import (
-    Aggregator,
-    BodyDocumentPlanner,
-    HeadlineDocumentPlanner,
-    NLGPipeline,
-    NLGPipelineComponent,
-    Registry,
-    SlotRealizer,
-    Template,
-    TemplateSelector,
-)
-from reporter.core.document_planner import NoInterestingMessagesException
+from reporter.core.aggregator import Aggregator
+from reporter.core.document_planner import BodyDocumentPlanner, HeadlineDocumentPlanner, NoInterestingMessagesException
+from reporter.core.models import Template
+from reporter.core.pipeline import NLGPipeline, NLGPipelineComponent
+from reporter.core.realize_slots import SlotRealizer
+from reporter.core.registry import Registry
 from reporter.core.surface_realizer import (
     BodyHTMLListSurfaceRealizer,
-    BodyHTMLSurfaceRealizer,
     BodyHTMLOrderedListSurfaceRealizer,
+    BodyHTMLSurfaceRealizer,
     HeadlineHTMLSurfaceRealizer,
 )
+from reporter.core.template_reader import read_templates
+from reporter.core.template_selector import TemplateSelector
 from reporter.newspaper_importance_allocator import NewspaperImportanceSelector
-from reporter.newspaper_message_generator import (
-    NewspaperMessageGenerator,
-    NoMessagesForSelectionException,
-)
+from reporter.newspaper_message_generator import NewspaperMessageGenerator, NoMessagesForSelectionException
 from reporter.newspaper_named_entity_resolver import NewspaperEntityNameResolver
 from reporter.resources.extract_bigrams_resource import ExtractBigramsResource
 from reporter.resources.extract_facets_resource import ExtractFacetsResource
+from reporter.resources.extract_words_resource import ExtractWordsResource
 from reporter.resources.generate_time_series_resource import GenerateTimeSeriesResource
 from reporter.resources.newspaper_corpus_resource import NewspaperCorpusResource
 from reporter.resources.processor_resource import ProcessorResource
-from reporter.resources.extract_words_resource import ExtractWordsResource
 
 log = logging.getLogger("root")
 
@@ -70,9 +62,7 @@ class NewspaperNlgService(object):
         # Templates
         self.registry.register(
             "templates",
-            self._get_cached_or_compute(
-                "../data/templates.cache", self._load_templates, force_cache_refresh=True
-            ),
+            self._get_cached_or_compute("../data/templates.cache", self._load_templates, force_cache_refresh=True),
         )
 
         # Misc language data
@@ -89,21 +79,14 @@ class NewspaperNlgService(object):
         # Slot Realizers Components
         self.registry.register("slot-realizers", [])
         for processor_resource in self.processor_resources:
-            components = [
-                component(self.registry)
-                for component in processor_resource.slot_realizer_components()
-            ]
+            components = [component(self.registry) for component in processor_resource.slot_realizer_components()]
             self.registry.get("slot-realizers").extend(components)
 
     T = TypeVar("T")
 
     def _get_cached_or_compute(
-        self,
-        cache: str,
-        compute: Callable[..., T],
-        force_cache_refresh: bool = False,
-        relative_path: bool = True,
-    ) -> T:
+        self, cache: str, compute: Callable[..., T], force_cache_refresh: bool = False, relative_path: bool = True
+    ) -> T:  # noqa: F821 -- Needed until https://github.com/PyCQA/pyflakes/issues/427 reaches a release
         if relative_path:
             cache = os.path.abspath(os.path.join(os.path.dirname(__file__), cache))
         if force_cache_refresh:
@@ -132,11 +115,14 @@ class NewspaperNlgService(object):
         return templates
 
     def _get_components(self, realizer: str) -> Iterable[NLGPipelineComponent]:
-        # Put together the list of components
-        # This varies depending on whether it's for headlines and whether we're using Omorphi
-        yield NewspaperMessageGenerator()  # Don't expand facts for headlines!
+        yield NewspaperMessageGenerator()
         yield NewspaperImportanceSelector()
-        yield HeadlineDocumentPlanner() if realizer == "headline" else BodyDocumentPlanner()
+
+        if realizer == "headline":
+            yield HeadlineDocumentPlanner()
+        else:
+            yield BodyDocumentPlanner()
+
         yield TemplateSelector()
         yield Aggregator()
         yield SlotRealizer()
@@ -172,9 +158,7 @@ class NewspaperNlgService(object):
         log.info("Running headline NLG pipeline")
         try:
             headline_lang = "{}-head".format(language)
-            headline = self.headline_pipeline.run(
-                (data,), headline_lang, prng_seed=self.registry.get("seed")
-            )
+            headline = self.headline_pipeline.run((data,), headline_lang, prng_seed=self.registry.get("seed"))
             log.info("Headline pipeline complete")
         except NoMessagesForSelectionException as ex:
             log.error("%s", ex)

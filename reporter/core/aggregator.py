@@ -4,9 +4,9 @@ from typing import List, Tuple
 
 from numpy.random import Generator
 
-from .models import DocumentPlanNode, Message, Literal, Relation, Template, TemplateComponent, Slot
-from .pipeline import NLGPipelineComponent
-from .registry import Registry
+from reporter.core.models import DocumentPlanNode, Literal, Message, Relation, Slot, Template, TemplateComponent
+from reporter.core.pipeline import NLGPipelineComponent
+from reporter.core.registry import Registry
 
 log = logging.getLogger("root")
 
@@ -26,9 +26,7 @@ class Aggregator(NLGPipelineComponent):
 
         return (document_plan,)
 
-    def _aggregate(
-        self, registry: Registry, language: str, document_plan_node: DocumentPlanNode
-    ) -> DocumentPlanNode:
+    def _aggregate(self, registry: Registry, language: str, document_plan_node: DocumentPlanNode) -> DocumentPlanNode:
         log.debug("Visiting {}".format(document_plan_node))
 
         # Cannot aggregate a single Message
@@ -64,9 +62,7 @@ class Aggregator(NLGPipelineComponent):
                 previous_child.prevent_aggregation or current_child.prevent_aggregation
             ):
                 log.debug("Combining")
-                new_children[-1] = self._combine(
-                    registry, language, new_children[-1], current_child
-                )
+                new_children[-1] = self._combine(registry, language, new_children[-1], current_child)
                 log.debug("Combined, New Children: {}".format(new_children))
 
             else:
@@ -83,9 +79,7 @@ class Aggregator(NLGPipelineComponent):
         # TODO: Re-implement this
         raise NotImplementedError
 
-    def _aggregate_list(
-        self, registry: Registry, language: str, document_plan_node: DocumentPlanNode
-    ) -> Message:
+    def _aggregate_list(self, registry: Registry, language: str, document_plan_node: DocumentPlanNode) -> Message:
         # TODO: Re-implement this
         raise NotImplementedError
 
@@ -95,13 +89,10 @@ class Aggregator(NLGPipelineComponent):
         except AttributeError:
             return False
 
-    def _combine(
-        self, registry: Registry, language: str, first: Message, second: Message
-    ) -> Message:
+    def _combine(self, registry: Registry, language: str, first: Message, second: Message) -> Message:
         log.debug(
             "Combining {} and {}".format(
-                [c.value for c in first.template.components],
-                [c.value for c in second.template.components],
+                [c.value for c in first.template.components], [c.value for c in second.template.components]
             )
         )
 
@@ -116,19 +107,16 @@ class Aggregator(NLGPipelineComponent):
                 break
 
         log.debug("idx = {}".format(idx))
-        # TODO At the moment everything is considered either positive or negative, which is sometimes weird. Add neutral sentences.
+        # TODO At the moment everything is considered either positive or negative, which is sometimes weird.
+        #  Add neutral sentences.
         conjunctions = registry.get("CONJUNCTIONS").get(language, None)
         if not conjunctions:
             conjunctions = (defaultdict(lambda x: "NO-CONJUNCTION-DICT"),)
 
         if first.polarity != first.polarity:
-            combined.append(
-                Literal(conjunctions.get("inverse_combiner", "MISSING-INVERSE-CONJUCTION"))
-            )
+            combined.append(Literal(conjunctions.get("inverse_combiner", "MISSING-INVERSE-CONJUCTION")))
         else:
-            combined.append(
-                Literal(conjunctions.get("default_combiner", "MISSING-DEFAULT-CONJUCTION"))
-            )
+            combined.append(Literal(conjunctions.get("default_combiner", "MISSING-DEFAULT-CONJUCTION")))
         combined.extend(second.template.components[idx:])
         log.debug("Combined thing is {}".format([c.value for c in combined]))
         new_message = Message(

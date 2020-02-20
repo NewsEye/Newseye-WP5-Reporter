@@ -21,6 +21,7 @@ LANGUAGES = {
     }
 }
 
+
 CONJUNCTIONS = {
     "en": {
         "default_combiner": "and",
@@ -36,9 +37,11 @@ CONJUNCTIONS = {
     }
 }
 
+
 def get_error_message(language: str, identifier: str) -> str:
     language = language if language in ERRORS else 'en'
     return ERRORS.get(language, {}).get(identifier, 'ERROR')
+
 
 ERRORS = {
     "en": {
@@ -49,12 +52,13 @@ ERRORS = {
     }
 }
 
+
 MORPHOLOGY_SPECIAL_CASES = {
     "en": {
         "he": {
             "genitive": "his",
             "accusative": "him",
-        }, 
+        },
         "she": {
             "genitive": "her",
             "accusative": "her",
@@ -65,6 +69,7 @@ MORPHOLOGY_SPECIAL_CASES = {
         },
     }
 }
+
 
 SMALL_ORDINALS = {
     "en": {
@@ -83,6 +88,7 @@ SMALL_ORDINALS = {
     }
 }
 
+
 SMALL_CARDINALS = {
     "en": {
         "1": "one",
@@ -99,6 +105,7 @@ SMALL_CARDINALS = {
         "12": "twelve",
     }
 }
+
 
 MONTHS = {
     "en": {

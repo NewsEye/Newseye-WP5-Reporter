@@ -4,7 +4,8 @@ import pickle
 import re
 from typing import Callable, List, Optional, Union
 
-from pandas import DataFrame, HDFStore as PandasHDFStore
+from pandas import DataFrame
+from pandas import HDFStore as PandasHDFStore
 
 log = logging.getLogger("root")
 
@@ -55,11 +56,8 @@ class HdfStore(DataStore):
                 expectedrows=len(dataframe),
                 data_columns=["where_", "where_type", "who", "who_type", "when", "when_type"],
             )
-            # temp_store.create_table_index(self.table, columns=['where_', 'where_type', 'who', 'who_type'], optlevel=9, kind='full')
         else:
-            self.store = PandasHDFStore(
-                path, complevel=self.complevel, complib=self.complib, mode="r"
-            )
+            self.store = PandasHDFStore(path, complevel=self.complevel, complib=self.complib, mode="r")
 
     def query(self, query: str) -> DataFrame:
         query = self._mangle_where_in_query(query)

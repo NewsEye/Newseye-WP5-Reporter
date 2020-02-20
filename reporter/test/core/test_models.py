@@ -1,23 +1,23 @@
-from unittest import main, TestCase
+from unittest import TestCase, main
 
 from reporter.core.models import (
-    Message,
-    Fact,
-    DocumentPlanNode,
     Document,
-    Relation,
-    TemplateComponent,
-    Slot,
-    LiteralSource,
-    SlotSource,
-    LiteralSlot,
-    FactFieldSource,
-    TimeSource,
-    LhsExpr,
+    DocumentPlanNode,
+    Fact,
     FactField,
-    ReferentialExpr,
+    FactFieldSource,
+    LhsExpr,
+    LiteralSlot,
+    LiteralSource,
     Matcher,
+    Message,
+    ReferentialExpr,
+    Relation,
+    Slot,
+    SlotSource,
     Template,
+    TemplateComponent,
+    TimeSource,
 )
 
 
@@ -138,9 +138,7 @@ class TestDocument(TestCase):
             "outlierness",
         )
         self.message2 = Message(self.fact2, 0.1, 0.2, 0.3)
-        self.document_plan_node = DocumentPlanNode(
-            [self.message1, self.message2], Relation.ELABORATION
-        )
+        self.document_plan_node = DocumentPlanNode([self.message1, self.message2], Relation.ELABORATION)
         self.document = Document("en", self.document_plan_node)
 
     def test_document_creation(self):
@@ -180,9 +178,7 @@ class TestDocumentPlanNode(TestCase):
         )
         self.message2 = Message(self.fact2, 0.1, 0.2, 0.3)
 
-        self.document_plan_node = DocumentPlanNode(
-            [self.message1, self.message2], Relation.ELABORATION
-        )
+        self.document_plan_node = DocumentPlanNode([self.message1, self.message2], Relation.ELABORATION)
 
     def test_document_plan_node_creation_sets_values(self):
         self.assertListEqual(self.document_plan_node.children, [self.message1, self.message2])

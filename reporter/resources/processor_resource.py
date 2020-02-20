@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import List, Tuple, Type
 
-from reporter.core import Message, SlotRealizerComponent
+from reporter.core.models import Message
+from reporter.core.realize_slots import SlotRealizerComponent
 from reporter.newspaper_message_generator import TaskResult
 
 

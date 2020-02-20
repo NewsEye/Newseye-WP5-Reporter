@@ -2,13 +2,13 @@ import logging
 import re
 from abc import ABC, abstractmethod
 from numbers import Number
-from typing import List, Tuple, Iterable, Union, Callable, Optional
+from typing import Callable, Iterable, List, Optional, Tuple, Union
 
 from numpy.random import Generator
 
-from .models import DocumentPlanNode, Slot, TemplateComponent, Message
-from .pipeline import NLGPipelineComponent
-from .registry import Registry
+from reporter.core.models import DocumentPlanNode, Message, Slot, TemplateComponent
+from reporter.core.pipeline import NLGPipelineComponent
+from reporter.core.registry import Registry
 
 log = logging.getLogger("root")
 
@@ -57,16 +57,11 @@ class SlotRealizer(NLGPipelineComponent):
     def _realize_slot(self, language: str, slot: Slot) -> List[TemplateComponent]:
         for slot_realizer in self._registry.get("slot-realizers"):
             assert isinstance(slot_realizer, SlotRealizerComponent)
-            if (
-                language in slot_realizer.supported_languages()
-                or "ANY" in slot_realizer.supported_languages()
-            ):
+            if language in slot_realizer.supported_languages() or "ANY" in slot_realizer.supported_languages():
                 success, components = slot_realizer.realize(slot, self._random)
                 if success:
                     return components
-        log.debug(
-            "Unable to realize slot {} in language {} with any realizer".format(slot, language)
-        )
+        log.debug("Unable to realize slot {} in language {} with any realizer".format(slot, language))
         return [slot]
 
 
@@ -103,9 +98,7 @@ class RegexRealizer(SlotRealizerComponent):
         self.registry = registry
         self.languages = languages if isinstance(languages, list) else [languages]
         self.regex = regex
-        self.extracted_groups = (
-            extracted_groups if isinstance(extracted_groups, Iterable) else [extracted_groups]
-        )
+        self.extracted_groups = extracted_groups if isinstance(extracted_groups, Iterable) else [extracted_groups]
         self.templates = [template] if isinstance(template, str) else template
         self.allowed = allowed
 
@@ -113,13 +106,13 @@ class RegexRealizer(SlotRealizerComponent):
         return self.languages
 
     def realize(self, slot: Slot, random: Generator) -> Tuple[bool, List[TemplateComponent]]:
+        # We can only parse the slot contents with a regex if the slot contents are a string
         if not isinstance(slot.value, str):
             return False, []
+
         match = re.fullmatch(self.regex, slot.value)
         if match:
-            if self.allowed is not None and not self.allowed(
-                *[match.group(i) for i in self.extracted_groups]
-            ):
+            if self.allowed is not None and not self.allowed(*[match.group(i) for i in self.extracted_groups]):
                 return False, []
             template = random.choice(self.templates)
             log.info("Template: {}".format(template))

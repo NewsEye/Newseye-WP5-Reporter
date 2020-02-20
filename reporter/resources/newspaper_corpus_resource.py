@@ -1,6 +1,7 @@
 from typing import List, Type
 
-from reporter.core import Message, SlotRealizerComponent, RegexRealizer
+from reporter.core.models import Message
+from reporter.core.realize_slots import RegexRealizer, SlotRealizerComponent
 from reporter.newspaper_message_generator import TaskResult
 from reporter.resources.processor_resource import ProcessorResource
 
@@ -53,13 +54,7 @@ class EnglishQueryRealizer(RegexRealizer):
 
 class EnglishQueryMmRealizer(RegexRealizer):
     def __init__(self, registry):
-        super().__init__(
-            registry,
-            "en",
-            r"\[q:([^\]:]+)\] \[mm:([^\]:]+)\]",
-            (1, 2),
-            'the query "{}" (min match = {})',
-        )
+        super().__init__(registry, "en", r"\[q:([^\]:]+)\] \[mm:([^\]:]+)\]", (1, 2), 'the query "{}" (min match = {})')
 
 
 class EnglishQueryMmFilterRealizer(RegexRealizer):
@@ -75,13 +70,7 @@ class EnglishQueryMmFilterRealizer(RegexRealizer):
 
 class EnglishQueryFilterRealizer(RegexRealizer):
     def __init__(self, registry):
-        super().__init__(
-            registry,
-            "en",
-            r"\[q:([^\]:]+)\] \[fq:([^\]]+)\]",
-            (1, 2),
-            'the query "{}" on data from [{}]',
-        )
+        super().__init__(registry, "en", r"\[q:([^\]:]+)\] \[fq:([^\]]+)\]", (1, 2), 'the query "{}" on data from [{}]')
 
 
 class FinnishQueryRealizer(RegexRealizer):
@@ -91,9 +80,7 @@ class FinnishQueryRealizer(RegexRealizer):
 
 class FinnishQueryMmRealizer(RegexRealizer):
     def __init__(self, registry):
-        super().__init__(
-            registry, "fi", r"\[q:([^\]:]+)\] \[mm:([^\]:]+)\]", (1, 2), '"{}" (min match = {})'
-        )
+        super().__init__(registry, "fi", r"\[q:([^\]:]+)\] \[mm:([^\]:]+)\]", (1, 2), '"{}" (min match = {})')
 
 
 class FinnishQueryMmFilterRealizer(RegexRealizer):
@@ -109,13 +96,7 @@ class FinnishQueryMmFilterRealizer(RegexRealizer):
 
 class FinnishQueryFilterRealizer(RegexRealizer):
     def __init__(self, registry):
-        super().__init__(
-            registry,
-            "fi",
-            r"\[q:([^\]:]+)\] \[fq:([^\]]+)\]",
-            (1, 2),
-            '"{}" kohdistuen kokoelmaan [{}]',
-        )
+        super().__init__(registry, "fi", r"\[q:([^\]:]+)\] \[fq:([^\]]+)\]", (1, 2), '"{}" kohdistuen kokoelmaan [{}]')
 
 
 class GermanQueryRealizer(RegexRealizer):
@@ -126,11 +107,7 @@ class GermanQueryRealizer(RegexRealizer):
 class GermanQueryMmRealizer(RegexRealizer):
     def __init__(self, registry):
         super().__init__(
-            registry,
-            "de",
-            r"\[q:([^\]:]+)\] \[mm:([^\]:]+)\]",
-            (1, 2),
-            'die Abfrage "{}" (das Minimum Match = {})',
+            registry, "de", r"\[q:([^\]:]+)\] \[mm:([^\]:]+)\]", (1, 2), 'die Abfrage "{}" (das Minimum Match = {})'
         )
 
 
@@ -148,9 +125,5 @@ class GermanQueryMmFilterRealizer(RegexRealizer):
 class GermanQueryFilterRealizer(RegexRealizer):
     def __init__(self, registry):
         super().__init__(
-            registry,
-            "de",
-            r"\[q:([^\]:]+)\] \[fq:([^\]]+)\]",
-            (1, 2),
-            'die Abfrage "{}" nach Daten von [{}]',
+            registry, "de", r"\[q:([^\]:]+)\] \[fq:([^\]]+)\]", (1, 2), 'die Abfrage "{}" nach Daten von [{}]'
         )

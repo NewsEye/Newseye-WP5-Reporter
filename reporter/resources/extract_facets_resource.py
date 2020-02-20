@@ -1,10 +1,10 @@
 import logging
 from typing import List, Type
 
-from reporter.core import Message, Fact, SlotRealizerComponent, RegexRealizer
+from reporter.core.models import Fact, Message
+from reporter.core.realize_slots import RegexRealizer, SlotRealizerComponent
 from reporter.newspaper_message_generator import TaskResult
 from reporter.resources.processor_resource import ProcessorResource
-
 
 log = logging.getLogger("root")
 
@@ -77,6 +77,4 @@ class LanguageRealizer(RegexRealizer):
 
 class NewsPaperNameRealizer(RegexRealizer):
     def __init__(self, registry):
-        super().__init__(
-            registry, "ANY", r"\[NEWSPAPER_NAME:([^\]]+)\]", 1, "[ENTITY:NEWSPAPER:{}]"
-        )
+        super().__init__(registry, "ANY", r"\[NEWSPAPER_NAME:([^\]]+)\]", 1, "[ENTITY:NEWSPAPER:{}]")

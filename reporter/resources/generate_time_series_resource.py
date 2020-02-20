@@ -1,10 +1,10 @@
 import logging
 from typing import List, Type
 
-from reporter.core import Message, Fact, SlotRealizerComponent, RegexRealizer
+from reporter.core.models import Fact, Message
+from reporter.core.realize_slots import SlotRealizerComponent
 from reporter.newspaper_message_generator import TaskResult
 from reporter.resources.processor_resource import ProcessorResource
-
 
 log = logging.getLogger("root")
 
@@ -25,7 +25,7 @@ fi: vuosien {timestamp_from} ja {timestamp_to} välillä, pienin nollasta eroava
 en: between {timestamp_from} and {timestamp_to}, the average amount of relevant articles in {result_key} was {result_value}
 fi: vuosien {timestamp_from} ja {timestamp_to} välillä, {result_key, case=ssa} julkaistiin vuosittain keskimäärin {result_value} relevanttia artikkelia
 | analysis_type = GenerateTimeSeries:absolute_counts:avg
-"""
+"""  # noqa: E501
 
 
 class GenerateTimeSeriesResource(ProcessorResource):
@@ -42,21 +42,19 @@ class GenerateTimeSeriesResource(ProcessorResource):
 
         return messages
 
-    def parse_standard_messages(
-        self, task_result: TaskResult, context: List[TaskResult]
-    ) -> List[Message]:
+    def parse_standard_messages(self, task_result: TaskResult, context: List[TaskResult]) -> List[Message]:
         corpus, corpus_type = self.build_corpus_fields(task_result)
         messages = []
 
         facet_name = task_result.parameters["facet_name"]
         for value_type, value_type_results in task_result.task_result["result"].items():
             if value_type != "absolute_counts":
-                continue  #  TODO: relative_counts are not percentages and are thus really hard to talk about.
+                continue  # TODO: relative_counts are not percentages and are thus really hard to talk about.
             for facet_value, facet_value_results in value_type_results.items():
                 for time, value in facet_value_results.items():
-                    interestingness = task_result.task_result["interestingness"][facet_value][
-                        1
-                    ].get(time, ProcessorResource.EPSILON)
+                    interestingness = task_result.task_result["interestingness"][facet_value][1].get(
+                        time, ProcessorResource.EPSILON
+                    )
 
                     if not time.isnumeric():
                         continue
@@ -83,16 +81,14 @@ class GenerateTimeSeriesResource(ProcessorResource):
                     )
         return messages
 
-    def parse_complex_messages(
-        self, task_result: TaskResult, context: List[TaskResult]
-    ) -> List[Message]:
+    def parse_complex_messages(self, task_result: TaskResult, context: List[TaskResult]) -> List[Message]:
         corpus, corpus_type = self.build_corpus_fields(task_result)
         messages = []
 
         facet_name = task_result.parameters["facet_name"]
         for value_type, value_type_results in task_result.task_result["result"].items():
             if value_type != "absolute_counts":
-                continue  #  TODO: relative_counts are not percentages and are thus really hard to talk about.
+                continue  # TODO: relative_counts are not percentages and are thus really hard to talk about.
             for facet_value, facet_value_results in value_type_results.items():
                 from_year = str(min([int(y) for y in facet_value_results.keys() if y.isnumeric()]))
                 to_year = str(max([int(y) for y in facet_value_results.keys() if y.isnumeric()]))
@@ -108,9 +104,7 @@ class GenerateTimeSeriesResource(ProcessorResource):
                                     from_year,  # timestamp_from
                                     to_year,  # timestamp_to
                                     "between_years",  # timestamp_type
-                                    "GenerateTimeSeries:{}:{}".format(
-                                        value_type, complex_key
-                                    ),  # analysis_type
+                                    "GenerateTimeSeries:{}:{}".format(value_type, complex_key),  # analysis_type
                                     "[ENTITY:{}:{}]".format(facet_name, facet_value),  # result_key
                                     value,  # result_value
                                     interestingness,  # outlierness
@@ -122,8 +116,3 @@ class GenerateTimeSeriesResource(ProcessorResource):
 
     def slot_realizer_components(self) -> List[Type[SlotRealizerComponent]]:
         return []
-
-
-class YearRealizer(RegexRealizer):
-    def __init__(self, registry):
-        super().__init__(registry, "ANY", r"\[BIGRAM:([^\]]+)\]", 1, '"{}"')

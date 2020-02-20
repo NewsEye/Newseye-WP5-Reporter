@@ -3,7 +3,7 @@ import operator
 import re
 from collections import namedtuple
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Union, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 log = logging.getLogger("root")
 
@@ -42,9 +42,7 @@ class DocumentPlanNode(object):
     """
 
     def __init__(
-        self,
-        children: Optional[List["DocumentPlanNode"]] = None,
-        relation: Relation = Relation.SEQUENCE,
+        self, children: Optional[List["DocumentPlanNode"]] = None, relation: Relation = Relation.SEQUENCE
     ) -> None:
         self._children = children if children else []
         self._relation = relation
@@ -86,17 +84,13 @@ class DocumentPlanNode(object):
             # Creation of balanced lists for "up" branch and "down" branch.
             branch_sizes = {child: rec_count(child) + 1 for child in self.children}
             up = list(self.children)
-            while up and sum(branch_sizes[node] for node in down) < sum(
-                branch_sizes[node] for node in up
-            ):
+            while up and sum(branch_sizes[node] for node in down) < sum(branch_sizes[node] for node in up):
                 down.insert(0, up.pop())
 
             # Printing of "up" branch.
             for child in up:
-                next_last = "up" if up.index(child) is 0 else ""
-                next_indent = "{0}{1}{2}".format(
-                    indent, " " if "up" in last else "│", " " * len(str(self))
-                )
+                next_last = "up" if up.index(child) == 0 else ""
+                next_indent = "{0}{1}{2}".format(indent, " " if "up" in last else "│", " " * len(str(self)))
                 child.print_tree(indent=next_indent, last=next_last)
 
         # Printing of current node.
@@ -121,10 +115,8 @@ class DocumentPlanNode(object):
         if not isinstance(self, Message):
             # Printing of "down" branch.
             for child in down:
-                next_last = "down" if down.index(child) is len(down) - 1 else ""
-                next_indent = "{0}{1}{2}".format(
-                    indent, " " if "down" in last else "│", " " * len(str(self))
-                )
+                next_last = "down" if down.index(child) == len(down) - 1 else ""
+                next_indent = "{0}{1}{2}".format(indent, " " if "down" in last else "│", " " * len(str(self)))
                 child.print_tree(indent=next_indent, last=next_last)
 
 
@@ -255,9 +247,7 @@ class Template(DocumentPlanNode):
         :return:
         """
         if slot_type not in self._slot_map.keys():
-            slot_of_correct_type = next(
-                (slot for slot in self.slots if slot.slot_type == slot_type), None
-            )
+            slot_of_correct_type = next((slot for slot in self.slots if slot.slot_type == slot_type), None)
             self._slot_map[slot_type] = slot_of_correct_type
         if self._slot_map[slot_type] is None:
             raise KeyError('No slot of type "{}" in Template {}'.format(slot_type, self))
@@ -282,9 +272,7 @@ class Template(DocumentPlanNode):
     def facts(self) -> List[Fact]:
         return self._facts
 
-    def check(
-        self, primary_message: Message, all_messages: List[Message], fill_slots: bool = False
-    ) -> List[Fact]:
+    def check(self, primary_message: Message, all_messages: List[Message], fill_slots: bool = False) -> List[Fact]:
         """
         Like fill(), but doesn't modify the template data structure, just checks whether the given message,
         with the support from other messages, is compatible with the template.
@@ -294,8 +282,10 @@ class Template(DocumentPlanNode):
         :param fill_slots:
         :return: True, if the template can be used for the primary_message. False otherwise.
         """
-        # ToDo: Could we somehow cache the information about which messages to use in addition to the primary, so that we could then fill the message straight away without going through the messages again?
-        # OR: Fill the templates in this phase and then just choose one of them. Filling shouldn't be that much slower than checking.
+        # ToDo: Could we somehow cache the information about which messages to use in addition to the primary, so
+        #  that we could then fill the message straight away without going through the messages again?
+        # OR: Fill the templates in this phase and then just choose one of them. Filling shouldn't be that much
+        # slower than checking.
         primary_fact = primary_message.main_fact
 
         # TODO: Had these happen a few time, better to crash early and explicitly
@@ -421,10 +411,7 @@ class Slot(TemplateComponent):
 
     # Todo: Are the values in "attributes" of a known type?
     def __init__(
-        self,
-        to_value: "SlotSource",
-        attributes: Optional[Dict[str, Any]] = None,
-        fact: Optional[Fact] = None,
+        self, to_value: "SlotSource", attributes: Optional[Dict[str, Any]] = None, fact: Optional[Fact] = None
     ) -> None:
         """
         :param to_value: A callable that defines how to transform the message
@@ -456,9 +443,7 @@ class Slot(TemplateComponent):
             return Slot(self._to_value, self.attributes.copy(), self.fact)
 
     def __str__(self) -> str:
-        return "Slot({}{})".format(
-            self.value, "".join(", {}={}".format(k, v) for (k, v) in self.attributes.items())
-        )
+        return "Slot({}{})".format(self.value, "".join(", {}={}".format(k, v) for (k, v) in self.attributes.items()))
 
 
 class LiteralSlot(Slot):
@@ -533,9 +518,7 @@ class TimeSource(SlotSource):
 
     def __call__(self, fact: Fact) -> str:
         return "[TIME:{}:{}:{}]".format(
-            getattr(fact, "timestamp_type"),
-            getattr(fact, "timestamp_from"),
-            getattr(fact, "timestamp_to"),
+            getattr(fact, "timestamp_type"), getattr(fact, "timestamp_from"), getattr(fact, "timestamp_to")
         )
 
     def __str__(self):
@@ -610,9 +593,7 @@ class Matcher(object):
     def __init__(self, lhs: LhsExpr, op: str, value: Any) -> None:
         if op not in Matcher.OPERATORS:
             raise ValueError(
-                "invalid matcher operator '{}'. Must be one of: {}".format(
-                    op, ", ".join(Matcher.OPERATORS)
-                )
+                "invalid matcher operator '{}'. Must be one of: {}".format(op, ", ".join(Matcher.OPERATORS))
             )
         self.value = value
         self.op = op

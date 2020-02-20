@@ -4,14 +4,15 @@ from typing import Any, List, Optional, Tuple, Union
 
 from numpy import random
 
-from .registry import Registry
+from reporter.core.registry import Registry
 
 log = logging.getLogger("root")
 
 
 class NLGPipelineComponent(ABC):
 
-    # TODO: We'd want this to be along the lines of "run(self, registry: Registry, ..., *args: Any) but that's not possible with the current implementation of
+    # TODO: We'd want this to be along the lines of "run(self, registry: Registry, ..., *args: Any) but that's not
+    #  possible with the current implementation of
     def run(self, *args, **kwargs):
         """
         The real signature is (self, registry: Registry, random: numpy.random.Generator, language: str, *args)
@@ -39,9 +40,7 @@ class NLGPipeline(object):
     def components(self) -> Tuple[NLGPipelineComponent]:
         return self._components
 
-    def run(
-        self, initial_inputs: Any, language: str, prng_seed: Optional[int] = None
-    ) -> Union[List[Any], Tuple[Any]]:
+    def run(self, initial_inputs: Any, language: str, prng_seed: Optional[int] = None) -> Union[List[Any], Tuple[Any]]:
         log.info("Starting NLG pipeline")
         log.debug("PRNG seed is {}".format(prng_seed))
         prng = random.default_rng(prng_seed)  # type: random.Generator

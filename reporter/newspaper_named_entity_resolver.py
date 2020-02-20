@@ -5,7 +5,9 @@ from typing import Tuple
 from numpy.random import Generator
 
 from reporter.constants import LANGUAGES
-from reporter.core import EntityNameResolver, Registry, Slot
+from reporter.core.entity_name_resolver import EntityNameResolver
+from reporter.core.models import Slot
+from reporter.core.registry import Registry
 
 log = logging.getLogger("root")
 
@@ -20,9 +22,7 @@ class NewspaperEntityNameResolver(EntityNameResolver):
         try:
             return self._matcher.fullmatch(maybe_entity) is not None
         except TypeError:
-            log.error(
-                "EntityNameResolver got a number: {} instead of a string".format(maybe_entity)
-            )
+            log.error("EntityNameResolver got a number: {} instead of a string".format(maybe_entity))
 
     def parse_entity(self, entity: str) -> Tuple[str, str]:
         groups: Tuple[str, str] = tuple(self._matcher.match(entity).groups())
@@ -30,13 +30,7 @@ class NewspaperEntityNameResolver(EntityNameResolver):
         return tuple(groups)
 
     def resolve_surface_form(
-        self,
-        registry: Registry,
-        random: Generator,
-        language: str,
-        slot: Slot,
-        entity: str,
-        entity_type: str,
+        self, registry: Registry, random: Generator, language: str, slot: Slot, entity: str, entity_type: str
     ) -> None:
         if entity_type in ["NEWSPAPER_NAME", "NEWSPAPER"]:
             value = entity.replace("_", " ").capitalize()

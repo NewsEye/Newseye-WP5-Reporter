@@ -1,12 +1,12 @@
 import logging
-from typing import List, Union, Tuple, cast
+from typing import List, Tuple, Union, cast
 
 from numpy.random import Generator
 
-from .models import Fact, DocumentPlanNode, Message, Relation
-from .pipeline import NLGPipelineComponent
-from .registry import Registry
-from .template_selector import TemplateMessageChecker
+from reporter.core.models import DocumentPlanNode, Fact, Message, Relation
+from reporter.core.pipeline import NLGPipelineComponent
+from reporter.core.registry import Registry
+from reporter.core.template_selector import TemplateMessageChecker
 
 log = logging.getLogger("root")
 
@@ -44,9 +44,7 @@ class HeadlineDocumentPlanner(NLGPipelineComponent):
         headline_message = scored_messages[0]
         all_messages = scored_messages
 
-        dp.children.append(
-            DocumentPlanNode(children=[headline_message], relation=Relation.SEQUENCE)
-        )
+        dp.children.append(DocumentPlanNode(children=[headline_message], relation=Relation.SEQUENCE))
 
         return dp, all_messages
 
@@ -95,7 +93,8 @@ class BodyDocumentPlanner(NLGPipelineComponent):
                 break
 
             for message in penalized_candidates:
-                # TODO: Here there used to be logic forcing a location to be expressed. We need similar logic but more generic for the complete context (time, corpus, query, etc)
+                # TODO: Here there used to be logic forcing a location to be expressed. We need similar logic but more
+                #  generic for the complete context (time, corpus, query, etc)
                 if template_checker.exists_template_for_message(message):
                     break
             else:
@@ -110,15 +109,11 @@ class BodyDocumentPlanner(NLGPipelineComponent):
             if par_num >= MIN_PARAGRAPHS_PER_DOC:
                 if message.score < max_score * END_STORY_RELATIVE_TRESHOLD:
                     # We've dropped to vastly below the importance of the most important nucleus: time to stop nattering
-                    log.info(
-                        "Nucleus score dropped below 20% of max score so far, stopping adding paragraphs"
-                    )
+                    log.info("Nucleus score dropped below 20% of max score so far, stopping adding paragraphs")
                     break
                 if message.score < END_STORY_ABSOLUTE_TRESHOLD:
                     # This absolute score is simply very low, so we're probably scraping the bottom of the barrel
-                    log.info(
-                        "Nucleus score dropped to a low absolute value, stopping adding paragraphs"
-                    )
+                    log.info("Nucleus score dropped to a low absolute value, stopping adding paragraphs")
                     break
 
             # Check whether the added nucleus was from the expanded set
@@ -163,11 +158,7 @@ class BodyDocumentPlanner(NLGPipelineComponent):
                         break
 
                 else:
-                    log.warning(
-                        "I wanted to express {}, but had no template for it".format(
-                            satellite.main_fact
-                        )
-                    )
+                    log.warning("I wanted to express {}, but had no template for it".format(satellite.main_fact))
 
             dp.children.append(DocumentPlanNode(children=messages, relation=Relation.SEQUENCE))
 
@@ -189,34 +180,22 @@ class BodyDocumentPlanner(NLGPipelineComponent):
                 todo.extend([c for c in m.children if c])
         return flat
 
-    def _penalize_similarity(
-        self, candidates: List[Message], nuclei: List[Message]
-    ) -> List[Message]:
+    def _penalize_similarity(self, candidates: List[Message], nuclei: List[Message]) -> List[Message]:
         # TODO: This is domain specific, consider splitting this off to a domain-specific method in a subclass
         return candidates
         if not nuclei:
             return candidates
         for nucleus in nuclei:
             # TODO: This is pretty meaningless in the toy dataset we are using now
-            candidates = [
-                msg
-                for msg in candidates
-                if nucleus.main_fact.analysis_type != msg.main_fact.analysis_type
-            ]
+            candidates = [msg for msg in candidates if nucleus.main_fact.analysis_type != msg.main_fact.analysis_type]
         return candidates
 
     def _encourage_similarity(self, candidates: List[Message], nucleus: Message) -> List[Message]:
         # TODO: This is domain specific, consider splitting this off to a domain-specific method in a subclass
         # TODO: This is pretty meaningless in the toy dataset we are using now
-        return [
-            msg
-            for msg in candidates
-            if nucleus.main_fact.analysis_type == msg.main_fact.analysis_type
-        ]
+        return [msg for msg in candidates if nucleus.main_fact.analysis_type == msg.main_fact.analysis_type]
 
-    def _add_satellite(
-        self, satellite: Message, messages: List[Union[DocumentPlanNode, Message]]
-    ) -> None:
+    def _add_satellite(self, satellite: Message, messages: List[Union[DocumentPlanNode, Message]]) -> None:
         for idx, msg in enumerate(messages):
             if not isinstance(msg, Message):
                 # It's not a Message, so it must be a non-leaf DPN

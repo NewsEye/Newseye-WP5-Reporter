@@ -3,9 +3,9 @@ import re
 
 from numpy import random
 
-from .models import DocumentPlanNode
-from .pipeline import NLGPipelineComponent
-from .registry import Registry
+from reporter.core.models import DocumentPlanNode
+from reporter.core.pipeline import NLGPipelineComponent
+from reporter.core.registry import Registry
 
 log = logging.getLogger("root")
 
@@ -39,13 +39,7 @@ class SurfaceRealizer(NLGPipelineComponent):
     def fail_on_empty(self):
         raise NotImplementedError
 
-    def run(
-        self,
-        registry: Registry,
-        random: random.Generator,
-        language: str,
-        document_plan: DocumentPlanNode,
-    ) -> str:
+    def run(self, registry: Registry, random: random.Generator, language: str, document_plan: DocumentPlanNode) -> str:
         """
         Run this pipeline component.
         """
@@ -64,9 +58,7 @@ class SurfaceRealizer(NLGPipelineComponent):
             template = message.template
             component_values = [str(component.value) for component in template.components]
 
-            sent = " ".join(
-                [component_value for component_value in component_values if component_value != ""]
-            ).rstrip()
+            sent = " ".join([component_value for component_value in component_values if component_value != ""]).rstrip()
             # Temp fix: remove extra spaces occurring with braces and sometimes before commas.
             sent = re.sub(r"\(\s", r"(", sent)
             sent = re.sub(r"\s\)", r")", sent)

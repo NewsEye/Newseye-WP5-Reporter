@@ -3,7 +3,8 @@ from typing import List, Tuple
 
 from numpy.random import Generator
 
-from reporter.core import Registry, Message, NLGPipelineComponent
+from reporter.core.models import Message
+from reporter.core.pipeline import NLGPipelineComponent, Registry
 
 log = logging.getLogger("root")
 

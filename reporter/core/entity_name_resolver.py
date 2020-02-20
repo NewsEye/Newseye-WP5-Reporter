@@ -1,13 +1,13 @@
 import logging
 from abc import abstractmethod
 from collections import defaultdict
-from typing import Set, Tuple, DefaultDict
+from typing import DefaultDict, Set, Tuple
 
 from numpy.random import Generator
 
-from .models import DocumentPlanNode, Slot
-from .pipeline import NLGPipelineComponent
-from .registry import Registry
+from reporter.core.models import DocumentPlanNode, Slot
+from reporter.core.pipeline import NLGPipelineComponent
+from reporter.core.registry import Registry
 
 log = logging.getLogger("root")
 
@@ -120,12 +120,6 @@ class EntityNameResolver(NLGPipelineComponent):
 
     @abstractmethod
     def resolve_surface_form(
-        self,
-        registry: Registry,
-        random: Generator,
-        language: str,
-        slot: Slot,
-        entity: str,
-        entity_type: str,
+        self, registry: Registry, random: Generator, language: str, slot: Slot, entity: str, entity_type: str
     ) -> None:
         raise NotImplementedError("Not implemented")

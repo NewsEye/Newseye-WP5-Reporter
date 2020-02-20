@@ -3,7 +3,7 @@ import logging.handlers
 import os
 from typing import Callable, Dict, List, Tuple
 
-from bottle import Bottle, request, response, run, TEMPLATE_PATH
+from bottle import TEMPLATE_PATH, Bottle, request, response, run
 
 from reporter.newspaper_nlg_service import NewspaperNlgService
 
@@ -61,18 +61,9 @@ def generate(language: str, format: str = None, data: str = None) -> Tuple[str, 
     return service.run_pipeline(language, format, data)
 
 
-@app.route("/api/report")
-@allow_cors
-def api_generate() -> Dict[str, str]:
-    language = request.query.language or "en"
-
-    header, body = generate(language)
-    return dict({"language": language, "header": header, "body": body})
-
-
 @app.route("/api/report/json", method="POST")
 @allow_cors
-def api_generate() -> Dict[str, str]:
+def api_generate_json() -> Dict[str, str]:
     body = json.loads(request.body.read())
     language = body["language"]
     format = body["format"]

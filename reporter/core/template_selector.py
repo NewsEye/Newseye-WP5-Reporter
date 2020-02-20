@@ -4,9 +4,9 @@ from typing import Iterator, List, Tuple
 
 from numpy.random import Generator
 
-from .models import DefaultTemplate, DocumentPlanNode, Message, Template
-from .pipeline import NLGPipelineComponent
-from .registry import Registry
+from reporter.core.models import DefaultTemplate, DocumentPlanNode, Message, Template
+from reporter.core.pipeline import NLGPipelineComponent
+from reporter.core.registry import Registry
 
 log = logging.getLogger("root")
 
@@ -72,9 +72,7 @@ class TemplateSelector(NLGPipelineComponent):
                 self._recurse(random, language, child, all_messages, template_checker)
 
     @staticmethod
-    def _add_template_to_message(
-        message: Message, template_original: Template, all_messages: List[Message]
-    ) -> None:
+    def _add_template_to_message(message: Message, template_original: Template, all_messages: List[Message]) -> None:
         """
         Adds a matching template to a message, also adding the facts used by the template to the message.
 
@@ -91,9 +89,7 @@ class TemplateSelector(NLGPipelineComponent):
         else:
             log.error(
                 "Chosen template '{}' for fact '{}' could not be used! "
-                "Falling back to default templates".format(
-                    template.display_template(), message.main_fact
-                )
+                "Falling back to default templates".format(template.display_template(), message.main_fact)
             )
             template = DefaultTemplate("")
         message.template = template
