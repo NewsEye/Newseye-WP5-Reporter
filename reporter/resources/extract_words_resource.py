@@ -10,16 +10,16 @@ log = logging.getLogger("root")
 
 
 TEMPLATE = """
-en: the token {result_key} appeared {result_value} times
-fi: sane {result_key} esiintyi {result_value} kertaa
+en: {result_key} appeared {result_value} times
+fi: {result_key} esiintyi {result_value} kertaa
 | analysis_type = ExtractWords:Count
 
-en: the token {result_key} had a relative count of {result_value}
-fi: saneen {result_key} suhteellinen osuus kaikista saneista oli {result_value}
+en: {result_key} had a relative count of {result_value}
+fi: {result_key, case=gen} suhteellinen osuus oli {result_value}
 | analysis_type = ExtractWords:RelativeCount
 
-en: the token {result_key} had a TF-IDF score of {result_value}
-fi: saneen {result_key} TF-IDF -luku oli {result_value}
+en: {result_key} had a TF-IDF score of {result_value}
+fi: {result_key, case=gen} TF-IDF -luku oli {result_value}
 | analysis_type = ExtractWords:TFIDF
 """
 
@@ -32,10 +32,14 @@ class ExtractWordsResource(ProcessorResource):
         if not task_result.processor == "ExtractWords":
             return []
 
-        if task_result.parameters.get("unit") != "tokens":
-            log.error("Unexpected unit '{}', expected 'tokens'".format(task_result.parameters.get("unit")))
+        unit: str = task_result.parameters.get("unit")
+        if unit == "tokens":
+            unit = "TOKEN"
+        elif unit == "stems":
+            unit = "STEM"
+        else:
+            log.error("Unexpected unit '{}', expected 'tokens' or 'stems'".format(task_result.parameters.get("unit")))
             return []
-
         corpus, corpus_type = self.build_corpus_fields(task_result)
 
         messages = []
@@ -53,7 +57,7 @@ class ExtractWordsResource(ProcessorResource):
                                 None,  # timestamp_to
                                 "all_time",  # timestamp_type
                                 "ExtractWords:" + result_name,  # analysis_type
-                                "[TOKEN:{}]".format(word),  # result_key
+                                "[{}:{}]".format(unit, word),  # result_key
                                 result,  # result_value
                                 interestingness,  # outlierness
                             )
@@ -63,9 +67,24 @@ class ExtractWordsResource(ProcessorResource):
         return messages
 
     def slot_realizer_components(self) -> List[Type[SlotRealizerComponent]]:
-        return [TokenRealizer]
+        return [EnglishStemRealizer, EnglishTokenRealizer, FinnishStemRealizer, FinnishTokenRealizer]
 
 
-class TokenRealizer(RegexRealizer):
+class EnglishStemRealizer(RegexRealizer):
     def __init__(self, registry):
-        super().__init__(registry, "ANY", r"\[TOKEN:([^\]]+)\]", 1, '"{}"')
+        super().__init__(registry, "en", r"\[STEM:([^\]]+)\]", 1, 'the stem "{}"')
+
+
+class EnglishTokenRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(registry, "ANY", r"\[TOKEN:([^\]]+)\]", 1, 'the token "{}"')
+
+
+class FinnishTokenRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(registry, "fi", r"\[TOKEN:([^\]]+)\]", 1, 'sane "{}"', attach_attributes_to=[0])
+
+
+class FinnishStemRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(registry, "fi", r"\[STEM:([^\]]+)\]", 1, 'tyvi "{}"', attach_attributes_to=[0])
