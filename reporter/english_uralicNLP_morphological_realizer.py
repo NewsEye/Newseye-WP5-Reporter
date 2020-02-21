@@ -36,7 +36,7 @@ class EnglishUralicNLPMorphologicalRealizer(LanguageSpecificMorphologicalRealize
         analysis = possible_analyses[0][0]
         log.debug("Picked {} as the morphological analysis of {}".format(analysis, slot.value))
 
-        analysis = analysis.replace("Nom", case)
+        analysis = "{}+{}".format(analysis, case)
         log.debug("Modified analysis to {}".format(analysis))
 
         modified_value = uralicApi.generate(analysis, "eng")[0][0]
