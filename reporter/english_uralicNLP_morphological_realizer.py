@@ -39,7 +39,7 @@ class EnglishUralicNLPMorphologicalRealizer(LanguageSpecificMorphologicalRealize
         analysis = analysis.replace("Nom", case)
         log.debug("Modified analysis to {}".format(analysis))
 
-        modified_value = uralicApi.generate(analysis, "fin")[0][0]
+        modified_value = uralicApi.generate(analysis, "eng")[0][0]
         log.debug("Realized value is {}".format(modified_value))
 
         return modified_value
