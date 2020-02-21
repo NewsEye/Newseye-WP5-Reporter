@@ -144,10 +144,14 @@ class NewspaperNlgService(object):
         else:
             yield BodyHTMLSurfaceRealizer()
 
-    def run_pipeline(self, language: str, output_format: str, data: str) -> Tuple[str, str]:
+    def run_pipeline(
+        self, language: str, output_format: str, data: str
+    ) -> Tuple[str, str, Optional[str], Optional[str]]:
         log.info("Configuring Body NLG Pipeline")
         self.body_pipeline = NLGPipeline(self.registry, *self._get_components(output_format))
         self.headline_pipeline = NLGPipeline(self.registry, *self._get_components("headline"))
+
+        body_error, head_error = None, None
 
         log.info("Running Body NLG pipeline: language={}".format(language))
         try:
@@ -162,6 +166,7 @@ class NewspaperNlgService(object):
         except Exception as ex:
             log.exception("%s", ex)
             body = get_error_message(language, "general-error")
+            body_error = "{}: {}".format(ex.__class__.__name__, str(ex))
 
         log.info("Running headline NLG pipeline")
         try:
@@ -177,8 +182,9 @@ class NewspaperNlgService(object):
         except Exception as ex:
             log.exception("%s", ex)
             headline = get_error_message(language, "general-error")
+            head_error = "{}: {}".format(ex.__class__.__name__, str(ex))
 
-        return headline, body
+        return headline, body, head_error, body_error
 
     def _set_seed(self, seed_val: Optional[int] = None) -> None:
         log.info("Selecting seed for NLG pipeline")

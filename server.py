@@ -1,7 +1,7 @@
 import json
 import logging.handlers
 import os
-from typing import Callable, Dict, List, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 
 from bottle import TEMPLATE_PATH, Bottle, request, response, run
 
@@ -57,7 +57,7 @@ def allow_cors(func: Callable) -> Callable:
     return wrapper
 
 
-def generate(language: str, format: str = None, data: str = None) -> Tuple[str, str]:
+def generate(language: str, format: str = None, data: str = None) -> Tuple[str, str, Optional[str], Optional[str]]:
     return service.run_pipeline(language, format, data)
 
 
@@ -73,8 +73,13 @@ def api_generate_json() -> Dict[str, str]:
         response.status = 400
         return
 
-    header, body = generate(language, format, data)
-    return dict({"language": language, "header": header, "body": body})
+    header, body, body_error, head_error = generate(language, format, data)
+    output = {"language": language, "header": header, "body": body}
+    if body_error:
+        output["body_generation_error"] = body_error
+    if head_error:
+        output["head_generation_error"] = head_error
+    return output
 
 
 @app.route("/api/report", method="POST")
@@ -88,8 +93,13 @@ def api_generate() -> Dict[str, str]:
         response.status = 400
         return
 
-    header, body = generate(language, format, data)
-    return dict({"language": language, "header": header, "body": body})
+    header, body, body_error, head_error = generate(language, format, data)
+    output = {"language": language, "header": header, "body": body}
+    if body_error:
+        output["body_generation_error"] = body_error
+    if head_error:
+        output["head_generation_error"] = head_error
+    return output
 
 
 @app.route("/api/languages")
