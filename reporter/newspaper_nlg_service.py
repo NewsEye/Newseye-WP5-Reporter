@@ -8,7 +8,7 @@ from typing import Callable, Dict, Iterable, List, Optional, Tuple, TypeVar
 
 from reporter.constants import CONJUNCTIONS, get_error_message
 from reporter.core.aggregator import Aggregator
-from reporter.core.document_planner import BodyDocumentPlanner, HeadlineDocumentPlanner, NoInterestingMessagesException
+from reporter.core.document_planner import NoInterestingMessagesException
 from reporter.core.models import Template
 from reporter.core.morphological_realizer import MorphologicalRealizer
 from reporter.core.pipeline import NLGPipeline, NLGPipelineComponent
@@ -24,6 +24,7 @@ from reporter.core.template_reader import read_templates
 from reporter.core.template_selector import TemplateSelector
 from reporter.english_uralicNLP_morphological_realizer import EnglishUralicNLPMorphologicalRealizer
 from reporter.finnish_uralicNLP_morphological_realizer import FinnishUralicNLPMorphologicalRealizer
+from reporter.newspaper_document_planner import NewspaperBodyDocumentPlanner, NewspaperHeadlineDocumentPlanner
 from reporter.newspaper_importance_allocator import NewspaperImportanceSelector
 from reporter.newspaper_message_generator import NewspaperMessageGenerator, NoMessagesForSelectionException
 from reporter.newspaper_named_entity_resolver import NewspaperEntityNameResolver
@@ -122,9 +123,9 @@ class NewspaperNlgService(object):
         yield NewspaperImportanceSelector()
 
         if realizer == "headline":
-            yield HeadlineDocumentPlanner()
+            yield NewspaperHeadlineDocumentPlanner()
         else:
-            yield BodyDocumentPlanner()
+            yield NewspaperBodyDocumentPlanner()
 
         yield TemplateSelector()
         yield Aggregator()
