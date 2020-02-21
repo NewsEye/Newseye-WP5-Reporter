@@ -84,7 +84,12 @@ class TestMessage(TestCase):
         self.assertEqual(message.score, 0.2)
         self.assertEqual(message.polarity, 0.3)
         self.assertIsNone(message.template)
-        self.assertEqual(str(message), "<Message>")
+        self.assertEqual(
+            str(message),
+            "<Message: fact(corpus='corpus1', corpus_type='corpus_type', timestamp_from='timestamp_from', "
+            "timestamp_to='timestamp_to', timestamp_type='timestamp_type', analysis_type='analysis_type', "
+            "result_key='result_key', result_value='result_value', outlierness='outlierness')>",
+        )
 
     def test_message_creation_list_of_facts(self):
         message = Message([self.fact1, self.fact2], 0.1, 0.2, 0.3)
@@ -254,7 +259,7 @@ class TestSlot(TestCase):
 
     def test_slot_value_setter_updates_slot_type(self):
         slot = Slot(self.to_value)
-        slot.value = SlotSource("a fake type")
+        slot.value = FactFieldSource("a fake type")
 
         self.assertEqual(slot.slot_type, "a fake type")
 
@@ -308,26 +313,9 @@ class TestLiteralSlot(TestCase):
 
 
 class TestSlotSource(TestCase):
-    def setUp(self):
-        self.fact = Fact(
-            "corpus name",
-            "corpus_type",
-            "timestamp_from",
-            "timestamp_to",
-            "timestamp_type",
-            "analysis_type",
-            "result_key",
-            "result_value",
-            "outlierness",
-        )
-        self.source = SlotSource("field")
-
-    def test_slot_source_creation(self):
-        self.assertEqual(self.source.field_name, "field")
-
     def test_slot_source_is_abstract(self):
-        with self.assertRaises(NotImplementedError):
-            self.source(self.fact)
+        with self.assertRaises(TypeError):
+            SlotSource("field")
 
 
 class TestFactFieldSource(TestCase):
@@ -481,7 +469,7 @@ class TestTemplate(TestCase):
         self.matcher = Matcher(self.expr, "=", "1")
         self.rules = [([self.matcher], [0])]
 
-        self.slot = Slot(SlotSource("corpus"))
+        self.slot = Slot(FactFieldSource("corpus"))
         self.literal = LiteralSlot("literal")
         self.components = [self.slot, self.literal]
 
@@ -504,31 +492,31 @@ class TestTemplate(TestCase):
             self.template.get_slot("no such")
 
     def test_template_add_slot(self):
-        new_slot = Slot(SlotSource("timestamp_from"))
+        new_slot = Slot(FactFieldSource("timestamp_from"))
         self.template.add_slot(2, new_slot)
         self.assertIn(new_slot, self.template.components)
         self.assertEqual(self.template.get_slot("timestamp_from"), new_slot)
 
     def test_template_added_slot(self):
-        new_slot = Slot(SlotSource("timestamp_from"))
+        new_slot = Slot(FactFieldSource("timestamp_from"))
         self.template.add_slot(1, new_slot)
         self.assertListEqual(self.template.components, [self.slot, new_slot, self.literal])
 
     def test_template_added_slot_is_last_component(self):
-        new_slot = Slot(SlotSource("timestamp_from"))
+        new_slot = Slot(FactFieldSource("timestamp_from"))
         self.template.add_slot(2, new_slot)
         self.assertListEqual(self.template.components, [self.slot, self.literal, new_slot])
 
     def test_template_move_slot_forwards(self):
         # TODO: This fails, when it shouldn't
-        new_slot = Slot(SlotSource("timestamp_from"))
+        new_slot = Slot(FactFieldSource("timestamp_from"))
         self.template.add_slot(2, new_slot)
 
         self.template.move_slot(0, 1)
         self.assertListEqual(self.template.components, [self.literal, self.slot, new_slot])
 
     def test_template_move_slot_backwards(self):
-        new_slot = Slot(SlotSource("timestamp_from"))
+        new_slot = Slot(FactFieldSource("timestamp_from"))
         self.template.add_slot(2, new_slot)
 
         self.template.move_slot(2, 1)
