@@ -9,7 +9,7 @@ from reporter.core.morphological_realizer import LanguageSpecificMorphologicalRe
 log = logging.getLogger("root")
 
 
-class FinnishNewspaperMorphologicalRealizer(LanguageSpecificMorphologicalRealizer):
+class FinnishUralicNLPMorphologicalRealizer(LanguageSpecificMorphologicalRealizer):
     def __init__(self):
         super().__init__("fi")
 

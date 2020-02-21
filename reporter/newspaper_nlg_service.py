@@ -22,8 +22,8 @@ from reporter.core.surface_realizer import (
 )
 from reporter.core.template_reader import read_templates
 from reporter.core.template_selector import TemplateSelector
-from reporter.english_newspaper_morphological_realizer import EnglishNewspaperMorphologicalRealizer
-from reporter.finnish_newspaper_morphological_realizer import FinnishNewspaperMorphologicalRealizer
+from reporter.english_uralicNLP_morphological_realizer import EnglishUralicNLPMorphologicalRealizer
+from reporter.finnish_uralicNLP_morphological_realizer import FinnishUralicNLPMorphologicalRealizer
 from reporter.newspaper_importance_allocator import NewspaperImportanceSelector
 from reporter.newspaper_message_generator import NewspaperMessageGenerator, NoMessagesForSelectionException
 from reporter.newspaper_named_entity_resolver import NewspaperEntityNameResolver
@@ -132,7 +132,7 @@ class NewspaperNlgService(object):
         yield NewspaperEntityNameResolver()
 
         yield MorphologicalRealizer(
-            {"fi": FinnishNewspaperMorphologicalRealizer(), "en": EnglishNewspaperMorphologicalRealizer()}
+            {"fi": FinnishUralicNLPMorphologicalRealizer(), "en": EnglishUralicNLPMorphologicalRealizer()}
         )
 
         if realizer == "headline":
