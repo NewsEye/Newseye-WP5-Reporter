@@ -1,6 +1,7 @@
 import logging
 import operator
 import re
+from abc import ABC, abstractmethod
 from collections import namedtuple
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
@@ -473,12 +474,13 @@ class Literal(TemplateComponent):
         return self.value
 
 
-class SlotSource(object):
+class SlotSource(ABC):
     """ Source of the slot value """
 
     def __init__(self, field_name: str) -> None:
         self.field_name = field_name
 
+    @abstractmethod
     def __call__(self, fact: Fact) -> Union[str, int]:
         raise NotImplementedError("abstract slot source")
 
