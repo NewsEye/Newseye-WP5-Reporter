@@ -444,7 +444,11 @@ class Slot(TemplateComponent):
             return Slot(self._to_value, self.attributes.copy(), self.fact)
 
     def __str__(self) -> str:
-        return "Slot({}{})".format(self.value, "".join(", {}={}".format(k, v) for (k, v) in self.attributes.items()))
+        try:
+            value = self.value
+        except AttributeError:
+            value = self._to_value
+        return "Slot({}{})".format(value, "".join(", {}={}".format(k, v) for (k, v) in self.attributes.items()))
 
 
 class LiteralSlot(Slot):
