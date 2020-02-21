@@ -180,7 +180,7 @@ def _weigh_by_analysis_similarity(
         messages = unprocessed
 
     # Still need to process the messages which shared no prefix at all.
-    weighted.extend((1 / (n + 3) * message.score, message) for message in unprocessed)
+    weighted.extend((1 / (n + 3) * message.score, message) for (score, message) in unprocessed)
     return weighted
 
 
