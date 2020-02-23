@@ -161,8 +161,10 @@ class NewspaperNlgService(object):
         except NoMessagesForSelectionException as ex:
             log.error("%s", ex)
             body = get_error_message(language, "no-messages-for-selection")
+            body_error = "NoMessagesForSelectionException"
         except NoInterestingMessagesException as ex:
             log.info("%s", ex)
+            body_error = "NoInterestingMessagesException"
             body = get_error_message(language, "no-interesting-messages-for-selection")
         except Exception as ex:
             log.exception("%s", ex)
@@ -177,9 +179,11 @@ class NewspaperNlgService(object):
         except NoMessagesForSelectionException as ex:
             log.error("%s", ex)
             headline = get_error_message(language, "no-messages-for-selection")
+            head_error = "NoMessagesForSelectionException"
         except NoInterestingMessagesException as ex:
             log.info("%s", ex)
             headline = get_error_message(language, "no-interesting-messages-for-selection")
+            head_error = "NoInterestingMessagesException"
         except Exception as ex:
             log.exception("%s", ex)
             headline = get_error_message(language, "general-error")

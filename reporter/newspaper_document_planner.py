@@ -1,7 +1,7 @@
 import logging
 from typing import List, Optional, Tuple
 
-from reporter.core.document_planner import BodyDocumentPlanner, HeadlineDocumentPlanner, NoInterestingMessagesException
+from reporter.core.document_planner import BodyDocumentPlanner, HeadlineDocumentPlanner
 from reporter.core.models import Message
 
 log = logging.getLogger("root")
@@ -80,7 +80,7 @@ def _select_next_nucleus(
         log.debug("No new analysis types to cover, but only one covered so far. Relaxing criteria.")
         available = available_messages
     else:
-        raise NoInterestingMessagesException("DocumentPlanner is unable to progress. ")
+        raise Exception("DocumentPlanner is unable to find any valid messages. This should not be possible.")
 
     available.sort(key=lambda message: message.score, reverse=True)
     next_nucleus = available[0]
