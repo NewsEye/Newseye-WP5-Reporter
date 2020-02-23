@@ -72,7 +72,7 @@ class ExtractBigramsResource(ProcessorResource):
 
 class EnglishTokenPairRealizer(RegexRealizer):
     def __init__(self, registry):
-        super().__init__(registry, "ANY", r"\[TOKENPAIR:([^\]]+)\]", 1, 'the token pair "{}"')
+        super().__init__(registry, "en", r"\[TOKENPAIR:([^\]]+)\]", 1, 'the token pair "{}"')
 
 
 class EnglishStemPairRealizer(RegexRealizer):

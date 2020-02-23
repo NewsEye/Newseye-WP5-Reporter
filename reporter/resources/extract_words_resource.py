@@ -77,7 +77,7 @@ class EnglishStemRealizer(RegexRealizer):
 
 class EnglishTokenRealizer(RegexRealizer):
     def __init__(self, registry):
-        super().__init__(registry, "ANY", r"\[TOKEN:([^\]]+)\]", 1, 'the token "{}"')
+        super().__init__(registry, "en", r"\[TOKEN:([^\]]+)\]", 1, 'the token "{}"')
 
 
 class FinnishTokenRealizer(RegexRealizer):
