@@ -73,7 +73,7 @@ def api_generate_json() -> Dict[str, str]:
         response.status = 400
         return
 
-    header, body, body_error, head_error = generate(language, format, data)
+    header, body, head_error, body_error = generate(language, format, data)
     output = {"language": language, "header": header, "body": body}
     if body_error:
         output["body_generation_error"] = body_error
@@ -93,7 +93,7 @@ def api_generate() -> Dict[str, str]:
         response.status = 400
         return
 
-    header, body, body_error, head_error = generate(language, format, data)
+    header, body, head_error, body_error = generate(language, format, data)
     output = {"language": language, "header": header, "body": body}
     if body_error:
         output["body_generation_error"] = body_error
