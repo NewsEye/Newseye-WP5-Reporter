@@ -6,17 +6,11 @@ from reporter.newspaper_message_generator import TaskResult
 from reporter.resources.processor_resource import ProcessorResource
 
 TEMPLATE = """
-${anyquery}: query, query_minmatches, query_minmatches_filter, filter, query_filter
+${any}: dataset, query, dataset_query
 
-en-head: Analysis of a corpus defined by {corpus}
-fi-head: Analyysi korpuksesta kyselyllä {corpus}
-de-head: Analyse mit der Abfrage {corpus}
-| corpus_type in {anyquery}
-
-en-head: Analysis of the complete corpus
-fi-head: Analyysi koko korpuksesta
-de-head: Analyse des gesamten Korpus
-| corpus_type = full_corpus
+en-head: Analysis of {corpus}
+fi-head: Analyysi {corpus}
+| corpus_type in {any}
 """
 
 
@@ -29,101 +23,60 @@ class NewspaperCorpusResource(ProcessorResource):
 
     def slot_realizer_components(self) -> List[Type[SlotRealizerComponent]]:
         slot_realizer_components: List[Type[SlotRealizerComponent]] = [
-            EnglishQueryFilterRealizer,
+            EnglishDatasetPlusRealizer,
+            EnglishDatasetRealizer,
+            EnglishQueryPlusRealizer,
             EnglishQueryRealizer,
-            EnglishQueryMmFilterRealizer,
-            EnglishQueryMmRealizer,
-            FinnishQueryMmFilterRealizer,
-            FinnishQueryMmRealizer,
-            FinnishQueryFilterRealizer,
+            FinnishDatasetRealizer,
+            FinnishDatasetPlusRealizer,
             FinnishQueryRealizer,
-            GermanQueryMmFilterRealizer,
-            GermanQueryMmRealizer,
-            GermanQueryFilterRealizer,
-            GermanQueryRealizer,
+            FinnishQueryPlusRealizer,
+            MmRealizer,
         ]
-        slot_realizer_components.append(EnglishQueryMmRealizer)
 
         return slot_realizer_components
 
 
+class EnglishDatasetRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(registry, "en", r"\[dataset:([^\]:]+)\]$", 1, 'the dataset "{}"')
+
+
+class EnglishDatasetPlusRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(registry, "en", r"\[dataset:([^\]:]+)\] (.*)", (1, 2), 'the dataset "{}" filtered by {}')
+
+
 class EnglishQueryRealizer(RegexRealizer):
     def __init__(self, registry):
-        super().__init__(registry, "en", r"\[q:([^\]:]+)\]", 1, 'the query "{}"')
+        super().__init__(registry, "en", r"\[q:([^\]:]+)\]$", 1, 'the query "{}"')
 
 
-class EnglishQueryMmRealizer(RegexRealizer):
+class EnglishQueryPlusRealizer(RegexRealizer):
     def __init__(self, registry):
-        super().__init__(registry, "en", r"\[q:([^\]:]+)\] \[mm:([^\]:]+)\]", (1, 2), 'the query "{}" (min match = {})')
+        super().__init__(registry, "en", r"\[q:([^\]:]+)\] (.+)$", (1, 2), 'the query "{}" {}')
 
 
-class EnglishQueryMmFilterRealizer(RegexRealizer):
+class FinnishDatasetRealizer(RegexRealizer):
     def __init__(self, registry):
-        super().__init__(
-            registry,
-            "en",
-            r"\[q:([^\]:]+)\] \[mm:([^\]:]+)\] \[fq:([^\]]+)\]",
-            (1, 2, 3),
-            'the query "{}" (min match = {}) on data from [{}]',
-        )
+        super().__init__(registry, "fi", r"\[dataset:([^\]:]+)\]$", 1, 'kokoelmasta "{}"')
 
 
-class EnglishQueryFilterRealizer(RegexRealizer):
+class FinnishDatasetPlusRealizer(RegexRealizer):
     def __init__(self, registry):
-        super().__init__(registry, "en", r"\[q:([^\]:]+)\] \[fq:([^\]]+)\]", (1, 2), 'the query "{}" on data from [{}]')
+        super().__init__(registry, "fi", r"\[dataset:([^\]:]+)\] (.*)", (1, 2), 'kokoelmaan "{}" kohdistuneen {}')
 
 
 class FinnishQueryRealizer(RegexRealizer):
     def __init__(self, registry):
-        super().__init__(registry, "fi", r"\[q:([^\]:]+)\]", 1, '"{}"')
+        super().__init__(registry, "fi", r"\[q:([^\]:]+)\]$", 1, 'haun "{}" tuloksista')
 
 
-class FinnishQueryMmRealizer(RegexRealizer):
+class FinnishQueryPlusRealizer(RegexRealizer):
     def __init__(self, registry):
-        super().__init__(registry, "fi", r"\[q:([^\]:]+)\] \[mm:([^\]:]+)\]", (1, 2), '"{}" (min match = {})')
+        super().__init__(registry, "fi", r"\[q:([^\]:]+)\] (.+)$", (1, 2), 'haun "{}" {} tuloksista')
 
 
-class FinnishQueryMmFilterRealizer(RegexRealizer):
+class MmRealizer(RegexRealizer):
     def __init__(self, registry):
-        super().__init__(
-            registry,
-            "fi",
-            r"\[q:([^\]:]+)\] \[mm:([^\]:]+)\] \[fq:([^\]]+)\]",
-            (1, 2, 3),
-            '"{}" (min match = {}) kohdistuen kokoelmaan [{}]',
-        )
-
-
-class FinnishQueryFilterRealizer(RegexRealizer):
-    def __init__(self, registry):
-        super().__init__(registry, "fi", r"\[q:([^\]:]+)\] \[fq:([^\]]+)\]", (1, 2), '"{}" kohdistuen kokoelmaan [{}]')
-
-
-class GermanQueryRealizer(RegexRealizer):
-    def __init__(self, registry):
-        super().__init__(registry, "de", r"\[q:([^\]:]+)\]", 1, '"{}"')
-
-
-class GermanQueryMmRealizer(RegexRealizer):
-    def __init__(self, registry):
-        super().__init__(
-            registry, "de", r"\[q:([^\]:]+)\] \[mm:([^\]:]+)\]", (1, 2), 'die Abfrage "{}" (das Minimum Match = {})'
-        )
-
-
-class GermanQueryMmFilterRealizer(RegexRealizer):
-    def __init__(self, registry):
-        super().__init__(
-            registry,
-            "de",
-            r"\[q:([^\]:]+)\] \[mm:([^\]:]+)\] \[fq:([^\]]+)\]",
-            (1, 2, 3),
-            'die Abfrage "{}" (das Minimum Match  = {}) nach Daten von [{}]',
-        )
-
-
-class GermanQueryFilterRealizer(RegexRealizer):
-    def __init__(self, registry):
-        super().__init__(
-            registry, "de", r"\[q:([^\]:]+)\] \[fq:([^\]]+)\]", (1, 2), 'die Abfrage "{}" nach Daten von [{}]'
-        )
+        super().__init__(registry, "ANY", r"\[mm:([^\]:]+)\]", 1, "(min match = {})")

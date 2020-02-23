@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Any, Callable, Dict, List, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from numpy.random import Generator
 
@@ -16,6 +16,7 @@ class TaskResult:
         self,
         uuid: str,
         search_query: Any,
+        dataset: Optional[str],
         processor: str,
         parameters: Dict[str, Any],
         task_status: str,
@@ -25,6 +26,7 @@ class TaskResult:
     ) -> None:
         self.uuid = uuid
         self.search_query = search_query
+        self.dataset = dataset
         self.processor = processor
         self.parameters = parameters
         self.task_status = task_status
@@ -37,6 +39,7 @@ class TaskResult:
         return TaskResult(
             o.get("uuid"),
             o.get("search_query"),
+            o.get("dataset"),
             o.get("processor"),
             o.get("parameters"),
             o.get("task_status"),

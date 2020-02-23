@@ -26,19 +26,22 @@ class ProcessorResource(ABC):
         corpus = []
         corpus_type = []
 
-        q = task_result.search_query.get("q")
-        if q:
-            corpus.append("[q:{}]".format(q))
-            corpus_type.append("query")
+        if task_result.dataset:
+            corpus.append("[dataset:{}]".format(task_result.dataset))
+            corpus_type.append("dataset")
 
-        mm = task_result.search_query.get("mm")
-        if mm:
-            corpus.append("[mm:{}]".format(mm))
-            corpus_type.append("minmatches")
+        if task_result.search_query:
+            q = task_result.search_query.get("q")
+            if q:
+                corpus.append("[q:{}]".format(q))
+                corpus_type.append("query")
 
-        fq = task_result.search_query.get("fq")
-        if fq:
-            corpus.append("[fq:{}]".format(fq))
-            corpus_type.append("filter")
+            mm = task_result.search_query.get("mm")
+            if mm:
+                corpus.append("[mm:{}]".format(mm))
+
+            fq = task_result.search_query.get("fq")
+            if fq:
+                corpus.append("[fq:{}]".format(fq))
 
         return " ".join(corpus), "_".join(corpus_type)
