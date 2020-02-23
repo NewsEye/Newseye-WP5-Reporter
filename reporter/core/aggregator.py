@@ -138,6 +138,15 @@ class Aggregator(NLGPipelineComponent):
             if getattr(c1.fact, c1.slot_type) != getattr(c2.fact, c2.slot_type):
                 return False
 
+            # Aggregating numbers is a mess, and can easily lead to sentences like "The search found 114385 articles in
+            # French and from the newspaper L oeuvre", which implies that there is a set of 114385 articles s.t. every
+            # article in the set is both in french and published in L'ouvre. Unfortunately, it's possible to end up in
+            # this situation even if the underlying data actually says that there were two sets of size 114385 s.t.
+            # in one all are in french and in the other all were published in L'ouvre. That is, we do now in fact know
+            # whether the sets contain the same documents or not.
+            if c1.slot_type == "result_value":
+                return False
+
         # They are apparently same, check cases
         c1_case = "no-case"
         c2_case = "no-case"
