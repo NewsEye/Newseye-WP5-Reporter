@@ -19,7 +19,7 @@ fi: löydettiin {result_value} artikkelia joiden kieli oli {result_key}
 | analysis_type = ExtractFacets:LANGUAGE
 
 en: the search found {result_value} articles from the newspaper {result_key}
-fi: löydettiin {result_value} artikkelia jotka oli julkaistu {result_key, case=ssa}
+fi: löydettiin {result_value} artikkelia jotka oli julkaistu {result_key} -lehdessä
 | analysis_type = ExtractFacets:NEWSPAPER_NAME
 """
 
