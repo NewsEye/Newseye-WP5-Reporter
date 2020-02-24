@@ -3,6 +3,7 @@ import logging.handlers
 import os
 from typing import Callable, Dict, List, Optional, Tuple
 
+import bottle
 from bottle import TEMPLATE_PATH, Bottle, request, response, run
 
 from reporter.newspaper_nlg_service import NewspaperNlgService
@@ -32,11 +33,11 @@ log.addHandler(rotating_file_handler)
 
 
 # Bottle
+bottle.BaseRequest.MEMFILE_MAX = 10 * 1024 * 1024  # Allow up to 10MBB requests
 app = Bottle()
 service = NewspaperNlgService(random_seed=4551546)
 TEMPLATE_PATH.insert(0, os.path.dirname(os.path.realpath(__file__)) + "/../views/")
 static_root = os.path.dirname(os.path.realpath(__file__)) + "/../static/"
-
 
 #
 # END INIT
