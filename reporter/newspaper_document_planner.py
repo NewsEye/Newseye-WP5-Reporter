@@ -107,13 +107,13 @@ def _new_paragraph_relative_threshold(selected_nuclei: List[Message]) -> float:
 def _select_satellites_for_nucleus(nucleus: Message, available_messages: List[Message]) -> List[Message]:
     log.debug("Selecting satellites for {} from among {} options".format(nucleus, len(available_messages)))
     satellites: List[Message] = []
-    available = available_messages[:]  # Copy, s.t. we can modify in place
+    available_messages = available_messages[:]  # Copy, s.t. we can modify in place
 
     previous = nucleus
     while True:
 
         # Modify scores to account for context
-        scored_available = [(message.score, message) for message in available]
+        scored_available = [(message.score, message) for message in available_messages if message.score > 0]
         scored_available = _weigh_by_analysis_similarity(scored_available, previous)
         scored_available = _weigh_by_context_similarity(scored_available, previous)
 
@@ -121,8 +121,7 @@ def _select_satellites_for_nucleus(nucleus: Message, available_messages: List[Me
         filtered_scored_available = [
             (score, message)
             for (score, message) in scored_available
-            if message.score > SATELLITE_RELATIVE_THRESHOLD * nucleus.score
-            or message.score > SATELLITE_ABSOLUTE_THRESHOLD
+            if score > SATELLITE_RELATIVE_THRESHOLD * nucleus.score or score > SATELLITE_ABSOLUTE_THRESHOLD
         ]
         log.debug("After rescoring for context, {} available satellites remain".format(len(scored_available)))
 
@@ -151,7 +150,7 @@ def _select_satellites_for_nucleus(nucleus: Message, available_messages: List[Me
         log.debug("Added satellite {} (temp_score={})".format(selected_satellite, score))
 
         previous = selected_satellite
-        available = [message for message in available_messages if message not in satellites]
+        available_messages = [message for message in available_messages if message != selected_satellite]
 
 
 def _weigh_by_analysis_similarity(
@@ -169,18 +168,16 @@ def _weigh_by_analysis_similarity(
     for n, fragment_count in enumerate(reversed(range(len(prev_analysis_type_fragments)))):
         analysis_prefix = ":".join(prev_analysis_type_fragments[: fragment_count + 1])
 
-        unprocessed = []
-
         for score, message in messages:
             if message.main_fact.analysis_type.startswith(analysis_prefix):
                 weighted.append((score * 1 / (n + 1), message))
             else:
                 unprocessed.append((score, message))
 
-        messages = unprocessed
+        messages, unprocessed = unprocessed, []
 
     # Still need to process the messages which shared no prefix at all.
-    weighted.extend((1 / (n + 3) * message.score, message) for (score, message) in unprocessed)
+    weighted.extend((0, message) for (score, message) in unprocessed)
     return weighted
 
 
