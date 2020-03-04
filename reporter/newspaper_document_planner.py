@@ -115,6 +115,7 @@ def _select_satellites_for_nucleus(nucleus: Message, available_messages: List[Me
         # Modify scores to account for context
         scored_available = [(message.score, message) for message in available_messages if message.score > 0]
         scored_available = _weigh_by_analysis_similarity(scored_available, previous)
+        scored_available = _weigh_by_analysis_similarity(scored_available, nucleus)
         scored_available = _weigh_by_context_similarity(scored_available, previous)
 
         # Filter out based on thresholds
