@@ -1,10 +1,11 @@
 import gzip
+import json
 import logging
 import os
 import pickle
 import random
 from collections import defaultdict
-from typing import Callable, Dict, Iterable, List, Optional, Tuple, TypeVar
+from typing import Callable, Dict, Iterable, List, Optional, Tuple, TypeVar, Union
 
 from reporter.constants import CONJUNCTIONS, get_error_message
 from reporter.core.aggregator import Aggregator
@@ -147,7 +148,31 @@ class NewspaperNlgService(object):
         else:
             yield BodyHTMLSurfaceRealizer()
 
-    def run_pipeline(self, language: str, output_format: str, data: str) -> Tuple[str, str, List[str]]:
+    def run_pipeline(
+        self, language: str, output_format: str, data: str
+    ) -> Tuple[Union[str, List[str]], Union[str, List[str]], List[str]]:
+        data = json.loads(data)
+        splits: Dict[str, List[str]] = defaultdict(list)
+        for result in data:
+            key = json.dumps({"dataset": result.get("dataset"), "query": result.get("search_query")})
+            splits[key].append(result)
+
+        bodies: List[str] = []
+        headlines: List[str] = []
+        errors: List[str] = []
+        for split in splits.values():
+            json_split = json.dumps(split)
+            body, head, errors = self.run_pipeline_single(language, output_format, json_split)
+            bodies.append(body)
+            headlines.append(head)
+            errors.extend(errors)
+
+        if len(bodies) <= 1:
+            return bodies[0], headlines[0], errors
+        else:
+            return bodies, headlines, errors
+
+    def run_pipeline_single(self, language: str, output_format: str, data: str) -> Tuple[str, str, List[str]]:
         log.info("Configuring Body NLG Pipeline")
         self.body_pipeline = NLGPipeline(self.registry, *self._get_components(output_format))
         self.headline_pipeline = NLGPipeline(self.registry, *self._get_components("headline"))
