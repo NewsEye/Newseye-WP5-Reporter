@@ -1,33 +1,31 @@
-[
-  {
-    "uuid": "d4971421-6d45-44bf-9e5d-46d0c0df8665",
-    "processor": "Summarization",
-    "parameters": {
-      "ts_approach": "textrank",
-      "type_summary": "ai",
-      "summary_length": 40,
-      "similarity_threshold": 0.5,
-      "minimal_sentence_length": 10,
-      "type_sentence_representation": "mean"
+{
+  "uuid": "d4971421-6d45-44bf-9e5d-46d0c0df8665",
+  "processor": "Summarization",
+  "parameters": {
+    "ts_approach": "textrank",
+    "type_summary": "ai",
+    "summary_length": 40,
+    "similarity_threshold": 0.5,
+    "minimal_sentence_length": 10,
+    "type_sentence_representation": "mean"
+  },
+  "task_status": "finished",
+  "task_started": "Sat, 21 Mar 2020 13:56:34 GMT",
+  "task_finished": "Sat, 21 Mar 2020 13:57:08 GMT",
+  "task_result": {
+    "result": {
+      "summary": [
+        "aus 40 Offizieren usich noch 20 Offiziere sowie MannAu\\u00dferdem befanden Bord , die nach Amerika zur\\u00fcckschaften der Armee Vermutlich ist der gr\\u00f6\\u00dfte Teil \\n bef\\u00f6rdert werden sollten .",
+        "Der Kaiserlich deitsche Polizei = President : \\n v. Opem ."
+      ]
     },
-    "task_status": "finished",
-    "task_started": "Sat, 21 Mar 2020 13:56:34 GMT",
-    "task_finished": "Sat, 21 Mar 2020 13:57:08 GMT",
-    "task_result": {
-      "result": {
-        "summary": [
-          "aus 40 Offizieren usich noch 20 Offiziere sowie MannAu\\u00dferdem befanden Bord , die nach Amerika zur\\u00fcckschaften der Armee Vermutlich ist der gr\\u00f6\\u00dfte Teil \\n bef\\u00f6rdert werden sollten .",
-          "Der Kaiserlich deitsche Polizei = President : \\n v. Opem ."
-        ]
-      },
-      "interestingness": {
-        "sentence_scores": [
-          1.0,
-          0.6518865311821918
-        ],
-        "overall": 1.0
-      }
-    },
-    "dataset": "test3"
-  }
-]
+    "interestingness": {
+      "sentence_scores": [
+        1.0,
+        0.6518865311821918
+      ],
+      "overall": 1.0
+    }
+  },
+  "dataset": "test3"
+}
