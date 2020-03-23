@@ -58,13 +58,13 @@ def allow_cors(func: Callable) -> Callable:
     return wrapper
 
 
-def generate(language: str, format: str = None, data: str = None) -> Tuple[str, str, Optional[str], Optional[str]]:
+def generate(language: str, format: str = None, data: str = None) -> Tuple[str, str, List[str]]:
     return service.run_pipeline(language, format, data)
 
 
 @app.route("/api/report/json", method="POST")
 @allow_cors
-def api_generate_json() -> Dict[str, str]:
+def api_generate_json() -> Optional[Dict[str, str]]:
     body = json.loads(request.body.read())
     language = body["language"]
     format = body["format"]
@@ -74,18 +74,16 @@ def api_generate_json() -> Dict[str, str]:
         response.status = 400
         return
 
-    header, body, head_error, body_error = generate(language, format, data)
+    header, body, errors = generate(language, format, data)
     output = {"language": language, "header": header, "body": body}
-    if body_error:
-        output["body_generation_error"] = body_error
-    if head_error:
-        output["head_generation_error"] = head_error
+    if errors:
+        output["errors"] = errors
     return output
 
 
 @app.route("/api/report", method="POST")
 @allow_cors
-def api_generate() -> Dict[str, str]:
+def api_generate() -> Optional[Dict[str, str]]:
     language = request.forms.get("language")
     format = request.forms.get("format")
     data = request.forms.get("data")
@@ -94,12 +92,10 @@ def api_generate() -> Dict[str, str]:
         response.status = 400
         return
 
-    header, body, head_error, body_error = generate(language, format, data)
+    header, body, errors = generate(language, format, data)
     output = {"language": language, "header": header, "body": body}
-    if body_error:
-        output["body_generation_error"] = body_error
-    if head_error:
-        output["head_generation_error"] = head_error
+    if errors:
+        output["errors"] = errors
     return output
 
 

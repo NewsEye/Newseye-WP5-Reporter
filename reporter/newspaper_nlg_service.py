@@ -147,14 +147,12 @@ class NewspaperNlgService(object):
         else:
             yield BodyHTMLSurfaceRealizer()
 
-    def run_pipeline(
-        self, language: str, output_format: str, data: str
-    ) -> Tuple[str, str, Optional[str], Optional[str]]:
+    def run_pipeline(self, language: str, output_format: str, data: str) -> Tuple[str, str, List[str]]:
         log.info("Configuring Body NLG Pipeline")
         self.body_pipeline = NLGPipeline(self.registry, *self._get_components(output_format))
         self.headline_pipeline = NLGPipeline(self.registry, *self._get_components("headline"))
 
-        body_error, head_error = None, None
+        errors: List[str] = []
 
         log.info("Running Body NLG pipeline: language={}".format(language))
         try:
@@ -163,15 +161,15 @@ class NewspaperNlgService(object):
         except NoMessagesForSelectionException as ex:
             log.error("%s", ex)
             body = get_error_message(language, "no-messages-for-selection")
-            body_error = "NoMessagesForSelectionException"
+            errors.append("NoMessagesForSelectionException")
         except NoInterestingMessagesException as ex:
             log.info("%s", ex)
-            body_error = "NoInterestingMessagesException"
             body = get_error_message(language, "no-interesting-messages-for-selection")
+            errors.append("NoInterestingMessagesException")
         except Exception as ex:
             log.exception("%s", ex)
             body = get_error_message(language, "general-error")
-            body_error = "{}: {}".format(ex.__class__.__name__, str(ex))
+            errors.append("{}: {}".format(ex.__class__.__name__, str(ex)))
 
         log.info("Running headline NLG pipeline")
         try:
@@ -181,17 +179,17 @@ class NewspaperNlgService(object):
         except NoMessagesForSelectionException as ex:
             log.error("%s", ex)
             headline = get_error_message(language, "no-messages-for-selection")
-            head_error = "NoMessagesForSelectionException"
+            errors.append("NoMessagesForSelectionException")
         except NoInterestingMessagesException as ex:
             log.info("%s", ex)
             headline = get_error_message(language, "no-interesting-messages-for-selection")
-            head_error = "NoInterestingMessagesException"
+            errors.append("NoInterestingMessagesException")
         except Exception as ex:
             log.exception("%s", ex)
             headline = get_error_message(language, "general-error")
-            head_error = "{}: {}".format(ex.__class__.__name__, str(ex))
+            errors.append("{}: {}".format(ex.__class__.__name__, str(ex)))
 
-        return headline, body, head_error, body_error
+        return headline, body, errors
 
     def _set_seed(self, seed_val: Optional[int] = None) -> None:
         log.info("Selecting seed for NLG pipeline")

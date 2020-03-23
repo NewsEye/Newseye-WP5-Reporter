@@ -24,12 +24,11 @@ class TestReporter(TestCase):
         if isinstance(file, str):
             file = [file]
         data = self._load_input_data(*file)
-        headline, body, head_err, body_err = self.service.run_pipeline(language, format, data)
+        headline, body, errors = self.service.run_pipeline(language, format, data)
+        self.assertListEqual(errors, [])
         for error in ERRORS["en"].values():
             self.assertNotIn(error, headline)
             self.assertNotIn(error, body)
-            self.assertIsNone(head_err)
-            self.assertIsNone(body_err)
 
     def test_english_bigrams_report_does_not_error(self):
         self._test_no_errors("_extract_bigrams-1581332867317.json", "en", "p")
