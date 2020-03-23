@@ -79,8 +79,10 @@ def _select_next_nucleus(
         # meaning that we should relax our criteria for thematic difference between the nuclei.
         log.debug("No new analysis types to cover, but only one covered so far. Relaxing criteria.")
         available = available_messages
-    else:
-        raise Exception("DocumentPlanner is unable to find any valid messages. This should not be possible.")
+
+    if not available:
+        # TODO: This seems to occur at least in some edge cases. Needs to be determined whether it's supposed to or not.
+        return None, 0
 
     available.sort(key=lambda message: message.score, reverse=True)
     next_nucleus = available[0]
