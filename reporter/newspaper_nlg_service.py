@@ -34,6 +34,7 @@ from reporter.resources.extract_words_resource import ExtractWordsResource
 from reporter.resources.generate_time_series_resource import GenerateTimeSeriesResource
 from reporter.resources.newspaper_corpus_resource import NewspaperCorpusResource
 from reporter.resources.processor_resource import ProcessorResource
+from reporter.resources.summarization_resource import SummarizationResource
 
 log = logging.getLogger("root")
 
@@ -61,6 +62,7 @@ class NewspaperNlgService(object):
             ExtractBigramsResource(),
             ExtractFacetsResource(),
             GenerateTimeSeriesResource(),
+            SummarizationResource(),
         ]
 
         # Templates

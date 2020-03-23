@@ -43,6 +43,9 @@ class TestReporter(TestCase):
     def test_english_time_series_report_does_not_error(self):
         self._test_no_errors("_generate_time_series-1581332803610.json", "en", "p")
 
+    def test_english_summaries_report_does_not_error(self):
+        self._test_no_errors("summarization.json", "en", "p")
+
     def test_finnish_bigrams_report_does_not_error(self):
         self._test_no_errors("_extract_bigrams-1581332867317.json", "fi", "p")
 
@@ -54,6 +57,9 @@ class TestReporter(TestCase):
 
     def test_finnish_time_series_report_does_not_error(self):
         self._test_no_errors("_generate_time_series-1581332803610.json", "fi", "p")
+
+    def test_finnish_summaries_report_does_not_error(self):
+        self._test_no_errors("summarization.json", "fi", "p")
 
     def test_output_format_ol_does_not_error(self):
         self._test_no_errors("_generate_time_series-1581332803610.json", "fi", "ol")
