@@ -75,7 +75,7 @@ def api_generate_json() -> Optional[Dict[str, str]]:
         return
 
     header, body, errors = generate(language, format, data)
-    output = {"language": language, "header": header, "body": body}
+    output = {"language": language, "head": header, "body": body}
     if errors:
         output["errors"] = errors
     return output
@@ -93,7 +93,7 @@ def api_generate() -> Optional[Dict[str, str]]:
         return
 
     header, body, errors = generate(language, format, data)
-    output = {"language": language, "header": header, "body": body}
+    output = {"language": language, "head": header, "body": body}
     if errors:
         output["errors"] = errors
     return output

@@ -171,10 +171,7 @@ class NewspaperNlgService(object):
             headlines.append(head)
             errors.extend(errors)
 
-        if len(bodies) <= 1:
-            return bodies[0], headlines[0], errors
-        else:
-            return bodies, headlines, errors
+        return bodies, headlines, errors
 
     def run_pipeline_single(self, language: str, output_format: str, data: str) -> Tuple[str, str, List[str]]:
         log.info("Configuring Body NLG Pipeline")
