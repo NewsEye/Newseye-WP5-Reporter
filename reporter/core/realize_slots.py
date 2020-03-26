@@ -6,7 +6,7 @@ from typing import Callable, Iterable, List, Optional, Tuple, Union
 
 from numpy.random import Generator
 
-from reporter.core.models import DocumentPlanNode, Message, Slot, TemplateComponent
+from reporter.core.models import DocumentPlanNode, Literal, Message, Slot, TemplateComponent
 from reporter.core.pipeline import NLGPipelineComponent
 from reporter.core.registry import Registry
 
@@ -150,5 +150,86 @@ class RegexRealizer(SlotRealizerComponent):
             new_slot.value = lambda f, realization_token=realization_token: realization_token
             components.append(new_slot)
         log.info("Components: {}".format([str(c) for c in components]))
+
+        return True, components
+
+
+class ListRegexRealizer(RegexRealizer):
+    def __init__(
+        self,
+        registry: Registry,
+        languages: Union[str, List[str]],
+        regex: str,
+        extracted_groups: Union[int, Iterable[int]],
+        template: Union[str, Iterable[str]],
+        combiner: str,
+        group_requirements: Optional[Callable[..., bool]] = None,
+        slot_requirements: Optional[Callable[[Slot], bool]] = None,
+        attach_attributes_to: Optional[Iterable[int]] = None,
+    ) -> None:
+
+        super().__init__(
+            registry,
+            languages,
+            regex,
+            extracted_groups,
+            template,
+            group_requirements,
+            slot_requirements,
+            attach_attributes_to,
+        )
+        self.combiner = combiner
+
+    def realize(self, slot: Slot, random: Generator) -> Tuple[bool, List[TemplateComponent]]:
+        # We can only parse the slot contents with a regex if the slot contents are a string
+        if not isinstance(slot.value, str):
+            return False, []
+
+        match = re.fullmatch(self.regex, slot.value)
+
+        if not match:
+            return False, []
+
+        groups = [match.group(i) for i in self.extracted_groups]
+
+        # Check that the requirements placed on the groups are fulfilled
+        if self.group_requirements is not None and not self.group_requirements(*groups):
+            return False, []
+
+        # Check that the requirements placed on the slot are fulfilled
+        if self.slot_requirements is not None and not self.slot_requirements(slot):
+            return False, []
+
+        components = []
+        entities = groups[0].split("|")
+        for idx, element in enumerate(entities):
+            remaining = len(entities) - idx - 1
+
+            template = random.choice(self.templates)
+            log.info("Template: {}".format(template))
+
+            string_realization = template.format(element)
+            log.info("String realization: {}".format(string_realization))
+
+            for idx, realization_token in enumerate(string_realization.split()):
+                new_slot = slot.copy(include_fact=True)
+
+                # By default, copy copies the attributes too. In case attach_attributes_to was set,
+                # we need to explicitly reset the attributes for all those slots NOT explicitly mentioned
+                if idx not in self.attach_attributes_to:
+                    new_slot.attributes = {}
+
+                # An ugly hack that ensures the lambda correctly binds to the value of realization_token at this
+                # time. Without this, all the lambdas bind to the final value of the realization_token variable, ie.
+                # the final value at the end of the loop.  See https://stackoverflow.com/a/10452819
+                new_slot.value = lambda f, realization_token=realization_token: realization_token
+                components.append(new_slot)
+
+                if remaining > 1:
+                    components.append(Literal(","))
+                elif remaining == 1:
+                    components.append(Literal(self.combiner))
+
+            log.info("Components: {}".format([str(c) for c in components]))
 
         return True, components
