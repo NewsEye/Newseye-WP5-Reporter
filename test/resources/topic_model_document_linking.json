@@ -1,0 +1,55 @@
+{
+  "uuid": "01d8fe36-ff1c-4978-a295-8cc19f58dc4e",
+  "processor": "TopicModelDocumentLinking",
+  "parameters": {
+    "num_docs": "10",
+    "model_name": "de-lda20"
+  },
+  "task_status": "finished",
+  "task_started": "Wed, 25 Mar 2020 15:14:56 GMT",
+  "task_finished": "Wed, 25 Mar 2020 15:32:16 GMT",
+  "task_result": {
+    "result": {
+      "distance": [
+        0.001,
+        0.001,
+        0.002,
+        0.002,
+        0.002,
+        0.003,
+        0.003,
+        0.003,
+        0.003,
+        0.003
+      ],
+      "similar_docs": [
+        "arbeiter_zeitung_aze19200124_article_79",
+        "arbeiter_zeitung_aze19190805_article_113",
+        "arbeiter_zeitung_aze19161015_article_9",
+        "arbeiter_zeitung_aze19000414_article_79",
+        "arbeiter_zeitung_aze19130810_article_428",
+        "arbeiter_zeitung_aze18981202_article_155",
+        "arbeiter_zeitung_aze19121015_article_147",
+        "arbeiter_zeitung_aze19121025_article_301",
+        "arbeiter_zeitung_aze18951120_article_588",
+        "arbeiter_zeitung_aze18970402_article_91"
+      ]
+    },
+    "interestingness": {
+      "linking": [
+        0.999,
+        0.999,
+        0.998,
+        0.998,
+        0.998,
+        0.997,
+        0.997,
+        0.997,
+        0.997,
+        0.997
+      ],
+      "overall": 0.999
+    }
+  },
+  "dataset": "test3"
+}

@@ -36,6 +36,7 @@ from reporter.resources.generate_time_series_resource import GenerateTimeSeriesR
 from reporter.resources.newspaper_corpus_resource import NewspaperCorpusResource
 from reporter.resources.processor_resource import ProcessorResource
 from reporter.resources.summarization_resource import SummarizationResource
+from reporter.resources.topic_model_document_linking_resource import TopicModelDocumentLinkingResource
 
 log = logging.getLogger("root")
 
@@ -64,6 +65,7 @@ class NewspaperNlgService(object):
             ExtractFacetsResource(),
             GenerateTimeSeriesResource(),
             SummarizationResource(),
+            TopicModelDocumentLinkingResource(),
         ]
 
         # Templates
