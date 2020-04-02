@@ -55,7 +55,9 @@ class SlotRealizer(NLGPipelineComponent):
             return any_modified
 
     def _realize_slot(self, language: str, slot: Slot) -> List[TemplateComponent]:
-        for slot_realizer in self._registry.get("slot-realizers"):
+        slot_realizers = self._registry.get("slot-realizers")
+        slot_realizers.append(NumberRealizer())
+        for slot_realizer in slot_realizers:
             assert isinstance(slot_realizer, SlotRealizerComponent)
             if language in slot_realizer.supported_languages() or "ANY" in slot_realizer.supported_languages():
                 success, components = slot_realizer.realize(slot, self._random)
@@ -80,8 +82,20 @@ class NumberRealizer(SlotRealizerComponent):
         return ["ANY"]
 
     def realize(self, slot: Slot, random: Generator) -> Tuple[bool, List[TemplateComponent]]:
-        if not isinstance(slot.value, Number):
+        value = slot.value
+        if not isinstance(value, Number):
             return False, []
+
+        if isinstance(value, (int, float)):
+            if int(value) == value:
+                slot.value = lambda x: int(value)
+                return True, [slot]
+
+            for rounding in range(5):
+                if round(value, rounding) != 0:
+                    slot.value = lambda x: round(value, rounding + 2)
+                    return True, [slot]
+
         return True, [slot]
 
 
