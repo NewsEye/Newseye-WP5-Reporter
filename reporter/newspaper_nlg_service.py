@@ -1,3 +1,4 @@
+import datetime
 import gzip
 import json
 import logging
@@ -155,6 +156,8 @@ class NewspaperNlgService(object):
     def run_pipeline(
         self, language: str, output_format: str, data: str
     ) -> Tuple[Union[str, List[str]], Union[str, List[str]], List[str]]:
+        start_time = datetime.datetime.now().timestamp()
+        log.info("Starting multi-part generation")
         data = json.loads(data)
         splits: Dict[str, List[str]] = defaultdict(list)
         for result in data:
@@ -170,7 +173,8 @@ class NewspaperNlgService(object):
             bodies.append(body)
             headlines.append(head)
             errors.extend(errors)
-
+        end_time = datetime.datetime.now().timestamp()
+        log.info("Multi-part generation complete. Generation time in seconds: {}".format(end_time - start_time))
         return bodies, headlines, errors
 
     def run_pipeline_single(self, language: str, output_format: str, data: str) -> Tuple[str, str, List[str]]:
