@@ -1,5 +1,6 @@
 import logging
 import re
+from typing import Tuple
 
 from numpy import random
 
@@ -39,7 +40,9 @@ class SurfaceRealizer(NLGPipelineComponent):
     def fail_on_empty(self):
         raise NotImplementedError
 
-    def run(self, registry: Registry, random: random.Generator, language: str, document_plan: DocumentPlanNode) -> str:
+    def run(
+        self, registry: Registry, random: random.Generator, language: str, document_plan: DocumentPlanNode
+    ) -> Tuple[str]:
         """
         Run this pipeline component.
         """
@@ -49,7 +52,7 @@ class SurfaceRealizer(NLGPipelineComponent):
         output = ""
         for p in paragraphs:
             output += self.paragraph_start + p + self.paragraph_end
-        return output
+        return (output,)
 
     def realize(self, sequence: DocumentPlanNode) -> str:
         """Realizes a single paragraph."""

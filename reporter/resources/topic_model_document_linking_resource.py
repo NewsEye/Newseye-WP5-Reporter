@@ -10,12 +10,12 @@ log = logging.getLogger("root")
 
 
 TEMPLATE = """
-en: based on topic modelling, the following similar articles were identified: {result_value}
-fi: aihemallinnus tunnisti seuraavat samankaltaiset artikkelit: {result_value}
+en: based on topic modelling, the following similar articles were identified: {result_value} {analysis_id}
+fi: aihemallinnus tunnisti seuraavat samankaltaiset artikkelit: {result_value} {analysis_id}
 | analysis_type = TopicModel:DocumentLinking:Multiple
 
-en: based on topic modelling, the article {result_value} was identified as highly similar
-fi: aihemallinnus tunnisti artikkeling {result_value} hyvin samankaltaiseksi
+en: based on topic modelling, the article {result_value} was identified as highly similar {analysis_id}
+fi: aihemallinnus tunnisti artikkeling {result_value} hyvin samankaltaiseksi {analysis_id}
 | analysis_type = TopicModel:DocumentLinking:Single
 """
 
@@ -53,6 +53,7 @@ class TopicModelDocumentLinkingResource(ProcessorResource):
                         "|".join([article for (article, interestingness) in articles_with_interestingness])
                     ),
                     task_result.task_result["interestingness"]["overall"],
+                    "[LINK:{}]".format(task_result.uuid),  # uuid
                 )
             )
         ]

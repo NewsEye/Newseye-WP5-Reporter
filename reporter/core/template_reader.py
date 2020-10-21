@@ -70,6 +70,7 @@ FACT_FIELD_ALIASES = {
     "analysis_type": [],
     "result_key": [],
     "result_value": [],
+    "analysis_id": [],
 }
 FACT_FIELD_MAP = canonical_map(FACT_FIELD_ALIASES)
 LOCATION_TYPES = {"C": ["country"], "D": ["district"], "M": ["municipality", "mun"]}
@@ -324,6 +325,7 @@ def read_template_group(
                             "analysis_type",
                             "result_key",
                             "result_value",
+                            "analysis_id",
                         ]:
                             raise TemplateReadingError(
                                 "invalid field name '{}' for use in a template: {}".format(

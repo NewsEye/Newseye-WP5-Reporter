@@ -10,8 +10,8 @@ log = logging.getLogger("root")
 
 
 TEMPLATE = """
-en: the following summary of the contents was automatically created: "{result_value}"
-fi: teksteistä luotiin automaattisesti seuraava tiivistelmä: "{result_value}"
+en: the following summary of the contents was automatically created: "{result_value}" {analysis_id}
+fi: teksteistä luotiin automaattisesti seuraava tiivistelmä: "{result_value}" {analysis_id}
 | analysis_type = Summarization
 """
 
@@ -44,6 +44,7 @@ class SummarizationResource(ProcessorResource):
                             "Summary",  # result_key
                             summary,  # result_value
                             interestingness,  # outlierness
+                            "[LINK:{}]".format(task_result.uuid),  # uuid
                         )
                     ]
                 )

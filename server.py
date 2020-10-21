@@ -58,8 +58,8 @@ def allow_cors(func: Callable) -> Callable:
     return wrapper
 
 
-def generate(language: str, format: str = None, data: str = None) -> Tuple[str, str, List[str]]:
-    return service.run_pipeline(language, format, data)
+def generate(language: str, format: str = None, data: str = None, links: bool = False) -> Tuple[str, str, List[str]]:
+    return service.run_pipeline(language, format, data, links)
 
 
 @app.route("/api/report/json", method="POST")
@@ -68,13 +68,14 @@ def api_generate_json() -> Optional[Dict[str, str]]:
     body = json.loads(request.body.read())
     language = body["language"]
     format = body["format"]
+    links = body.get("links", False)
     data = json.dumps(body["data"])
 
     if language not in LANGUAGES or format not in FORMATS:
         response.status = 400
         return
 
-    header, body, errors = generate(language, format, data)
+    header, body, errors = generate(language, format, data, links)
     output = {"language": language, "head": header, "body": body}
     if errors:
         output["errors"] = errors

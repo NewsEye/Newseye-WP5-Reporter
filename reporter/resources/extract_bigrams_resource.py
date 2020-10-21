@@ -10,16 +10,16 @@ log = logging.getLogger("root")
 
 
 TEMPLATE = """
-en: {result_key} appeared {result_value} times
-fi: {result_key} esiintyi {result_value} kertaa
+en: {result_key} appeared {result_value} times {analysis_id}
+fi: {result_key} esiintyi {result_value} kertaa {analysis_id}
 | analysis_type = ExtractBigrams:Count
 
-en: {result_key} had a relative count of {result_value}
-fi: {result_key, case=gen} suhteellinen osuus oli {result_value}
+en: {result_key} had a relative count of {result_value} {analysis_id}
+fi: {result_key, case=gen} suhteellinen osuus oli {result_value} {analysis_id}
 | analysis_type = ExtractBigrams:RelativeCount
 
-en: {result_key} had a Dice score of {result_value}
-fi: {result_key, case=gen} Dice-luku oli {result_value}
+en: {result_key} had a Dice score of {result_value} {analysis_id}
+fi: {result_key, case=gen} Dice-luku oli {result_value} {analysis_id}
 | analysis_type = ExtractBigrams:DiceScore
 """
 
@@ -60,6 +60,7 @@ class ExtractBigramsResource(ProcessorResource):
                                 "[{}PAIR:{}]".format(unit, bigram),  # result_key
                                 result,  # result_value
                                 interestingness,  # outlierness
+                                "[LINK:{}]".format(task_result.uuid),  # uuid
                             )
                         ]
                     )

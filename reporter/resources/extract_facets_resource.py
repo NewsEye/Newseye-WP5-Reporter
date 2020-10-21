@@ -10,16 +10,16 @@ log = logging.getLogger("root")
 
 
 TEMPLATE = """
-en: the search found {result_value} articles published during {result_key}
-fi: haussa löytyi {result_value} artikkelia jotka oli julkaistu vuonna {result_key}
+en: the search found {result_value} articles published during {result_key} {analysis_id}
+fi: haussa löytyi {result_value} artikkelia jotka oli julkaistu vuonna {result_key} {analysis_id}
 | analysis_type = ExtractFacets:PUB_YEAR
 
-en: the search found {result_value} articles in {result_key}
-fi: löydettiin {result_value} artikkelia joiden kieli oli {result_key}
+en: the search found {result_value} articles in {result_key} {analysis_id}
+fi: löydettiin {result_value} artikkelia joiden kieli oli {result_key} {analysis_id}
 | analysis_type = ExtractFacets:LANGUAGE
 
-en: the search found {result_value} articles from the newspaper {result_key}
-fi: löydettiin {result_value} artikkelia jotka oli julkaistu {result_key} -lehdessä
+en: the search found {result_value} articles from the newspaper {result_key} {analysis_id}
+fi: löydettiin {result_value} artikkelia jotka oli julkaistu {result_key} -lehdessä {analysis_id}
 | analysis_type = ExtractFacets:NEWSPAPER_NAME
 """
 
@@ -55,6 +55,7 @@ class ExtractFacetsResource(ProcessorResource):
                                 "[{}:{}]".format(facet_name, facet_value),  # result_key
                                 result_value,  # result_value
                                 interestingness,  # interestingness
+                                "[LINK:{}]".format(task_result.uuid),  # uuid
                             )
                         ]
                     )

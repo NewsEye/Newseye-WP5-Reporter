@@ -10,20 +10,20 @@ log = logging.getLogger("root")
 
 
 TEMPLATE = """
-en: {result_value} relevant articles were found in issues of {result_key} published during the year {timestamp_from}
-fi: löydettiin {result_value} relevanttia artikkelia jotka oli julkaistu {result_key} -lehdessä vuoden {timestamp_from} aikana
+en: {result_value} relevant articles were found in issues of {result_key} published during the year {timestamp_from} {analysis_id}
+fi: löydettiin {result_value} relevanttia artikkelia jotka oli julkaistu {result_key} -lehdessä vuoden {timestamp_from} aikana {analysis_id}
 | analysis_type = GenerateTimeSeries:absolute_counts
 
-en: between {timestamp_from} and {timestamp_to}, the largest yearly amount of relevant articles in {result_key} was {result_value}
-fi: vuosien {timestamp_from} ja {timestamp_to} välillä, suurin vuosittainen määrä relevantteja artikkeleita {result_key} -lehdeessä oli {result_value}
+en: between {timestamp_from} and {timestamp_to}, the largest yearly amount of relevant articles in {result_key} was {result_value} {analysis_id}
+fi: vuosien {timestamp_from} ja {timestamp_to} välillä, suurin vuosittainen määrä relevantteja artikkeleita {result_key} -lehdeessä oli {result_value} {analysis_id}
 | analysis_type = GenerateTimeSeries:absolute_counts:max
 
-en: between {timestamp_from} and {timestamp_to}, the smallest non-zero yearly amount of relevant articles in {result_key} was {result_value}
-fi: vuosien {timestamp_from} ja {timestamp_to} välillä, pienin nollasta eroava määrä relevantteja artikkeleita {result_key} -lehdessä oli {result_value}
+en: between {timestamp_from} and {timestamp_to}, the smallest non-zero yearly amount of relevant articles in {result_key} was {result_value} {analysis_id}
+fi: vuosien {timestamp_from} ja {timestamp_to} välillä, pienin nollasta eroava määrä relevantteja artikkeleita {result_key} -lehdessä oli {result_value} {analysis_id}
 | analysis_type = GenerateTimeSeries:absolute_counts:min
 
-en: between {timestamp_from} and {timestamp_to}, the average amount of relevant articles in {result_key} was {result_value}
-fi: vuosien {timestamp_from} ja {timestamp_to} välillä, {result_key} -lehdessä julkaistiin vuosittain keskimäärin {result_value} relevanttia artikkelia
+en: between {timestamp_from} and {timestamp_to}, the average amount of relevant articles in {result_key} was {result_value} {analysis_id}
+fi: vuosien {timestamp_from} ja {timestamp_to} välillä, {result_key} -lehdessä julkaistiin vuosittain keskimäärin {result_value} relevanttia artikkelia {analysis_id}
 | analysis_type = GenerateTimeSeries:absolute_counts:avg
 """  # noqa: E501
 
@@ -75,6 +75,7 @@ class GenerateTimeSeriesResource(ProcessorResource):
                                     "[ENTITY:{}:{}]".format(facet_name, facet_value),  # result_key
                                     value,  # result_value
                                     interestingness,  # outlierness
+                                    "[LINK:{}]".format(task_result.uuid),  # uuid
                                 )
                             ]
                         )

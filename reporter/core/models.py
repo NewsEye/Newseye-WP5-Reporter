@@ -212,6 +212,7 @@ Fact = namedtuple(
         "result_key",  # language_ssim:english
         "result_value",  # 13
         "outlierness",  # 1
+        "analysis_id",
     ],
 )
 

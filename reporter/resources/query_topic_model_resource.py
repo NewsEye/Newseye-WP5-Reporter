@@ -10,8 +10,8 @@ log = logging.getLogger("root")
 
 
 TEMPLATE = """
-en: the corpus is associated with {result_key} with a weight of {result_value}
-fi: kokoelman tekstit liittyvät {result_key} painolla {result_value}
+en: the corpus is associated with {result_key} with a weight of {result_value} {analysis_id}
+fi: kokoelman tekstit liittyvät {result_key} painolla {result_value} {analysis_id}
 | analysis_type = TopicModel:Query
 """
 
@@ -48,6 +48,7 @@ class QueryTopicModelResource(ProcessorResource):
                     ),
                     weight,
                     interestingness,
+                    "[LINK:{}]".format(task_result.uuid),  # uuid
                 )
             )
             for (topic, weight, interestingness) in topics

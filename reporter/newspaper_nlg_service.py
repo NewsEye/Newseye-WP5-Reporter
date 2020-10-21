@@ -26,6 +26,7 @@ from reporter.core.template_reader import read_templates
 from reporter.core.template_selector import TemplateSelector
 from reporter.english_uralicNLP_morphological_realizer import EnglishUralicNLPMorphologicalRealizer
 from reporter.finnish_uralicNLP_morphological_realizer import FinnishUralicNLPMorphologicalRealizer
+from reporter.link_remover import LinkRemover
 from reporter.newspaper_document_planner import NewspaperBodyDocumentPlanner, NewspaperHeadlineDocumentPlanner
 from reporter.newspaper_importance_allocator import NewspaperImportanceSelector
 from reporter.newspaper_message_generator import NewspaperMessageGenerator, NoMessagesForSelectionException
@@ -126,7 +127,7 @@ class NewspaperNlgService(object):
                 templates[language].extend(new_templates)
         return templates
 
-    def _get_components(self, realizer: str) -> Iterable[NLGPipelineComponent]:
+    def _get_components(self, realizer: str, links: bool) -> Iterable[NLGPipelineComponent]:
         yield NewspaperMessageGenerator()
         yield NewspaperImportanceSelector()
 
@@ -153,8 +154,11 @@ class NewspaperNlgService(object):
         else:
             yield BodyHTMLSurfaceRealizer()
 
+        if not links:
+            yield LinkRemover()
+
     def run_pipeline(
-        self, language: str, output_format: str, data: str
+        self, language: str, output_format: str, data: str, links: bool
     ) -> Tuple[Union[str, List[str]], Union[str, List[str]], List[str]]:
         start_time = datetime.datetime.now().timestamp()
         log.info("Starting multi-part generation")
@@ -169,7 +173,7 @@ class NewspaperNlgService(object):
         errors: List[str] = []
         for split in splits.values():
             json_split = json.dumps(split)
-            body, head, errors = self.run_pipeline_single(language, output_format, json_split)
+            body, head, errors = self.run_pipeline_single(language, output_format, json_split, links)
             bodies.append(body)
             headlines.append(head)
             errors.extend(errors)
@@ -177,16 +181,18 @@ class NewspaperNlgService(object):
         log.info("Multi-part generation complete. Generation time in seconds: {}".format(end_time - start_time))
         return bodies, headlines, errors
 
-    def run_pipeline_single(self, language: str, output_format: str, data: str) -> Tuple[str, str, List[str]]:
+    def run_pipeline_single(
+        self, language: str, output_format: str, data: str, links: bool
+    ) -> Tuple[str, str, List[str]]:
         log.info("Configuring Body NLG Pipeline")
-        self.body_pipeline = NLGPipeline(self.registry, *self._get_components(output_format))
-        self.headline_pipeline = NLGPipeline(self.registry, *self._get_components("headline"))
+        self.body_pipeline = NLGPipeline(self.registry, *self._get_components(output_format, links))
+        self.headline_pipeline = NLGPipeline(self.registry, *self._get_components("headline", links))
 
         errors: List[str] = []
 
         log.info("Running Body NLG pipeline: language={}".format(language))
         try:
-            body = self.body_pipeline.run((data,), language, prng_seed=self.registry.get("seed"))
+            body = self.body_pipeline.run((data,), language, prng_seed=self.registry.get("seed"))[0]
             log.info("Body pipeline complete")
         except NoMessagesForSelectionException as ex:
             log.error("%s", ex)
@@ -204,7 +210,7 @@ class NewspaperNlgService(object):
         log.info("Running headline NLG pipeline")
         try:
             headline_lang = "{}-head".format(language)
-            headline = self.headline_pipeline.run((data,), headline_lang, prng_seed=self.registry.get("seed"))
+            headline = self.headline_pipeline.run((data,), headline_lang, prng_seed=self.registry.get("seed"))[0]
             log.info("Headline pipeline complete")
         except NoMessagesForSelectionException as ex:
             log.error("%s", ex)
