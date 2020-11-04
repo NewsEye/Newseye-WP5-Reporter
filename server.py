@@ -88,12 +88,13 @@ def api_generate() -> Optional[Dict[str, str]]:
     language = request.forms.get("language")
     format = request.forms.get("format")
     data = request.forms.get("data")
+    links = request.forms.get("links", "") == "true"
 
     if language not in LANGUAGES or format not in FORMATS:
         response.status = 400
         return
 
-    header, body, errors = generate(language, format, data)
+    header, body, errors = generate(language, format, data, links)
     output = {"language": language, "head": header, "body": body}
     if errors:
         output["errors"] = errors
