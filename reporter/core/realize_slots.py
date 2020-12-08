@@ -178,6 +178,7 @@ class ListRegexRealizer(RegexRealizer):
         extracted_groups: Union[int, Iterable[int]],
         template: Union[str, Iterable[str]],
         combiner: str,
+        separator: str = "|",
         group_requirements: Optional[Callable[..., bool]] = None,
         slot_requirements: Optional[Callable[[Slot], bool]] = None,
         attach_attributes_to: Optional[Iterable[int]] = None,
@@ -193,6 +194,7 @@ class ListRegexRealizer(RegexRealizer):
             slot_requirements,
             attach_attributes_to,
         )
+        self.separator = separator
         self.combiner = combiner
 
     def realize(self, slot: Slot, random: Generator) -> Tuple[bool, List[TemplateComponent]]:
@@ -216,7 +218,7 @@ class ListRegexRealizer(RegexRealizer):
             return False, []
 
         components = []
-        entities = groups[0].split("|")
+        entities = groups[0].split(self.separator)
         for idx, element in enumerate(entities):
             remaining = len(entities) - idx - 1
 
