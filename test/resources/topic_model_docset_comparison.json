@@ -1,0 +1,69 @@
+{
+  "uuid": "2388516f-93e1-4ac8-afd8-9f65ca000058",
+  "processor": "TopicModelDocsetComparison",
+  "parameters": {
+    "language": "de",
+    "model_type": "lda",
+    "num_topics": 3,
+    "collection1": {
+      "dataset": {
+        "name": "test3",
+        "user": "pra@newseye.eu"
+      }
+    },
+    "collection2": {
+      "search_query": {
+        "q": "President",
+        "qf": "all_text_tde_siv"
+      }
+    }
+  },
+  "task_status": "finished",
+  "task_started": "Thu, 12 Nov 2020 10:24:37 GMT",
+  "task_finished": "Thu, 12 Nov 2020 10:41:00 GMT",
+  "task_result": {
+    "result": {
+      "distinct_topics1": [
+        "96",
+        "68",
+        "25"
+      ],
+      "distinct_topics2": [
+        "8",
+        "68",
+        "25"
+      ],
+      "shared_topics": [
+        "25",
+        "68",
+        "96"
+      ],
+      "mean_jsd": 0.081,
+      "internal_jsd1": 0.126,
+      "internal_jsd2": 0.019,
+      "cross_jsd": 0.104
+    },
+    "interestingness": {
+      "distinct_topics1": 1,
+      "distinct_topics2": 1,
+      "shared_topics": 1,
+      "mean_jsd": 0.081,
+      "internal_jsd1": 0.126,
+      "internal_jsd2": 0.019,
+      "cross_jsd": 0.104,
+      "overall": 0.081
+    }
+  },
+  "collection1": {
+    "dataset": {
+      "name": "test3",
+      "user": "pra@newseye.eu"
+    }
+  },
+  "collection2": {
+    "search_query": {
+      "q": "President",
+      "qf": "all_text_tde_siv"
+    }
+  }
+}

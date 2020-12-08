@@ -39,6 +39,7 @@ from reporter.resources.newspaper_corpus_resource import NewspaperCorpusResource
 from reporter.resources.processor_resource import ProcessorResource
 from reporter.resources.query_topic_model_resource import QueryTopicModelResource
 from reporter.resources.summarization_resource import SummarizationResource
+from reporter.resources.topic_model_docset_comparison_resource import TopicModelDocsetComparisonResource
 from reporter.resources.topic_model_document_linking_resource import TopicModelDocumentLinkingResource
 
 log = logging.getLogger("root")
@@ -70,6 +71,7 @@ class NewspaperNlgService(object):
             SummarizationResource(),
             TopicModelDocumentLinkingResource(),
             QueryTopicModelResource(),
+            TopicModelDocsetComparisonResource(),
         ]
 
         # Templates
