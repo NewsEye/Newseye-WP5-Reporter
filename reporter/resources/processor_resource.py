@@ -85,8 +85,12 @@ class ProcessorResource(ABC):
             print(corpus)
             if corpus_type == "dataset_query" and len(corpus) > 2:
                 corpus = f"[{corpus_type}:{corpus[0]}:{corpus[1]}:{'|'.join(corpus[2:])}]"
+            elif corpus_type == "dataset_query":
+                corpus = f"[{corpus_type}:{corpus[0]}:{corpus[1]}]"
             elif corpus_type == "query" and len(corpus) > 1:
                 corpus = f"[{corpus_type}:{corpus[0]}:{'|'.join(corpus[1:])}]"
+            elif corpus_type == "query":
+                corpus = f"[{corpus_type}:{corpus[0]}]"
             else:
                 corpus = f"[{corpus_type}:{'|'.join(corpus)}]"
         return corpus, corpus_type
