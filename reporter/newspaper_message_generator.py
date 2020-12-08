@@ -17,6 +17,8 @@ class TaskResult:
         uuid: str,
         search_query: Any,
         dataset: Optional[str],
+        collection1: Optional[Dict[str, Any]],
+        collection2: Optional[Dict[str, Any]],
         processor: str,
         parameters: Dict[str, Any],
         task_status: str,
@@ -27,6 +29,8 @@ class TaskResult:
         self.uuid = uuid
         self.search_query = search_query
         self.dataset = dataset
+        self.collection1 = collection1
+        self.collection2 = collection2
         self.processor = processor
         self.parameters = parameters
         self.task_status = task_status
@@ -40,6 +44,8 @@ class TaskResult:
             o.get("uuid"),
             o.get("search_query"),
             o.get("dataset"),
+            o.get("collection1"),
+            o.get("collection2"),
             o.get("processor"),
             o.get("parameters"),
             o.get("task_status"),
