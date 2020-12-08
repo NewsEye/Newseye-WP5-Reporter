@@ -109,6 +109,7 @@ class GenerateTimeSeriesResource(ProcessorResource):
                                     "[ENTITY:{}:{}]".format(facet_name, facet_value),  # result_key
                                     value,  # result_value
                                     interestingness,  # outlierness
+                                    "[LINK:{}]".format(task_result.uuid),  # uuid
                                 )
                             ]
                         )
