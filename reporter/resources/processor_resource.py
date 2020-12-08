@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Tuple, Type
+from typing import List, Tuple, Type, Union, Dict
 
 from reporter.core.models import Message
 from reporter.core.realize_slots import SlotRealizerComponent
@@ -22,26 +22,71 @@ class ProcessorResource(ABC):
     def slot_realizer_components(self) -> List[Type[SlotRealizerComponent]]:
         pass
 
-    def build_corpus_fields(self, task_result: "TaskResult") -> Tuple[str, str]:
+    def _parse_dataset(self, dataset) -> Tuple[List[str], List[str]]:
+        print(dataset, type(dataset))
+        corpus_type = ["dataset"]
+        if isinstance(dataset, str):
+            corpus = dataset
+        else:
+            corpus = dataset["name"]
+        corpus = [corpus]
+        return corpus_type, corpus
+
+    def _parse_search_query(self, search_query) -> Tuple[List[str], List[str]]:
+        corpus_type, corpus = ["query"], []
+        q = search_query.get("q")
+        if q:
+            corpus.append(q)
+
+        mm = search_query.get("mm")
+        if mm:
+            corpus.append("mm:{}".format(mm))
+
+        fq = search_query.get("qf")
+        if fq:
+            corpus.append("qf:{}".format(fq))
+
+        return corpus_type, corpus
+
+    def _parse_corpus_fields(self, task_result: Union[Dict, TaskResult]) -> Tuple[List[str], List[str]]:
         corpus = []
         corpus_type = []
 
-        if task_result.dataset:
-            corpus.append("[dataset:{}]".format(task_result.dataset))
-            corpus_type.append("dataset")
+        if isinstance(task_result, TaskResult):
+            dataset = task_result.dataset
+            search_query = task_result.search_query
+        else:
+            dataset = task_result.get("dataset")
+            search_query = task_result.get("search_query")
 
-        if task_result.search_query:
-            q = task_result.search_query.get("q")
-            if q:
-                corpus.append("[q:{}]".format(q))
-                corpus_type.append("query")
+        if dataset:
+            new_corpus_type, new_corpus = self._parse_dataset(dataset)
+            corpus.extend(new_corpus)
+            corpus_type.extend(new_corpus_type)
 
-            mm = task_result.search_query.get("mm")
-            if mm:
-                corpus.append("[mm:{}]".format(mm))
+        if search_query:
+            new_corpus_type, new_corpus = self._parse_search_query(search_query)
+            corpus.extend(new_corpus)
+            corpus_type.extend(new_corpus_type)
 
-            fq = task_result.search_query.get("fq")
-            if fq:
-                corpus.append("[fq:{}]".format(fq))
+        return corpus_type, corpus
 
-        return " ".join(corpus), "_".join(corpus_type)
+    def build_corpus_fields(self, task_result: Union[Dict, TaskResult]) -> Tuple[str, str]:
+        if isinstance(task_result, TaskResult) and task_result.collection1:
+            corpus_type = "multicorpus_comparison"
+            corpus1, corpus1_type = self.build_corpus_fields(task_result.collection1)
+            corpus1 = corpus1[1:-1]  # Remove parens
+            corpus2, corpus2_type = self.build_corpus_fields(task_result.collection2)
+            corpus2 = corpus2[1:-1]  # Remove parens
+            corpus = f"[{corpus_type}:{corpus1}||{corpus2}]"
+        else:
+            corpus_type, corpus = self._parse_corpus_fields(task_result)
+            corpus_type = "_".join(corpus_type)
+            print(corpus)
+            if corpus_type == "dataset_query" and len(corpus) > 2:
+                corpus = f"[{corpus_type}:{corpus[0]}:{corpus[1]}:{'|'.join(corpus[2:])}]"
+            elif corpus_type == "query" and len(corpus) > 1:
+                corpus = f"[{corpus_type}:{corpus[0]}:{'|'.join(corpus[1:])}]"
+            else:
+                corpus = f"[{corpus_type}:{'|'.join(corpus)}]"
+        return corpus, corpus_type
