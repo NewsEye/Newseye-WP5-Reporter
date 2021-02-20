@@ -13,11 +13,13 @@ TEMPLATE = """
 en: based on topic modelling, the following similar articles were identified: {result_value} {analysis_id}
 fi: aihemallinnus tunnisti seuraavat samankaltaiset artikkelit: {result_value} {analysis_id}
 de: Basierend auf Topic Modelling wurden die folgenden sehr ähnlichen Artikel identifiziert: {result_value} {analysis_id}
+fr: Basé sur la modélisation, les articles similaires suivants ont été identifiés: {result_value} {analysis_id}
 | analysis_type = TopicModel:DocumentLinking:Multiple
 
 en: based on topic modelling, the article {result_value} was identified as highly similar {analysis_id}
 fi: aihemallinnus tunnisti artikkeling {result_value} hyvin samankaltaiseksi {analysis_id}
 de: Basierend auf Topic Modelling wurde der Artikel {result_value} als sehr ähnlich zum Korpus identifiziert {analysis_id}
+fr: Basé sur la modélisation, l’article {result_value} a été identifié comme étant très similaire au corpus {analysis_id}
 | analysis_type = TopicModel:DocumentLinking:Single
 """  # noqa: E501
 
@@ -66,6 +68,7 @@ class TopicModelDocumentLinkingResource(ProcessorResource):
             LinkedArticleRealizer,
             FinnishLinkedArticleListRealizer,
             GermanLinkedArticleListRealizer,
+            FrenchLinkedArticleListRealizer,
         ]
 
 
@@ -87,3 +90,8 @@ class FinnishLinkedArticleListRealizer(ListRegexRealizer):
 class GermanLinkedArticleListRealizer(ListRegexRealizer):
     def __init__(self, registry):
         super().__init__(registry, "de", r"\[LinkedArticleList:([^\]]+)\]", 1, "[LinkedArticle:{}]", "und")
+
+
+class FrenchLinkedArticleListRealizer(ListRegexRealizer):
+    def __init__(self, registry):
+        super().__init__(registry, "fr", r"\[LinkedArticleList:([^\]]+)\]", 1, "[LinkedArticle:{}]", "et")

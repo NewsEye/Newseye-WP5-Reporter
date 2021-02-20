@@ -13,21 +13,25 @@ TEMPLATE = """
 en: {result_value} relevant articles were found in issues of {result_key} published during the year {timestamp_from} {analysis_id}
 fi: löydettiin {result_value} relevanttia artikkelia jotka oli julkaistu {result_key} -lehdessä vuoden {timestamp_from} aikana {analysis_id}
 de: {result_value} relevante Artikel wurde in Ausgaben von {result_key} gefunden, die im Jahre {timestamp_from} publiziert wurden {analysis_id}
+fr: {result_value} articles correspondant à votre recherche ont été trouvés dans les numéros du {result_key} publiés au cours de l’année {timestamp_from} {analysis_id}
 | analysis_type = GenerateTimeSeries:absolute_counts
 
 en: between {timestamp_from} and {timestamp_to}, the largest yearly amount of relevant articles in {result_key} was {result_value} {analysis_id}
 fi: vuosien {timestamp_from} ja {timestamp_to} välillä, suurin vuosittainen määrä relevantteja artikkeleita {result_key} -lehdeessä oli {result_value} {analysis_id}
 de: Zwischen {timestamp_from} und {timestamp_to} waren {result_value} Artikel die größte jährliche Menge von relevanten Artikeln in {result_key} {analysis_id}
+fr: Le plus grand nombre d'articles correspondant à votre recherche dans le {result_key} entre {timestamp_from} et {timestamp_to} est {result_value} articles sur une année {analysis_id}
 | analysis_type = GenerateTimeSeries:absolute_counts:max
 
 en: between {timestamp_from} and {timestamp_to}, the smallest non-zero yearly amount of relevant articles in {result_key} was {result_value} {analysis_id}
 fi: vuosien {timestamp_from} ja {timestamp_to} välillä, pienin nollasta eroava määrä relevantteja artikkeleita {result_key} -lehdessä oli {result_value} {analysis_id}
 de: Zwischen {timestamp_from} und {timestamp_to} war {result_value} die kleinste jährliche Nicht-Null-Anzahl von relevanten Artikeln, die in {result_key} publiziert wurden {analysis_id}
+fr: le plus petit montant supérieur à 0 d’articles correspondant à votre recherche dans le {result_key} entre {timestamp_from} et {timestamp_to} est de {result_value} {analysis_id}
 | analysis_type = GenerateTimeSeries:absolute_counts:min
 
 en: between {timestamp_from} and {timestamp_to}, the average amount of relevant articles in {result_key} was {result_value} {analysis_id}
 fi: vuosien {timestamp_from} ja {timestamp_to} välillä, {result_key} -lehdessä julkaistiin vuosittain keskimäärin {result_value} relevanttia artikkelia {analysis_id}
 de: Zwischen {timestamp_from} und {timestamp_to} war {result_value} die durchschnittliche Menge von relevanten Artikeln in {result_key} {analysis_id}
+fr: le nombre moyen d'articles correspondant à votre recherche dans {result_key} entre {timestamp_from} et {timestamp_to} est de {result_value} {analysis_id}
 | analysis_type = GenerateTimeSeries:absolute_counts:avg
 """  # noqa: E501
 

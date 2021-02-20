@@ -13,16 +13,19 @@ TEMPLATE = """
 en: {result_key} appeared {result_value} times {analysis_id}
 fi: {result_key} esiintyi {result_value} kertaa {analysis_id}
 de: {result_key} trat {result_val} Mal auf {analysis_id}
+fr: {result_key} apparaissent {result_value} fois {analysis_id}
 | analysis_type = ExtractBigrams:Count
 
 en: {result_key} had a relative count of {result_value} {analysis_id}
 fi: {result_key, case=gen} suhteellinen osuus oli {result_value} {analysis_id}
 de: {result_key} hatte eine relative Anzahl von {result_value} {analysis_id}
+fr: {result_key} ont un taux de comptage relatif de {result_value} {analysis_id}
 | analysis_type = ExtractBigrams:RelativeCount
 
 en: {result_key} had a Dice score of {result_value} {analysis_id}
 fi: {result_key, case=gen} Dice-luku oli {result_value} {analysis_id}
 de: {result_key} hatte eine Dice-Wertung von {result_value} {analysis_id}
+fr: {result_key} ont un coefficient de Dice de {result_value} {analysis_id}
 | analysis_type = ExtractBigrams:DiceScore
 """
 
@@ -78,6 +81,8 @@ class ExtractBigramsResource(ProcessorResource):
             FinnishTokenPairRealizer,
             GermanStemPairRealizer,
             GermanTokenPairRealizer,
+            FrenchStemPairRealizer,
+            FrenchTokenPairRealizer,
         ]
 
 
@@ -109,3 +114,13 @@ class GermanTokenPairRealizer(RegexRealizer):
 class GermanStemPairRealizer(RegexRealizer):
     def __init__(self, registry):
         super().__init__(registry, "de", r"\[STEMPAIR:([^\]]+)\]", 1, 'das Suchwort-Paar "{}"')
+
+
+class FrenchTokenPairRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(registry, "fr", r"\[TOKENPAIR:([^\]]+)\]", 1, "les termes recherchés «{}»")
+
+
+class FrenchStemPairRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(registry, "fr", r"\[STEMPAIR:([^\]]+)\]", 1, "les racines «{}»")

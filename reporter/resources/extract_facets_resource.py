@@ -13,16 +13,19 @@ TEMPLATE = """
 en: the search found {result_value} articles published during {result_key} {analysis_id}
 fi: haussa löytyi {result_value} artikkelia jotka oli julkaistu vuonna {result_key} {analysis_id}
 de: Die Suche hat {result_value} Artikel gefunden, die im Jahre {result_key} publiziert wurden {analysis_id}
+fr: la recherche fait apparaître {result_value} article(s) publié(s) en {result_key} {analysis_id}
 | analysis_type = ExtractFacets:PUB_YEAR
 
 en: the search found {result_value} articles in {result_key} {analysis_id}
 fi: löydettiin {result_value} artikkelia joiden kieli oli {result_key} {analysis_id}
 de: Die Suche hat {result_value} Artikel gefunden, die in {result_key} publiziert wurden {analysis_id}
+fr: la recherche fait apparaître {result_value} article(s) publié(s) en {result_key} {analysis_id}
 | analysis_type = ExtractFacets:LANGUAGE
 
 en: the search found {result_value} articles from the newspaper {result_key} {analysis_id}
 fi: löydettiin {result_value} artikkelia jotka oli julkaistu {result_key} -lehdessä {analysis_id}
 de: Die Suche hat {result_value} Artikel aus der Zeitung {result_key} gefunden {analysis_id}
+fr: la recherche fait apparaître {result_value} article(s) issus du journal {result_key} {analysis_id}
 | analysis_type = ExtractFacets:NEWSPAPER_NAME
 """
 

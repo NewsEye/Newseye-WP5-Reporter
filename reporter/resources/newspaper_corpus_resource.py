@@ -11,11 +11,13 @@ ${simple}: dataset, query, dataset_query
 en-head: Analysis of {corpus}
 fi-head: Analyysi {corpus}
 de-head: Analyse {corpus}
+fr-head: L’analyse du {corpus}
 | corpus_type in {simple}
 
 en-head: Comparison of {corpus}
 fi-head: Vertaileva analyysi {corpus}
 de-head: Vergleich {corpus}
+fr-head: Analyse comparative {corpus}
 | corpus_type = multicorpus_comparison
 """
 
@@ -51,6 +53,13 @@ class NewspaperCorpusResource(ProcessorResource):
             GermanDatasetQueryRealizer,
             GermanDatasetQueryPlusRealizer,
             GermanQueryMetaRealizer,
+            #
+            FrenchDatasetRealizer,
+            FrenchQueryRealizer,
+            FrenchQueryPlusRealizer,
+            FrenchDatasetQueryRealizer,
+            FrenchDatasetQueryPlusRealizer,
+            FrenchQueryMetaRealizer,
         ]
 
         return slot_realizer_components
@@ -175,3 +184,51 @@ class GermanDatasetQueryPlusRealizer(RegexRealizer):
 class GermanQueryMetaRealizer(ListRegexRealizer):
     def __init__(self, registry):
         super().__init__(registry, "de", r"\[query_meta:([^\]]+)\]", 1, "[{}]", "und")
+
+
+class FrenchDatasetRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(registry, "fr", r"\[dataset:([^\]:]+)\]$", 1, "jeu de données « {} »")
+
+
+class FrenchQueryRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(registry, "fr", r"\[query:([^\]:]+)\]$", 1, "jeu de données défini par la requête « {} »")
+
+
+class FrenchQueryPlusRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            "fr",
+            r"\[query:([^\]:]+):([^\]]+)\]$",
+            (1, 2),
+            "jeu de données défini par la requête « {} » ( [query_meta:{}] )",
+        )
+
+
+class FrenchDatasetQueryRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            "fr",
+            r"\[dataset_query:([^\]:]+):([^\]:]+)\]",
+            (1, 2),
+            "jeu de données « {} » filtrée par la requête « {} »",
+        )
+
+
+class FrenchDatasetQueryPlusRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            "fr",
+            r"\[dataset_query:([^\]:]+):([^\]:]+):([^\]]+)\]",
+            (1, 2, 3),
+            "jeu de données « {} » filtrée par la requête « {} » ( [query_meta:{}] )",
+        )
+
+
+class FrenchQueryMetaRealizer(ListRegexRealizer):
+    def __init__(self, registry):
+        super().__init__(registry, "fr", r"\[query_meta:([^\]]+)\]", 1, "[{}]", "et")

@@ -18,6 +18,12 @@ LANGUAGES = {
         "en": "Englisch",
         "de": "Deutsch",
         "fr": "Französisch",
+    },
+    "fr": {
+        "fi": "finnois",
+        "en": "anglais",
+        "de": "allemand",
+        "fr": "français",
     }
 }
 
@@ -34,6 +40,10 @@ CONJUNCTIONS = {
     "de": {
         "default_combiner": "und",
         "inverse_combiner": "aber",
+    },
+    "fr": {
+        "default_combiner": "et",
+        "inverse_combiner": "mais",
     }
 }
 

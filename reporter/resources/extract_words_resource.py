@@ -13,16 +13,19 @@ TEMPLATE = """
 en: {result_key} appeared {result_value} times {analysis_id}
 fi: {result_key} esiintyi {result_value} kertaa {analysis_id}
 de: {result_key} trat {result_value} Mal auf {analysis_id}
+fr: {result_key} apparaît {result_value} fois {analysis_id}
 | analysis_type = ExtractWords:Count
 
 en: {result_key} had a relative count of {result_value} {analysis_id}
 fi: {result_key, case=gen} suhteellinen osuus oli {result_value} {analysis_id}
 de: {result_key} hatte eine relative Anzahl von {result_value} {analysis_id}
+fr: {result_key} a un taux de comptage relatif à {result_value} {analysis_id}
 | analysis_type = ExtractWords:RelativeCount
 
 en: {result_key} had a TF-IDF score of {result_value} {analysis_id}
 fi: {result_key, case=gen} TF-IDF -luku oli {result_value} {analysis_id}
 de: {result_key} hatte eine TF-IDF-Wertung von {result_value} {analysis_id}
+fr: {result_key} a une mesure TF-IDF de {result_value} {analysis_id}.
 | analysis_type = ExtractWords:TFIDF
 """
 
@@ -78,6 +81,8 @@ class ExtractWordsResource(ProcessorResource):
             FinnishTokenRealizer,
             GermanStemRealizer,
             GermanTokenRealizer,
+            FrenchStemRealizer,
+            FrenchTokenRealizer,
         ]
 
 
@@ -109,3 +114,13 @@ class GermanStemRealizer(RegexRealizer):
 class GermanTokenRealizer(RegexRealizer):
     def __init__(self, registry):
         super().__init__(registry, "de", r"\[TOKEN:([^\]]+)\]", 1, "Der Token '{}'")
+
+
+class FrenchStemRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(registry, "fr", r"\[STEM:([^\]]+)\]", 1, "la racine « {} »")
+
+
+class FrenchTokenRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(registry, "fr", r"\[TOKEN:([^\]]+)\]", 1, "le terme « S1 »")

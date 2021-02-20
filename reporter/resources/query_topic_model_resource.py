@@ -13,6 +13,7 @@ TEMPLATE = """
 en: the corpus is associated with {result_key} with a weight of {result_value} {analysis_id}
 fi: kokoelman tekstit liittyvät {result_key} painolla {result_value} {analysis_id}
 de: Der Korpus ist mit {result_key} mit einem Gewicht von {result_value} verbunden {analysis_id}
+fr: le corpus est associé au {result_key} avec un poids de {result_value} {analysis_id}
 | analysis_type = TopicModel:Query
 """
 
@@ -56,7 +57,12 @@ class QueryTopicModelResource(ProcessorResource):
         ]
 
     def slot_realizer_components(self) -> List[Type[SlotRealizerComponent]]:
-        return [EnglishTopicModelRealizer, FinnishTopicModelRealizer, GermanTopicModelRealizer]
+        return [
+            EnglishTopicModelRealizer,
+            FinnishTopicModelRealizer,
+            GermanTopicModelRealizer,
+            FrenchTopicModelRealizer,
+        ]
 
 
 class EnglishTopicModelRealizer(RegexRealizer):
@@ -85,4 +91,15 @@ class GermanTopicModelRealizer(RegexRealizer):
             r"\[TopicModel:([^\]]+):([^\]]+):([^\]]+)\]",
             [3, 1, 2],
             "Thema #{} des {} Topic Models '{}'",
+        )
+
+
+class FrenchTopicModelRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            "fr",
+            r"\[TopicModel:([^\]]+):([^\]]+):([^\]]+)\]",
+            [3, 1, 2],
+            'thème n° {} du modèle thématique {} "{}"',
         )
