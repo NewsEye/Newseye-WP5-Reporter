@@ -25,7 +25,7 @@ fr: {result_key} a un taux de comptage relatif à {result_value} {analysis_id}
 en: {result_key} had a TF-IDF score of {result_value} {analysis_id}
 fi: {result_key, case=gen} TF-IDF -luku oli {result_value} {analysis_id}
 de: {result_key} hatte eine TF-IDF-Wertung von {result_value} {analysis_id}
-fr: {result_key} a une mesure TF-IDF de {result_value} {analysis_id}.
+fr: {result_key} a une mesure TF-IDF de {result_value} {analysis_id}
 | analysis_type = ExtractWords:TFIDF
 """
 
