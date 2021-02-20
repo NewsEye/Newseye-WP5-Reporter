@@ -12,7 +12,7 @@ log = logging.getLogger("root")
 TEMPLATE = """
 en: {result_key} appeared {result_value} times {analysis_id}
 fi: {result_key} esiintyi {result_value} kertaa {analysis_id}
-de: {result_key} trat {result_val} Mal auf {analysis_id}
+de: {result_key} trat {result_value} Mal auf {analysis_id}
 fr: {result_key} apparaissent {result_value} fois {analysis_id}
 | analysis_type = ExtractBigrams:Count
 
