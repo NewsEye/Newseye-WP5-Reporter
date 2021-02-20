@@ -10,10 +10,12 @@ ${simple}: dataset, query, dataset_query
 
 en-head: Analysis of {corpus}
 fi-head: Analyysi {corpus}
+de-head: Analyse {corpus}
 | corpus_type in {simple}
 
 en-head: Comparison of {corpus}
 fi-head: Vertaileva analyysi {corpus}
+de-head: Vergleich {corpus}
 | corpus_type = multicorpus_comparison
 """
 
@@ -42,6 +44,13 @@ class NewspaperCorpusResource(ProcessorResource):
             FinnishDatasetPlusRealizer,
             FinnishQueryRealizer,
             FinnishQueryPlusRealizer,
+            #
+            GermanDatasetRealizer,
+            GermanQueryRealizer,
+            GermanQueryPlusRealizer,
+            GermanDatasetQueryRealizer,
+            GermanDatasetQueryPlusRealizer,
+            GermanQueryMetaRealizer,
         ]
 
         return slot_realizer_components
@@ -122,3 +131,47 @@ class FinnishQueryRealizer(RegexRealizer):
 class FinnishQueryPlusRealizer(RegexRealizer):
     def __init__(self, registry):
         super().__init__(registry, "fi", r"\[query:([^\]:]+)\] (.+)$", (1, 2), 'haun "{}" {} tuloksista')
+
+
+class GermanDatasetRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(registry, "de", r"\[dataset:([^\]:]+)\]$", 1, 'des Datensatzes "{}"')
+
+
+class GermanQueryRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(registry, "de", r"\[query:([^\]:]+)\]$", 1, 'die Abfrage "{}"')
+
+
+class GermanQueryPlusRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry, "de", r"\[query:([^\]:]+):([^\]]+)\]$", (1, 2), 'die Abfrage "{}" ( [query_meta:{}] )'
+        )
+
+
+class GermanDatasetQueryRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            "de",
+            r"\[dataset_query:([^\]:]+):([^\]:]+)\]",
+            (1, 2),
+            'des Datensatzes "{}" unter der Bedingung "{}"',
+        )
+
+
+class GermanDatasetQueryPlusRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            "de",
+            r"\[dataset_query:([^\]:]+):([^\]:]+):([^\]]+)\]",
+            (1, 2, 3),
+            'des Datensatzes "{}" funter der Bedingung "{}" ( [query_meta:{}] )',
+        )
+
+
+class GermanQueryMetaRealizer(ListRegexRealizer):
+    def __init__(self, registry):
+        super().__init__(registry, "de", r"\[query_meta:([^\]]+)\]", 1, "[{}]", "und")

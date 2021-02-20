@@ -12,6 +12,7 @@ log = logging.getLogger("root")
 TEMPLATE = """
 en: the following summary of the contents was automatically created: "{result_value}" {analysis_id}
 fi: teksteistä luotiin automaattisesti seuraava tiivistelmä: "{result_value}" {analysis_id}
+de: Die folgende Zusammenfassung des Inhalts wurde automatisch erzeugt: "{result_value}" {analysis_id}
 | analysis_type = Summarization
 """
 

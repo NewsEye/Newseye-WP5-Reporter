@@ -12,14 +12,17 @@ log = logging.getLogger("root")
 TEMPLATE = """
 en: {result_key} appeared {result_value} times {analysis_id}
 fi: {result_key} esiintyi {result_value} kertaa {analysis_id}
+de: {result_key} trat {result_val} Mal auf {analysis_id}
 | analysis_type = ExtractBigrams:Count
 
 en: {result_key} had a relative count of {result_value} {analysis_id}
 fi: {result_key, case=gen} suhteellinen osuus oli {result_value} {analysis_id}
+de: {result_key} hatte eine relative Anzahl von {result_value} {analysis_id}
 | analysis_type = ExtractBigrams:RelativeCount
 
 en: {result_key} had a Dice score of {result_value} {analysis_id}
 fi: {result_key, case=gen} Dice-luku oli {result_value} {analysis_id}
+de: {result_key} hatte eine Dice-Wertung von {result_value} {analysis_id}
 | analysis_type = ExtractBigrams:DiceScore
 """
 
@@ -68,7 +71,14 @@ class ExtractBigramsResource(ProcessorResource):
         return messages
 
     def slot_realizer_components(self) -> List[Type[SlotRealizerComponent]]:
-        return [EnglishStemPairRealizer, EnglishTokenPairRealizer, FinnishStemPairRealizer, FinnishTokenPairRealizer]
+        return [
+            EnglishStemPairRealizer,
+            EnglishTokenPairRealizer,
+            FinnishStemPairRealizer,
+            FinnishTokenPairRealizer,
+            GermanStemPairRealizer,
+            GermanTokenPairRealizer,
+        ]
 
 
 class EnglishTokenPairRealizer(RegexRealizer):
@@ -89,3 +99,13 @@ class FinnishTokenPairRealizer(RegexRealizer):
 class FinnishStemPairRealizer(RegexRealizer):
     def __init__(self, registry):
         super().__init__(registry, "fi", r"\[STEMPAIR:([^\]]+)\]", 1, 'tyvipari "{}"', attach_attributes_to=[0])
+
+
+class GermanTokenPairRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(registry, "de", r"\[TOKENPAIR:([^\]]+)\]", 1, 'das Token-Paar "{}"')
+
+
+class GermanStemPairRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(registry, "de", r"\[STEMPAIR:([^\]]+)\]", 1, 'das Suchwort-Paar "{}"')

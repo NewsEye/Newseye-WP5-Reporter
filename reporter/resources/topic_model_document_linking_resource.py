@@ -12,12 +12,14 @@ log = logging.getLogger("root")
 TEMPLATE = """
 en: based on topic modelling, the following similar articles were identified: {result_value} {analysis_id}
 fi: aihemallinnus tunnisti seuraavat samankaltaiset artikkelit: {result_value} {analysis_id}
+de: Basierend auf Topic Modelling wurden die folgenden sehr ähnlichen Artikel identifiziert: {result_value} {analysis_id}
 | analysis_type = TopicModel:DocumentLinking:Multiple
 
 en: based on topic modelling, the article {result_value} was identified as highly similar {analysis_id}
 fi: aihemallinnus tunnisti artikkeling {result_value} hyvin samankaltaiseksi {analysis_id}
+de: Basierend auf Topic Modelling wurde der Artikel {result_value} als sehr ähnlich zum Korpus identifiziert {analysis_id}
 | analysis_type = TopicModel:DocumentLinking:Single
-"""
+"""  # noqa: E501
 
 
 class TopicModelDocumentLinkingResource(ProcessorResource):
@@ -59,7 +61,12 @@ class TopicModelDocumentLinkingResource(ProcessorResource):
         ]
 
     def slot_realizer_components(self) -> List[Type[SlotRealizerComponent]]:
-        return [EnglishLinkedArticleListRealizer, LinkedArticleRealizer, FinnishLinkedArticleListRealizer]
+        return [
+            EnglishLinkedArticleListRealizer,
+            LinkedArticleRealizer,
+            FinnishLinkedArticleListRealizer,
+            GermanLinkedArticleListRealizer,
+        ]
 
 
 class EnglishLinkedArticleListRealizer(ListRegexRealizer):
@@ -75,3 +82,8 @@ class LinkedArticleRealizer(RegexRealizer):
 class FinnishLinkedArticleListRealizer(ListRegexRealizer):
     def __init__(self, registry):
         super().__init__(registry, "fi", r"\[LinkedArticleList:([^\]]+)\]", 1, "[LinkedArticle:{}]", "ja")
+
+
+class GermanLinkedArticleListRealizer(ListRegexRealizer):
+    def __init__(self, registry):
+        super().__init__(registry, "de", r"\[LinkedArticleList:([^\]]+)\]", 1, "[LinkedArticle:{}]", "und")
