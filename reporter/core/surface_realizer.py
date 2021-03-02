@@ -4,7 +4,7 @@ from typing import Tuple
 
 from numpy import random
 
-from reporter.core.models import DocumentPlanNode
+from reporter.core.models import DocumentPlanNode, Message
 from reporter.core.pipeline import NLGPipelineComponent
 from reporter.core.registry import Registry
 
@@ -42,22 +42,24 @@ class SurfaceRealizer(NLGPipelineComponent):
 
     def run(
         self, registry: Registry, random: random.Generator, language: str, document_plan: DocumentPlanNode
-    ) -> Tuple[str]:
+    ) -> Tuple[str, float]:
         """
         Run this pipeline component.
         """
         log.info("Realizing to text")
         sequences = [c for c in document_plan.children]
-        paragraphs = [self.realize(s) for s in sequences]
+        paragraphs, scores = zip(*[self.realize(s) for s in sequences])
         output = ""
         for p in paragraphs:
             output += self.paragraph_start + p + self.paragraph_end
-        return (output,)
+        return output, max(scores)
 
-    def realize(self, sequence: DocumentPlanNode) -> str:
+    def realize(self, sequence: DocumentPlanNode) -> Tuple[str, float]:
         """Realizes a single paragraph."""
         output = ""
         for message in sequence.children:
+            if not isinstance(message, Message):
+                continue
             template = message.template
             component_values = [str(component.value) for component in template.components]
 
@@ -74,7 +76,8 @@ class SurfaceRealizer(NLGPipelineComponent):
                     continue
             sent = sent[0].upper() + sent[1:]
             output += self.sentence_start + sent + self.sentence_end
-        return output
+        max_score = max(message.score for message in sequence.children if isinstance(message, Message))
+        return output, max_score
 
 
 class HeadlineHTMLSurfaceRealizer(SurfaceRealizer):

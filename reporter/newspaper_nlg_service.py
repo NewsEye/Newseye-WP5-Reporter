@@ -1,5 +1,6 @@
 import datetime
 import gzip
+import itertools
 import json
 import logging
 import os
@@ -27,7 +28,11 @@ from reporter.core.template_selector import TemplateSelector
 from reporter.english_uralicNLP_morphological_realizer import EnglishUralicNLPMorphologicalRealizer
 from reporter.finnish_uralicNLP_morphological_realizer import FinnishUralicNLPMorphologicalRealizer
 from reporter.link_remover import LinkRemover
-from reporter.newspaper_document_planner import NewspaperBodyDocumentPlanner, NewspaperHeadlineDocumentPlanner
+from reporter.newspaper_document_planner import (
+    NewspaperBodyDocumentPlanner,
+    NewspaperHeadlineDocumentPlanner,
+    MAX_PARAGRAPHS,
+)
 from reporter.newspaper_importance_allocator import NewspaperImportanceSelector
 from reporter.newspaper_message_generator import NewspaperMessageGenerator, NoMessagesForSelectionException
 from reporter.newspaper_named_entity_resolver import NewspaperEntityNameResolver
@@ -172,22 +177,23 @@ class NewspaperNlgService(object):
             key = json.dumps({"dataset": result.get("dataset"), "query": result.get("search_query")})
             splits[key].append(result)
 
-        bodies: List[str] = []
-        headlines: List[str] = []
-        errors: List[str] = []
+        outputs: List[Tuple[str, str, float, List[str]]] = []
         for split in splits.values():
             json_split = json.dumps(split)
-            body, head, errors = self.run_pipeline_single(language, output_format, json_split, links)
-            bodies.append(body)
-            headlines.append(head)
-            errors.extend(errors)
+            outputs.append(self.run_pipeline_single(language, output_format, json_split, links))
+
+        outputs = sorted(outputs, key=lambda x: x[2])[:MAX_PARAGRAPHS]
+        bodies, headlines, _, errors = zip(*outputs)
+        errors = list(itertools.chain.from_iterable(errors))
+
         end_time = datetime.datetime.now().timestamp()
         log.info("Multi-part generation complete. Generation time in seconds: {}".format(end_time - start_time))
+
         return bodies, headlines, errors
 
     def run_pipeline_single(
         self, language: str, output_format: str, data: str, links: bool
-    ) -> Tuple[str, str, List[str]]:
+    ) -> Tuple[str, str, float, List[str]]:
         log.info("Configuring Body NLG Pipeline")
         self.body_pipeline = NLGPipeline(self.registry, *self._get_components(output_format, links))
         self.headline_pipeline = NLGPipeline(self.registry, *self._get_components("headline", links))
@@ -196,19 +202,19 @@ class NewspaperNlgService(object):
 
         log.info("Running Body NLG pipeline: language={}".format(language))
         try:
-            body = self.body_pipeline.run((data,), language, prng_seed=self.registry.get("seed"))[0]
+            body, max_score = self.body_pipeline.run((data,), language, prng_seed=self.registry.get("seed"))
             log.info("Body pipeline complete")
         except NoMessagesForSelectionException as ex:
             log.error("%s", ex)
-            body = get_error_message(language, "no-messages-for-selection")
+            body, max_score = get_error_message(language, "no-messages-for-selection"), 0
             errors.append("NoMessagesForSelectionException")
         except NoInterestingMessagesException as ex:
             log.info("%s", ex)
-            body = get_error_message(language, "no-interesting-messages-for-selection")
+            body, max_score = get_error_message(language, "no-interesting-messages-for-selection"), 0
             errors.append("NoInterestingMessagesException")
         except Exception as ex:
             log.exception("%s", ex)
-            body = get_error_message(language, "general-error")
+            body, max_score = get_error_message(language, "general-error"), 0
             errors.append("{}: {}".format(ex.__class__.__name__, str(ex)))
 
         log.info("Running headline NLG pipeline")
@@ -229,7 +235,7 @@ class NewspaperNlgService(object):
             headline = get_error_message(language, "general-error")
             errors.append("{}: {}".format(ex.__class__.__name__, str(ex)))
 
-        return headline, body, errors
+        return headline, body, max_score, errors
 
     def _set_seed(self, seed_val: Optional[int] = None) -> None:
         log.info("Selecting seed for NLG pipeline")
