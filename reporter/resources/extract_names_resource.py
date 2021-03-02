@@ -110,5 +110,5 @@ class EnglishExtractNamesEntityRealizer(RegexRealizer):
             "en",
             r"\[ExtractNames:Entity:([^:\]]+):([^:\]]+):([^:\]]+)\]",
             (1, 2, 3),
-            "[Entity:Name:{}] (salience = {} , stance = {}",
+            "[ENTITY:NAME:{}] (salience = {} , stance = {} )",
         )
