@@ -161,7 +161,7 @@ def _weigh_by_analysis_similarity(
 ) -> List[Tuple[float, Message]]:
 
     weighted: List[Tuple[float, Message]] = []
-    unprocessed: List[Message] = []
+    unprocessed: List[Tuple[float, Message]] = []
 
     # Given that the previous message has analysis_type of "a:b:c:d", we start trying prefixes longest-first,
     # i.e. starting with "a:b:c:d", then "a:b:c", then "a:b" etc.
