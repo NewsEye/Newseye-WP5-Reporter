@@ -151,7 +151,7 @@ class RegexRealizer(SlotRealizerComponent):
         log.info("String realization: {}".format(string_realization))
 
         components = []
-        for idx, realization_token in enumerate(string_realization.split()):
+        for idx, realization_token in enumerate(self.split_to_tokens(string_realization)):
             new_slot = slot.copy(include_fact=True)
 
             # By default, copy copies the attributes too. In case attach_attributes_to was set,
@@ -167,6 +167,21 @@ class RegexRealizer(SlotRealizerComponent):
         log.info("Components: {}".format([str(c) for c in components]))
 
         return True, components
+
+    def split_to_tokens(self, string: str) -> List[str]:
+        tokens = string.split()
+        combined_tokens = []
+        is_ongoing_multitoken = False
+        for token in tokens:
+            if not is_ongoing_multitoken:
+                combined_tokens.append(token)
+            else:
+                combined_tokens[-1] = combined_tokens[-1] + " " + token
+            if "[" in token and "]" not in token:
+                is_ongoing_multitoken = True
+            elif "[" not in token and "]" in token:
+                is_ongoing_multitoken = False
+        return combined_tokens
 
 
 class ListRegexRealizer(RegexRealizer):
@@ -228,7 +243,7 @@ class ListRegexRealizer(RegexRealizer):
             string_realization = template.format(element)
             log.info("String realization: {}".format(string_realization))
 
-            for idx, realization_token in enumerate(string_realization.split()):
+            for idx, realization_token in enumerate(self.split_to_tokens(string_realization)):
                 new_slot = slot.copy(include_fact=True)
 
                 # By default, copy copies the attributes too. In case attach_attributes_to was set,
