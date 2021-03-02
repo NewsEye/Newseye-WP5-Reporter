@@ -1,7 +1,6 @@
 import logging
 import re
 from abc import ABC, abstractmethod
-from numbers import Number
 from typing import Callable, Iterable, List, Optional, Tuple, Union
 
 from numpy.random import Generator
@@ -84,7 +83,10 @@ class NumberRealizer(SlotRealizerComponent):
 
     def realize(self, slot: Slot, random: Generator) -> Tuple[bool, List[TemplateComponent]]:
         value = slot.value
-        if not isinstance(value, Number):
+
+        try:
+            value = float(value)
+        except ValueError:
             return False, []
 
         if isinstance(value, (int, float)):
