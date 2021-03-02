@@ -38,6 +38,8 @@ class NewspaperEntityNameResolver(EntityNameResolver):
             value = LANGUAGES.get(language, {}).get(entity)
         elif entity_type == "DATE":
             value = entity[:10]
+        elif entity_type == "NAME":
+            value = entity
         else:
             return
         # Was one of the matching things
