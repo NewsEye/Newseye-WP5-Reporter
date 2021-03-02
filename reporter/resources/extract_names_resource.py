@@ -10,14 +10,14 @@ log = logging.getLogger("root")
 
 
 TEMPLATE = """
-en: the most prominent name {analysis_id} in the corpus was {result_value}
-fi: korpuksessa esiintyivät tärkeimpänä {analysis_id} nimenä {result_value}
+en: the most prominent entities {analysis_id} in the corpus were: {result_value}
+fi: korpuksessa esiintyivät tärkeimpinä {analysis_id} seuraavat entiteetit: {result_value}
 de: Die Wichtigkeit Einheiten Namen im Korpus waren: {result_value}
 fr: les noms les plus importants du corpus étaient: {result_value}
 | analysis_type = ExtractNames:Multiple
 
-en: the most prominent entities {analysis_id} in the corpus were: {result_value}
-fi: korpuksessa esiintyivät tärkeimpinä {analysis_id} seuraavat entiteetit: {result_value}
+en: the most prominent names {analysis_id} in the corpus was {result_value}
+fi: korpuksessa esiintyivät tärkeimpinä {analysis_id} nimenä {result_value}
 de: Der Wichtigkeit Name im Korpus war {result_value}
 fr: le nom le plus important du corpus était {result_value}
 | analysis_type = ExtractNames:Single
