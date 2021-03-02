@@ -89,6 +89,9 @@ class NumberRealizer(SlotRealizerComponent):
         except ValueError:
             return False, []
 
+        if slot.attributes.get("abs"):
+            value = abs(value)
+
         if isinstance(value, (int, float)):
             if int(value) == value:
                 slot.value = lambda x: int(value)
