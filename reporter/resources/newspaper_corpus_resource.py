@@ -26,7 +26,7 @@ class NewspaperCorpusResource(ProcessorResource):
     def templates_string(self) -> str:
         return TEMPLATE
 
-    def parse_messages(self, task_result: TaskResult, context: List[TaskResult]) -> List[Message]:
+    def parse_messages(self, task_result: TaskResult, context: List[TaskResult], language: str) -> List[Message]:
         return []
 
     def slot_realizer_components(self) -> List[Type[SlotRealizerComponent]]:

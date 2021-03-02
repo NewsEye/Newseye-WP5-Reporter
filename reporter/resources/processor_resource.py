@@ -15,7 +15,7 @@ class ProcessorResource(ABC):
         pass
 
     @abstractmethod
-    def parse_messages(self, task_result: TaskResult, context: List[TaskResult]) -> List[Message]:
+    def parse_messages(self, task_result: TaskResult, context: List[TaskResult], language: str) -> List[Message]:
         pass
 
     @abstractmethod

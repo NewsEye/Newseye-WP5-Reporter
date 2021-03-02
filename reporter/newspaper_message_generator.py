@@ -72,7 +72,7 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
             generation_succeeded = False
             for message_parser in message_parsers:
                 try:
-                    new_messages = message_parser(task_result, task_results)
+                    new_messages = message_parser(task_result, task_results, language)
                     for message in new_messages:
                         log.debug("Parsed message {}".format(message))
                     if new_messages:

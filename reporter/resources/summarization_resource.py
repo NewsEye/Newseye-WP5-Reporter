@@ -22,7 +22,7 @@ class SummarizationResource(ProcessorResource):
     def templates_string(self) -> str:
         return TEMPLATE
 
-    def parse_messages(self, task_result: TaskResult, context: List[TaskResult]) -> List[Message]:
+    def parse_messages(self, task_result: TaskResult, context: List[TaskResult], language: str) -> List[Message]:
         if not task_result.processor == "Summarization":
             return []
 
