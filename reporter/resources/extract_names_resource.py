@@ -1,5 +1,5 @@
 import logging
-from typing import List, Type
+from typing import List, Type, Dict
 
 from reporter.core.models import Fact, Message
 from reporter.core.realize_slots import RegexRealizer, SlotRealizerComponent, ListRegexRealizer
@@ -29,13 +29,23 @@ class ExtractNamesResource(ProcessorResource):
         return TEMPLATE
 
     def parse_messages(self, task_result: TaskResult, context: List[TaskResult], language: str) -> List[Message]:
+
+        language = language.split("-")[0]
+
         if not task_result.processor == "ExtractNames":
             return []
 
         corpus, corpus_type = self.build_corpus_fields(task_result)
 
         for entity in task_result.task_result["result"]:
-            task_result.task_result["result"][entity]["entity"] = entity
+            entity_name_map: Dict[str, str] = task_result.task_result["result"][entity].get("names", {})
+            entity_names = [
+                entity_name_map.get(language, None),
+                entity_name_map.get("en", None),
+                list(entity_name_map.values())[0] if list(entity_name_map.values()) else None,
+                entity,
+            ]
+            task_result.task_result["result"][entity]["entity"] = next(name for name in entity_names if name)
 
         entities_with_interestingness = [
             (entity, max(interestingness.values()))
