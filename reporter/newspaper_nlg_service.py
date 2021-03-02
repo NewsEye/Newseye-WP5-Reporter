@@ -33,6 +33,7 @@ from reporter.newspaper_message_generator import NewspaperMessageGenerator, NoMe
 from reporter.newspaper_named_entity_resolver import NewspaperEntityNameResolver
 from reporter.resources.extract_bigrams_resource import ExtractBigramsResource
 from reporter.resources.extract_facets_resource import ExtractFacetsResource
+from reporter.resources.extract_names_resource import ExtractNamesResource
 from reporter.resources.extract_words_resource import ExtractWordsResource
 from reporter.resources.generate_time_series_resource import GenerateTimeSeriesResource
 from reporter.resources.newspaper_corpus_resource import NewspaperCorpusResource
@@ -72,6 +73,7 @@ class NewspaperNlgService(object):
             TopicModelDocumentLinkingResource(),
             QueryTopicModelResource(),
             TopicModelDocsetComparisonResource(),
+            ExtractNamesResource(),
         ]
 
         # Templates
