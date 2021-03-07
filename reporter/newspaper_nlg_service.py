@@ -47,6 +47,7 @@ from reporter.resources.query_topic_model_resource import QueryTopicModelResourc
 from reporter.resources.summarization_resource import SummarizationResource
 from reporter.resources.topic_model_docset_comparison_resource import TopicModelDocsetComparisonResource
 from reporter.resources.topic_model_document_linking_resource import TopicModelDocumentLinkingResource
+from reporter.resources.track_name_sentiment_resource import TrackNameSentimentResource
 
 log = logging.getLogger("root")
 
@@ -79,6 +80,7 @@ class NewspaperNlgService(object):
             QueryTopicModelResource(),
             TopicModelDocsetComparisonResource(),
             ExtractNamesResource(),
+            TrackNameSentimentResource(),
         ]
 
         # Templates
