@@ -65,9 +65,13 @@ class SurfaceRealizer(NLGPipelineComponent):
 
             sent = " ".join([component_value for component_value in component_values if component_value != ""]).rstrip()
             # Temp fix: remove extra spaces occurring with braces and sometimes before commas.
+            while "  " in sent:
+                sent = sent.replace("  ", " ")
             sent = re.sub(r"\(\s", r"(", sent)
             sent = re.sub(r"\s\)", r")", sent)
             sent = re.sub(r"\s,", r",", sent)
+            sent = re.sub(r"\s\.", r".", sent)
+            sent = re.sub(r"\s:", r":", sent)
 
             if not sent:
                 if self.fail_on_empty:
