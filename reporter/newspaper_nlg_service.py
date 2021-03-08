@@ -176,7 +176,13 @@ class NewspaperNlgService(object):
         data = json.loads(data)
         splits: Dict[str, List[str]] = defaultdict(list)
         for result in data:
-            key = json.dumps({"dataset": result.get("dataset"), "query": result.get("search_query")})
+            key = json.dumps(
+                {
+                    "dataset": result.get("dataset"),
+                    "query": result.get("search_query"),
+                    "processor": result.get("processor"),
+                }
+            )
             splits[key].append(result)
 
         outputs: List[Tuple[str, str, float, List[str]]] = []
