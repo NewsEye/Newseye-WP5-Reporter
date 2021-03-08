@@ -190,7 +190,28 @@ class NewspaperNlgService(object):
             json_split = json.dumps(split)
             outputs.append(self.run_pipeline_single(language, output_format, json_split, links))
 
+        # Limit outputs to top MAX_PARAGRAPHS outputs
         outputs = sorted(outputs, key=lambda x: x[2])[:MAX_PARAGRAPHS]
+
+        # Group outputs by header
+        outputs = sorted(outputs, key=lambda output: output[0])
+        outputs = [list(group) for _, group in itertools.groupby(outputs, key=lambda x: x[0])]
+
+        # Sort each group by score
+        outputs = [sorted(group, key=lambda output: output[2], reverse=True) for group in outputs]
+
+        # Calc max score for each group
+        outputs = [(group, max(output[2] for output in group)) for group in outputs]
+
+        # Sort group by max score
+        outputs = sorted(outputs, key=lambda x: x[1], reverse=True)
+
+        # Remove max scores
+        outputs = [grp for (grp, score) in outputs]
+
+        # Flatten groups to single list
+        outputs = list(itertools.chain.from_iterable(outputs))
+
         bodies, headlines, _, errors = zip(*outputs)
         errors = list(itertools.chain.from_iterable(errors))
 
