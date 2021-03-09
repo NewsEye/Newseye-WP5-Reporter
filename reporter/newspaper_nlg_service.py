@@ -198,14 +198,8 @@ class NewspaperNlgService(object):
         # Sort each group by score
         outputs = [sorted(group, key=lambda output: output[2], reverse=True) for group in outputs]
 
-        # Calc max score for each group
-        outputs = [(group, max(output[2] for output in group)) for group in outputs]
-
         # Sort group by max score
-        outputs = sorted(outputs, key=lambda x: x[1], reverse=True)
-
-        # Remove max scores
-        outputs = [grp for (grp, score) in outputs]
+        outputs = sorted(outputs, key=lambda group: max(output[2] for output in group), reverse=True)
 
         # Flatten groups to single list
         outputs = list(itertools.chain.from_iterable(outputs))
