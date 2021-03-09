@@ -189,7 +189,7 @@ class NewspaperNlgService(object):
             outputs.append(self.run_pipeline_single(language, output_format, json_split, links))
 
         # Limit outputs to top MAX_PARAGRAPHS outputs
-        outputs = sorted(outputs, key=lambda x: x[2])[:MAX_PARAGRAPHS]
+        outputs = sorted(outputs, key=lambda x: x[2], reverse=True)[:MAX_PARAGRAPHS]
 
         # Group outputs by header
         outputs = sorted(outputs, key=lambda output: output[0])
