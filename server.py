@@ -20,7 +20,7 @@ formatter = logging.Formatter(fmt="%(asctime)s - %(levelname)s - %(module)s - %(
 
 stream_handler = logging.StreamHandler()
 stream_handler.setFormatter(formatter)
-stream_handler.setLevel(logging.DEBUG)
+stream_handler.setLevel(logging.INFO)
 
 rotating_file_handler = logging.handlers.RotatingFileHandler(
     "reporter.log", mode="a", maxBytes=5 * 1024 * 1024, backupCount=2, encoding=None, delay=0
