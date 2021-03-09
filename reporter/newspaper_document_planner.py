@@ -192,7 +192,6 @@ def _weigh_by_context_similarity(
     for score, message in messages:
         if previous.main_fact.corpus == message.main_fact.corpus:
             score *= 1.5
-
         if previous.main_fact.timestamp_from == message.main_fact.timestamp_from:
             score *= 1.1
         if previous.main_fact.timestamp_to == message.main_fact.timestamp_to:
