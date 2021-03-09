@@ -10,7 +10,6 @@ from collections import defaultdict
 from typing import Callable, Dict, Iterable, List, Optional, Tuple, TypeVar, Union
 
 from reporter.constants import CONJUNCTIONS, get_error_message
-from reporter.core.aggregator import Aggregator
 from reporter.core.document_planner import NoInterestingMessagesException
 from reporter.core.models import Template
 from reporter.core.morphological_realizer import MorphologicalRealizer
@@ -148,7 +147,6 @@ class NewspaperNlgService(object):
             yield NewspaperBodyDocumentPlanner()
 
         yield TemplateSelector()
-        yield Aggregator()
         yield SlotRealizer()
         yield NewspaperEntityNameResolver()
 
