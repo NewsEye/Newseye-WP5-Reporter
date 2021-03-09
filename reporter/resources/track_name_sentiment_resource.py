@@ -2,7 +2,7 @@ import logging
 from typing import List, Type, Dict, Tuple
 
 from reporter.core.models import Fact, Message
-from reporter.core.realize_slots import RegexRealizer, SlotRealizerComponent
+from reporter.core.realize_slots import SlotRealizerComponent
 from reporter.newspaper_message_generator import TaskResult
 from reporter.resources.processor_resource import ProcessorResource
 
@@ -10,9 +10,18 @@ log = logging.getLogger("root")
 
 
 TEMPLATE = """
-en: between {timestamp_from} and {timestamp_to}, {result_key} {result_value} {analysis_id}
-| analysis_type = TrackNameSentiment:MinMaxMean
-"""
+en: the most negative sentiment towards {result_key} ( {result_value} ) occurred at {timestamp} {analysis_id}
+| analysis_type = TrackNameSentiment:Min
+
+en: the most positive sentiment towards {result_key} ( {result_value} ) occurred at {timestamp} {analysis_id}
+| analysis_type = TrackNameSentiment:Max
+
+en: the mean sentiments towards {result_key} between {timestamp_from} and {timestamp_to}  was {result_value} {analysis_id}
+| analysis_type = TrackNameSentiment:Mean
+
+en: {result_key} was discussed during {result_value} distinct years between {timestamp_from} and {timestamp_to} {analysis_id}
+| analysis_type = TrackNameSentiment:CountYears
+"""  # noqa: E501
 
 
 class TrackNameSentimentResource(ProcessorResource):
@@ -77,16 +86,60 @@ class TrackNameSentimentResource(ProcessorResource):
                         min_year,
                         max_year,
                         "between_years",
-                        "TrackNameSentiment:MinMaxMean",
+                        "TrackNameSentiment:CountYears",
                         "[ENTITY:NAME:{}]".format(entry),
-                        "[TrackNameSentiment:MinMaxMean:{}:{}:{}:{}:{}:{}]".format(
-                            year_count,
-                            mean_sentiment,
-                            max_sentiment,
-                            max_sentiment_year,
-                            min_sentiment,
-                            min_sentiment_year,
-                        ),
+                        year_count,
+                        max_interestingness,
+                        "[LINK:{}]".format(task_result.uuid),  # uuid
+                    )
+                )
+            )
+
+            messages.append(
+                Message(
+                    Fact(
+                        corpus,
+                        corpus_type,
+                        min_year,
+                        max_year,
+                        "between_years",
+                        "TrackNameSentiment:Mean",
+                        "[ENTITY:NAME:{}]".format(entry),
+                        mean_sentiment,
+                        max_interestingness,
+                        "[LINK:{}]".format(task_result.uuid),  # uuid
+                    )
+                )
+            )
+
+            messages.append(
+                Message(
+                    Fact(
+                        corpus,
+                        corpus_type,
+                        min_sentiment_year,
+                        min_sentiment_year,
+                        "during_year",
+                        "TrackNameSentiment:Min",
+                        "[ENTITY:NAME:{}]".format(entry),
+                        min_sentiment,
+                        max_interestingness,
+                        "[LINK:{}]".format(task_result.uuid),  # uuid
+                    )
+                )
+            )
+
+            messages.append(
+                Message(
+                    Fact(
+                        corpus,
+                        corpus_type,
+                        max_sentiment_year,
+                        max_sentiment_year,
+                        "between_years",
+                        "TrackNameSentiment:Max",
+                        "[ENTITY:NAME:{}]".format(entry),
+                        max_sentiment,
                         max_interestingness,
                         "[LINK:{}]".format(task_result.uuid),  # uuid
                     )
@@ -96,17 +149,4 @@ class TrackNameSentimentResource(ProcessorResource):
         return messages
 
     def slot_realizer_components(self) -> List[Type[SlotRealizerComponent]]:
-        return [EnglishTrackNameSentimentMinMaxMeanRealizer]
-
-
-class EnglishTrackNameSentimentMinMaxMeanRealizer(RegexRealizer):
-    def __init__(self, registry):
-        super().__init__(
-            registry,
-            "en",
-            r"\[TrackNameSentiment:MinMaxMean:([^:\]]+):([^:\]]+):([^:\]]+):([^:\]]+):([^:\]]+):([^:\]]+)\]",
-            (1, 2, 3, 4, 5, 6),
-            "was discussed during {} distinct years. The mean sentiment towards it was {} , "
-            + "with the most positive sentiment ( {} ) occuring at {} "
-            + "and the most negative sentiment ( {} ) occuring at {}",
-        )
+        return []
