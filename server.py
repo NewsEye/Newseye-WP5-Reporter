@@ -33,7 +33,7 @@ log.addHandler(rotating_file_handler)
 
 
 # Bottle
-bottle.BaseRequest.MEMFILE_MAX = 10 * 1024 * 1024  # Allow up to 10MBB requests
+bottle.BaseRequest.MEMFILE_MAX = 512 * 1024 * 1024  # Allow up to 512MB requests
 app = Bottle()
 service = NewspaperNlgService(random_seed=4551546)
 TEMPLATE_PATH.insert(0, os.path.dirname(os.path.realpath(__file__)) + "/../views/")
