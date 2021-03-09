@@ -15,6 +15,9 @@ fi: kokoelman tekstit liittyvät {result_key} painolla {result_value} {analysis_
 de: Der Korpus ist mit {result_key} mit einem Gewicht von {result_value} verbunden {analysis_id}
 fr: le corpus est associé au {result_key} avec un poids de {result_value} {analysis_id}
 | analysis_type = TopicModel:Query:Corpus
+
+en: {result_key} with a weight of {result_value} {analysis_id}
+| analysis_type = TopicModel:Query:Document
 """
 
 
@@ -66,6 +69,51 @@ class QueryTopicModelResource(ProcessorResource):
                 )
             )
 
+        # Early stop, in case this is an older style of input
+        if "doc_ids" not in task_result.task_result["result"]:
+            return messages
+
+        docs = list(
+            zip(
+                task_result.task_result["result"]["doc_ids"],
+                task_result.task_result["result"]["doc_weights"],
+                task_result.task_result["interestingness"]["doc_weights"],
+            )
+        )
+        for (document, topic_weights, interestingness_values) in docs:
+            for ((topic, topic_weight), interestingness) in zip(enumerate(topic_weights), interestingness_values):
+
+                if "model_type" in task_result.parameters and "model_name" in task_result.parameters:
+                    result_key = "[TopicModelAndDocument:Known:{}:{}:{}:{}]".format(
+                        document,
+                        task_result.parameters["model_type"].upper(),
+                        task_result.parameters["model_name"],
+                        topic,
+                    )
+                elif "language" in task_result.parameters:
+                    result_key = "[TopicModelAndDocument:Language:{}:{}:{}]".format(
+                        document, task_result.parameters["language"].lower(), topic
+                    )
+                else:
+                    result_key = "[TopicModelAndDocument:Unknown:{}:{}]".format(document, topic)
+
+                messages.append(
+                    Message(
+                        Fact(
+                            corpus,
+                            corpus_type,
+                            None,
+                            None,
+                            "all_time",
+                            "TopicModel:Query:Document",
+                            result_key,
+                            topic_weight,
+                            interestingness,
+                            "[LINK:{}]".format(task_result.uuid),  # uuid
+                        )
+                    )
+                )
+
         return messages
 
     def slot_realizer_components(self) -> List[Type[SlotRealizerComponent]]:
@@ -73,6 +121,9 @@ class QueryTopicModelResource(ProcessorResource):
             EnglishTopicModelRealizer,
             EnglishLanguageTopicModelRealizer,
             EnglishUnknownTopicModelRealizer,
+            EnglishKnownTopicModelDocumentRealizer,
+            EnglishLanguageTopicModelDocumentRealizer,
+            EnglishUnknownTopicModelDocumentRealizer,
             FinnishTopicModelRealizer,
             GermanTopicModelRealizer,
             FrenchTopicModelRealizer,
@@ -105,6 +156,39 @@ class EnglishUnknownTopicModelRealizer(RegexRealizer):
     def __init__(self, registry):
         super().__init__(
             registry, "en", r"\[TopicModel:Unknown:([^\]]+)\]", [1], "the topic #{} of an unknown topic model",
+        )
+
+
+class EnglishKnownTopicModelDocumentRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            "en",
+            r"\[TopicModelAndDocument:Known:([^\]]+):([^\]]+):([^\]]+):([^\]]+)\]",
+            [1, 2, 3, 4],
+            "document {} is associated with [TopicModel:Known:{}:{}:{}]",
+        )
+
+
+class EnglishLanguageTopicModelDocumentRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            "en",
+            r"\[TopicModelAndDocument:Language:([^\]]+):([^\]]+):([^\]]+)\]",
+            [1, 2, 3],
+            "document {} is associated with [TopicModel:Language:{}:{}]",
+        )
+
+
+class EnglishUnknownTopicModelDocumentRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            "en",
+            r"\[TopicModelAndDocument:Unknown:([^\]]+):([^\]]+)\]",
+            [1, 2],
+            "document {} is associated with [TopicModel:Unknown:{}]",
         )
 
 
