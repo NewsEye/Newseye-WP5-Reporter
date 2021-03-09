@@ -14,7 +14,7 @@ en: the corpus is associated with {result_key} with a weight of {result_value} {
 fi: kokoelman tekstit liittyvät {result_key} painolla {result_value} {analysis_id}
 de: Der Korpus ist mit {result_key} mit einem Gewicht von {result_value} verbunden {analysis_id}
 fr: le corpus est associé au {result_key} avec un poids de {result_value} {analysis_id}
-| analysis_type = TopicModel:Query
+| analysis_type = TopicModel:Query:Corpus
 """
 
 
@@ -36,29 +36,43 @@ class QueryTopicModelResource(ProcessorResource):
             )
         ]
 
-        return [
-            Message(
-                Fact(
-                    corpus,
-                    corpus_type,
-                    None,
-                    None,
-                    "all_time",
-                    "TopicModel:Query",
-                    "[TopicModel:{}:{}:{}]".format(
-                        task_result.parameters["model_type"].upper(), task_result.parameters["model_name"], topic
-                    ),
-                    weight,
-                    interestingness,
-                    "[LINK:{}]".format(task_result.uuid),  # uuid
+        messages: List[Message] = []
+
+        for (topic, weight, interestingness) in topics:
+
+            if "model_type" in task_result.parameters and "model_name" in task_result.parameters:
+                result_key = "[TopicModel:Known:{}:{}:{}]".format(
+                    task_result.parameters["model_type"].upper(), task_result.parameters["model_name"], topic
+                )
+            elif "language" in task_result.parameters:
+                result_key = "[TopicModel:Language:{}:{}]".format(task_result.parameters["language"].lower(), topic)
+            else:
+                result_key = "[TopicModel:Unknown:{}]".format(topic)
+
+            messages.append(
+                Message(
+                    Fact(
+                        corpus,
+                        corpus_type,
+                        None,
+                        None,
+                        "all_time",
+                        "TopicModel:Query:Corpus",
+                        result_key,
+                        weight,
+                        interestingness,
+                        "[LINK:{}]".format(task_result.uuid),  # uuid
+                    )
                 )
             )
-            for (topic, weight, interestingness) in topics
-        ]
+
+        return messages
 
     def slot_realizer_components(self) -> List[Type[SlotRealizerComponent]]:
         return [
             EnglishTopicModelRealizer,
+            EnglishLanguageTopicModelRealizer,
+            EnglishUnknownTopicModelRealizer,
             FinnishTopicModelRealizer,
             GermanTopicModelRealizer,
             FrenchTopicModelRealizer,
@@ -70,9 +84,27 @@ class EnglishTopicModelRealizer(RegexRealizer):
         super().__init__(
             registry,
             "en",
-            r"\[TopicModel:([^\]]+):([^\]]+):([^\]]+)\]",
+            r"\[TopicModel:Known:([^\]]+):([^\]]+):([^\]]+)\]",
             [3, 1, 2],
             "the topic #{} of the {} topic model {}",
+        )
+
+
+class EnglishLanguageTopicModelRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            "en",
+            r"\[TopicModel:Language:([^\]]+):([^\]]+)\]",
+            [2, 1],
+            "the topic #{} of an unnamed [LANGUAGE:{}] language topic model",
+        )
+
+
+class EnglishUnknownTopicModelRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry, "en", r"\[TopicModel:Unknown:([^\]]+)\]", [1], "the topic #{} of an unknown topic model",
         )
 
 
