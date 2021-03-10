@@ -11,8 +11,8 @@ log = logging.getLogger("root")
 
 TEMPLATE = """
 en: the search found {result_value} articles published during {result_key} {analysis_id}
-fi: haussa löytyi {result_value} artikkelia jotka oli julkaistu vuonna {result_key} {analysis_id}
-de: Die Suche hat {result_value} Artikel gefunden, die im Jahre {result_key} publiziert wurden {analysis_id}
+fi: haussa löytyi {result_value} artikkelia jotka oli julkaistu {result_key} {analysis_id}
+de: Die Suche hat {result_value} Artikel gefunden, die im {result_key} publiziert wurden {analysis_id}
 fr: la recherche fait apparaître {result_value} article(s) publié(s) en {result_key} {analysis_id}
 | analysis_type = ExtractFacets:PUB_YEAR
 
@@ -74,7 +74,7 @@ class ExtractFacetsResource(ProcessorResource):
 
 class PubYearRealizer(RegexRealizer):
     def __init__(self, registry):
-        super().__init__(registry, "ANY", r"\[PUB_YEAR:([^\]]+)\]", 1, "{}")
+        super().__init__(registry, "ANY", r"\[PUB_YEAR:([^\]]+)\]", (1, 1), "[TIME:year:{}:{}]")
 
 
 class LanguageRealizer(RegexRealizer):

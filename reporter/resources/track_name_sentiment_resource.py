@@ -10,16 +10,16 @@ log = logging.getLogger("root")
 
 
 TEMPLATE = """
-en: the most negative sentiment towards {result_key} ( {result_value} ) occurred at {timestamp} {analysis_id}
+en: the most negative sentiment towards {result_key} ( {result_value} ) occurred at {time} {analysis_id}
 | analysis_type = TrackNameSentiment:Min
 
-en: the most positive sentiment towards {result_key} ( {result_value} ) occurred at {timestamp} {analysis_id}
+en: the most positive sentiment towards {result_key} ( {result_value} ) occurred at {time} {analysis_id}
 | analysis_type = TrackNameSentiment:Max
 
-en: the mean sentiments towards {result_key} between {timestamp_from} and {timestamp_to}  was {result_value} {analysis_id}
+en: the mean sentiments towards {result_key} {time} was {result_value} {analysis_id}
 | analysis_type = TrackNameSentiment:Mean
 
-en: {result_key} was discussed during {result_value} distinct years between {timestamp_from} and {timestamp_to} {analysis_id}
+en: {result_key} was discussed during {result_value} distinct years {time} {analysis_id}
 | analysis_type = TrackNameSentiment:CountYears
 """  # noqa: E501
 
@@ -119,7 +119,7 @@ class TrackNameSentimentResource(ProcessorResource):
                         corpus_type,
                         min_sentiment_year,
                         min_sentiment_year,
-                        "during_year",
+                        "year",
                         "TrackNameSentiment:Min",
                         "[ENTITY:NAME:{}]".format(entry),
                         min_sentiment,
@@ -136,7 +136,7 @@ class TrackNameSentimentResource(ProcessorResource):
                         corpus_type,
                         max_sentiment_year,
                         max_sentiment_year,
-                        "between_years",
+                        "year",
                         "TrackNameSentiment:Max",
                         "[ENTITY:NAME:{}]".format(entry),
                         max_sentiment,

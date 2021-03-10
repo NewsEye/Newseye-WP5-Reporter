@@ -28,6 +28,7 @@ from reporter.core.template_selector import TemplateSelector
 from reporter.english_uralicNLP_morphological_realizer import EnglishUralicNLPMorphologicalRealizer
 from reporter.finnish_uralicNLP_morphological_realizer import FinnishUralicNLPMorphologicalRealizer
 from reporter.link_remover import LinkRemover
+from reporter.newspaper_date_resolver import DateRealizer
 from reporter.newspaper_document_planner import (
     NewspaperBodyDocumentPlanner,
     NewspaperHeadlineDocumentPlanner,
@@ -151,6 +152,7 @@ class NewspaperNlgService(object):
         yield Aggregator()
         yield SlotRealizer()
         yield NewspaperEntityNameResolver()
+        yield DateRealizer()
 
         yield MorphologicalRealizer(
             {"fi": FinnishUralicNLPMorphologicalRealizer(), "en": EnglishUralicNLPMorphologicalRealizer()}
