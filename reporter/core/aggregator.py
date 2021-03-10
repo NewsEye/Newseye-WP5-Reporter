@@ -4,7 +4,7 @@ from typing import List, Tuple
 
 from numpy.random import Generator
 
-from reporter.core.models import DocumentPlanNode, Literal, Message, Relation, Slot, Template, TemplateComponent
+from reporter.core.models import DocumentPlanNode, Literal, Message, Slot, Template, TemplateComponent
 from reporter.core.pipeline import NLGPipelineComponent
 from reporter.core.registry import Registry
 
@@ -32,11 +32,6 @@ class Aggregator(NLGPipelineComponent):
         # Cannot aggregate a single Message
         if isinstance(document_plan_node, Message):
             return document_plan_node
-
-        if document_plan_node.relation == Relation.ELABORATION:
-            return self._aggregate_elaboration(registry, language, document_plan_node)
-        elif document_plan_node.relation == Relation.LIST:
-            return self._aggregate_list(registry, language, document_plan_node)
         return self._aggregate_sequence(registry, language, document_plan_node)
 
     def _aggregate_sequence(
@@ -73,21 +68,45 @@ class Aggregator(NLGPipelineComponent):
         document_plan_node.children.extend(new_children)
         return document_plan_node
 
-    def _aggregate_elaboration(
-        self, registry: Registry, language: str, document_plan_node: DocumentPlanNode
-    ) -> DocumentPlanNode:
-        # TODO: Re-implement this
-        raise NotImplementedError
+    def _get_combinable_prefix(self, first: Message, second: Message):
+        try:
+            getattr(first.template, "components")
+            getattr(second.template, "components")
+        except AttributeError:
+            return []
 
-    def _aggregate_list(self, registry: Registry, language: str, document_plan_node: DocumentPlanNode) -> Message:
-        # TODO: Re-implement this
-        raise NotImplementedError
+        shared_prefix = []
+
+        for m1_component, m2_component in zip(first.template.components, second.template.components):
+            if self._are_same(m1_component, m2_component):
+                shared_prefix.append(m1_component)
+            else:
+                break
+
+        # This is a special case: "The search found 114385 articles in French." followed by
+        # "The search found 114385 articles from the newspaper L oeuvre." should aggregate as
+        # "The search found 14385 articles in French and 14385 articles from the newspaper L oeuvre"
+        # despite there being no slots in the shared prefix. We identify this case by checking whether the component
+        # following the prefix, in both templates, is a result_value slot.
+        # We might be able to relax this to "any slot", but that requires a bunch more checking.
+        # TODO: Check above.
+        m1_following = first.template.components[len(shared_prefix)]
+        m2_following = second.template.components[len(shared_prefix)]
+        print(f"NEXT COMPONENTS: {m1_following} and {m2_following}")
+        if isinstance(m1_following, Slot) and isinstance(m2_following, Slot):
+            if m1_following.slot_type == "result_value" and m2_following.slot_type == "result_value":
+                return shared_prefix
+
+        # The standard case: the prefix must terminate in a slot. Due to self._are_same above, the prefix can't ever
+        # contain a result_value slot, so no need to special case that.
+        while shared_prefix and type(shared_prefix[-1]) != Slot:
+            shared_prefix = shared_prefix[:-1]
+        return shared_prefix
 
     def _same_prefix(self, first: Message, second: Message) -> bool:
-        try:
-            return first.template.components[0].value == second.template.components[0].value
-        except AttributeError:
+        if first is None or second is None:
             return False
+        return len(self._get_combinable_prefix(first, second)) > 0
 
     def _combine(self, registry: Registry, language: str, first: Message, second: Message) -> Message:
         log.debug(
@@ -96,28 +115,16 @@ class Aggregator(NLGPipelineComponent):
             )
         )
 
+        shared_prefix = self._get_combinable_prefix(first, second)
+        log.debug(f"Shared prefix is {[e.value for e in shared_prefix]}")
+
         combined = [c for c in first.template.components]
-        # TODO: 'idx' and 'other_component' are left uninitialized if second.template.components is empty.
-        for idx, other_component in enumerate(second.template.components):
-            if idx >= len(combined):
-                break
-            this_component = combined[idx]
 
-            if not self._are_same(this_component, other_component):
-                break
-
-        log.debug("idx = {}".format(idx))
-        # TODO At the moment everything is considered either positive or negative, which is sometimes weird.
-        #  Add neutral sentences.
         conjunctions = registry.get("CONJUNCTIONS").get(language, None)
         if not conjunctions:
             conjunctions = (defaultdict(lambda x: "NO-CONJUNCTION-DICT"),)
-
-        if first.polarity != first.polarity:
-            combined.append(Literal(conjunctions.get("inverse_combiner", "MISSING-INVERSE-CONJUCTION")))
-        else:
-            combined.append(Literal(conjunctions.get("default_combiner", "MISSING-DEFAULT-CONJUCTION")))
-        combined.extend(second.template.components[idx:])
+        combined.append(Literal(conjunctions.get("default_combiner", "MISSING-DEFAULT-CONJUCTION")))
+        combined.extend(second.template.components[len(shared_prefix) :])
         log.debug("Combined thing is {}".format([c.value for c in combined]))
         new_message = Message(
             facts=first.facts + [fact for fact in second.facts if fact not in first.facts],
@@ -135,8 +142,19 @@ class Aggregator(NLGPipelineComponent):
         if isinstance(c1, Slot) and isinstance(c2, Slot):
             assert c1.fact is not None
             assert c2.fact is not None
-            if getattr(c1.fact, c1.slot_type) != getattr(c2.fact, c2.slot_type):
+
+            if (c1.slot_type == "time") != (c2.slot_type == "time"):
                 return False
+            elif c1.slot_type == "time" and c2.slot_type == "time":
+                if not (
+                    (c1.fact.timestamp_type == c2.fact.timestamp_type)
+                    and (c1.fact.timestamp_from == c2.fact.timestamp_from)
+                    and (c1.fact.timestamp_to == c2.fact.timestamp_to)
+                ):
+                    return False
+            else:
+                if getattr(c1.fact, c1.slot_type) != getattr(c2.fact, c2.slot_type):
+                    return False
 
             # Aggregating numbers is a mess, and can easily lead to sentences like "The search found 114385 articles in
             # French and from the newspaper L oeuvre", which implies that there is a set of 114385 articles s.t. every
