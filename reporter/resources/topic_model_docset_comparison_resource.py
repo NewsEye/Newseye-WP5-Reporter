@@ -10,28 +10,28 @@ log = logging.getLogger("root")
 
 
 TEMPLATE = """
-en: {corpus} share the following topics from {result_key}: {result_value}
+en: {corpus} share the following topics from {result_key}: {result_value} {analysis_id}
 | analysis_type = TopicModelDocsetComparison:Shared:Topics:Multi
 
-en: {corpus} share the topic {result_value} from {result_key}
+en: {corpus} share the topic {result_value} from {result_key} {analysis_id}
 | analysis_type = TopicModelDocsetComparison:Shared:Topics:Single
 
-en: {corpus} share no topics from {result_key}
+en: {corpus} share no topics from {result_key} {analysis_id}
 | analysis_type = TopicModelDocsetComparison:Shared:Topics:None
 
-en: the shared topics of {corpus} have {result_key} of {result_value}
+en: the shared topics of {corpus} have {result_key} of {result_value} {analysis_id}
 | analysis_type = TopicModelDocsetComparison:Shared:JSD
 
-en: {corpus} has the following distinct topics from {result_key}: {result_value}
+en: {corpus} has the following distinct topics from {result_key}: {result_value} {analysis_id}
 | analysis_type = TopicModelDocsetComparison:Distinct:Topics:Multi
 
-en: {corpus} has the the distinct topic {result_value} from {result_key}
+en: {corpus} has the the distinct topic {result_value} from {result_key} {analysis_id}
 | analysis_type = TopicModelDocsetComparison:Distinct:Topics:Single
 
-en: {corpus} has no distinct topics from {result_key}
+en: {corpus} has no distinct topics from {result_key} {analysis_id}
 | analysis_type = TopicModelDocsetComparison:Distinct:Topics:None
 
-en: {corpus} has {result_key} of {result_value}
+en: {corpus} has {result_key} of {result_value} {analysis_id}
 | analysis_type = TopicModelDocsetComparison:Distinct:JSD
 """
 
