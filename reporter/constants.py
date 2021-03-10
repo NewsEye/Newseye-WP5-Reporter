@@ -1,33 +1,5 @@
 # fmt: off
 
-LANGUAGES = {
-    "en": {
-        "fi": "Finnish",
-        "en": "English",
-        "de": "German",
-        "fr": "French",
-    },
-    "fi": {
-        "fi": "suomi",
-        "en": "englanti",
-        "de": "saksa",
-        "fr": "ranska",
-    },
-    "de": {
-        "fi": "Finnisch",
-        "en": "Englisch",
-        "de": "Deutsch",
-        "fr": "Französisch",
-    },
-    "fr": {
-        "fi": "finnois",
-        "en": "anglais",
-        "de": "allemand",
-        "fr": "français",
-    }
-}
-
-
 CONJUNCTIONS = {
     "en": {
         "default_combiner": "and",

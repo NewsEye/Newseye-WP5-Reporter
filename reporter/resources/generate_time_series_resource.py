@@ -2,7 +2,7 @@ import logging
 from typing import List, Type
 
 from reporter.core.models import Fact, Message
-from reporter.core.realize_slots import SlotRealizerComponent
+from reporter.core.realize_slots import SlotRealizerComponent, RegexRealizer
 from reporter.newspaper_message_generator import TaskResult
 from reporter.resources.processor_resource import ProcessorResource
 
@@ -125,4 +125,9 @@ class GenerateTimeSeriesResource(ProcessorResource):
         return messages
 
     def slot_realizer_components(self) -> List[Type[SlotRealizerComponent]]:
-        return []
+        return [NewsPaperNameRealizer]
+
+
+class NewsPaperNameRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(registry, "ANY", r"\[ENTITY:NEWSPAPER_NAME:([^\]]+)\]", 1, "[ENTITY:NEWSPAPER:{}]")
