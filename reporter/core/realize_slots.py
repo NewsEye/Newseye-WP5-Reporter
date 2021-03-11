@@ -3,6 +3,7 @@ import re
 from abc import ABC, abstractmethod
 from typing import Callable, Iterable, List, Optional, Tuple, Union
 
+import babel.numbers
 from numpy.random import Generator
 
 from reporter.core.models import DocumentPlanNode, Literal, Message, Slot, TemplateComponent
@@ -60,7 +61,7 @@ class SlotRealizer(NLGPipelineComponent):
         for slot_realizer in self.slot_realizers:
             assert isinstance(slot_realizer, SlotRealizerComponent)
             if language in slot_realizer.supported_languages() or "ANY" in slot_realizer.supported_languages():
-                success, components = slot_realizer.realize(slot, self._random)
+                success, components = slot_realizer.realize(slot, self._random, language)
                 if success:
                     return components
         log.debug("Unable to realize slot {} in language {} with any realizer".format(slot, language))
@@ -73,7 +74,7 @@ class SlotRealizerComponent(ABC):
         pass
 
     @abstractmethod
-    def realize(self, slot: Slot, random: Generator) -> Tuple[bool, List[TemplateComponent]]:
+    def realize(self, slot: Slot, random: Generator, language: str) -> Tuple[bool, List[TemplateComponent]]:
         pass
 
 
@@ -81,8 +82,9 @@ class NumberRealizer(SlotRealizerComponent):
     def supported_languages(self) -> List[str]:
         return ["ANY"]
 
-    def realize(self, slot: Slot, random: Generator) -> Tuple[bool, List[TemplateComponent]]:
+    def realize(self, slot: Slot, random: Generator, language: str) -> Tuple[bool, List[TemplateComponent]]:
         value = slot.value
+        language = language.split("-")[0]
 
         try:
             value = float(value)
@@ -94,12 +96,12 @@ class NumberRealizer(SlotRealizerComponent):
 
         if isinstance(value, (int, float)):
             if int(value) == value:
-                slot.value = lambda x: int(value)
+                slot.value = lambda x: babel.numbers.format_decimal(int(value), locale=language)
                 return True, [slot]
 
             for rounding in range(5):
                 if round(value, rounding) != 0:
-                    slot.value = lambda x: round(value, rounding + 2)
+                    slot.value = lambda x: babel.numbers.format_decimal(round(value, rounding + 2), locale=language)
                     return True, [slot]
 
         return True, [slot]
@@ -129,7 +131,7 @@ class RegexRealizer(SlotRealizerComponent):
     def supported_languages(self) -> List[str]:
         return self.languages
 
-    def realize(self, slot: Slot, random: Generator) -> Tuple[bool, List[TemplateComponent]]:
+    def realize(self, slot: Slot, random: Generator, language: str) -> Tuple[bool, List[TemplateComponent]]:
         # We can only parse the slot contents with a regex if the slot contents are a string
         if not isinstance(slot.value, str):
             return False, []
@@ -217,7 +219,7 @@ class ListRegexRealizer(RegexRealizer):
         self.separator = separator
         self.combiner = combiner
 
-    def realize(self, slot: Slot, random: Generator) -> Tuple[bool, List[TemplateComponent]]:
+    def realize(self, slot: Slot, random: Generator, language: str) -> Tuple[bool, List[TemplateComponent]]:
         # We can only parse the slot contents with a regex if the slot contents are a string
         if not isinstance(slot.value, str):
             return False, []
