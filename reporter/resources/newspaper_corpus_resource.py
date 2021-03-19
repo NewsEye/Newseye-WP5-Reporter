@@ -9,13 +9,13 @@ TEMPLATE = """
 ${simple}: dataset, query, dataset_query
 
 en-head: Analysis of {corpus}
-fi-head: Analyysi {corpus}
+fi-head: Analyysi jonka kohteena on {corpus}
 de-head: Analyse {corpus}
 fr-head: L’analyse du {corpus}
 | corpus_type in {simple}
 
 en-head: Comparison of {corpus}
-fi-head: Vertaileva analyysi {corpus}
+fi-head: Vertaileva analyysi jonka kohteina ovat {corpus}
 de-head: Vergleich {corpus}
 fr-head: Analyse comparative {corpus}
 | corpus_type = multicorpus_comparison
@@ -43,9 +43,11 @@ class NewspaperCorpusResource(ProcessorResource):
             QfRealizer,
             #
             FinnishDatasetRealizer,
-            FinnishDatasetPlusRealizer,
             FinnishQueryRealizer,
             FinnishQueryPlusRealizer,
+            FinnishDatasetQueryRealizer,
+            FinnishDatasetQueryPlusRealizer,
+            FinnishQueryMetaRealizer,
             #
             GermanDatasetRealizer,
             GermanQueryRealizer,
@@ -124,22 +126,40 @@ class QfRealizer(RegexRealizer):
 
 class FinnishDatasetRealizer(RegexRealizer):
     def __init__(self, registry):
-        super().__init__(registry, "fi", r"\[dataset:([^\]:]+)\]$", 1, 'kokoelmasta "{}"')
-
-
-class FinnishDatasetPlusRealizer(RegexRealizer):
-    def __init__(self, registry):
-        super().__init__(registry, "fi", r"\[dataset:([^\]:]+)\] (.*)", (1, 2), 'kokoelmaan "{}" kohdistuneen {}')
+        super().__init__(registry, "fi", r"\[dataset:([^\]:]+)\]$", 1, 'kokoelma "{}"')
 
 
 class FinnishQueryRealizer(RegexRealizer):
     def __init__(self, registry):
-        super().__init__(registry, "fi", r"\[query:([^\]:]+)\]$", 1, 'haun "{}" tuloksista')
+        super().__init__(registry, "fi", r"\[query:([^\]:]+)\]$", 1, 'haku "{}"')
 
 
 class FinnishQueryPlusRealizer(RegexRealizer):
     def __init__(self, registry):
-        super().__init__(registry, "fi", r"\[query:([^\]:]+)\] (.+)$", (1, 2), 'haun "{}" {} tuloksista')
+        super().__init__(registry, "en", r"\[query:([^\]:]+):([^\]]+)\]$", (1, 2), 'haku "{}" ( [query_meta:{}] )')
+
+
+class FinnishDatasetQueryRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry, "fi", r"\[dataset_query:([^\]:]+):([^\]:]+)\]", (2, 1), 'haulla "{}" rajattu kokoelma "{}"',
+        )
+
+
+class FinnishDatasetQueryPlusRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            "fi",
+            r"\[dataset_query:([^\]:]+):([^\]:]+):([^\]]+)\]",
+            (2, 3, 1,),
+            'haulla "{}" ( [query_meta:{}] ) rajattu kokoelma "{}"',
+        )
+
+
+class FinnishQueryMetaRealizer(ListRegexRealizer):
+    def __init__(self, registry):
+        super().__init__(registry, "fi", r"\[query_meta:([^\]]+)\]", 1, "[{}]", "ja")
 
 
 class GermanDatasetRealizer(RegexRealizer):
