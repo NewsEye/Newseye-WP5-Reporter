@@ -11,27 +11,35 @@ log = logging.getLogger("root")
 
 TEMPLATE = """
 en: {corpus} share the following topics from {result_key}: {result_value} {analysis_id}
+fi: {corpus} jakavat seuraavat aiheet {result_key}: {result_value} {analysis_id}
 | analysis_type = TopicModelDocsetComparison:Shared:Topics:Multi
 
 en: {corpus} share the topic {result_value} from {result_key} {analysis_id}
+fi: {corpus} jakavant aiheen {result_value} {result_key} {analysis_id}
 | analysis_type = TopicModelDocsetComparison:Shared:Topics:Single
 
 en: {corpus} share no topics from {result_key} {analysis_id}
+fi: {corpus} eivät jaa aiheita {result_key} {analysis_id}
 | analysis_type = TopicModelDocsetComparison:Shared:Topics:None
 
 en: the shared topics of {corpus} have {result_key} of {result_value} {analysis_id}
+fi: {corpus} {result_key} oli {result_value} {analysis_id}
 | analysis_type = TopicModelDocsetComparison:Shared:JSD
 
-en: {corpus} has the following distinct topics from {result_key}: {result_value} {analysis_id}
+en: {corpus} discussed the following topics from {result_key}: {result_value} {analysis_id}
+fi: {corpus} käsitteli seuraavia aiheita {result_key}: {result_value} {analysis_id}
 | analysis_type = TopicModelDocsetComparison:Distinct:Topics:Multi
 
-en: {corpus} has the the distinct topic {result_value} from {result_key} {analysis_id}
+en: {corpus} discussed only the topic {result_value} from {result_key} {analysis_id}
+fi: {corpus} käsitteli ainoastaan aihetta {result_value} from {result_key} {analysis_id}
 | analysis_type = TopicModelDocsetComparison:Distinct:Topics:Single
 
-en: {corpus} has no distinct topics from {result_key} {analysis_id}
+en: {corpus} discussed no topics from {result_key} {analysis_id}
+fi: {corpus} ei käsitellyt ainoatakan aihetta {result_key} {analysis_id}
 | analysis_type = TopicModelDocsetComparison:Distinct:Topics:None
 
 en: {corpus} has {result_key} of {result_value} {analysis_id}
+fi: {corpus} {result_key} oli {result_value} {analysis_id}
 | analysis_type = TopicModelDocsetComparison:Distinct:JSD
 """
 
@@ -166,13 +174,27 @@ class TopicModelDocsetComparisonResource(ProcessorResource):
 
     def slot_realizer_components(self) -> List[Type[SlotRealizerComponent]]:
         return [
+            TopicRealizer,
+            #
             EnglishTopicModelRealizer,
-            EnglishTopicRealizer,
             EnglishTopicListRealizer,
             EnglishMeanJSDRealizer,
             EnglishCrossJSDRealizer,
             EnglishInternalJSDRealizer,
+            #
+            FinnishTopicModelRealizer,
+            FinnishTopicListRealizer,
+            FinnishMeanJSDRealizer,
+            FinnishCrossJSDRealizer,
+            FinnishInternalJSDRealizer,
         ]
+
+
+class TopicRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry, "ANY", r"\[TopicModelDocsetComparison:Topic:([^\]]+)\]", [1], "{}",
+        )
 
 
 class EnglishTopicModelRealizer(RegexRealizer):
@@ -191,13 +213,6 @@ class EnglishTopicListRealizer(ListRegexRealizer):
             1,
             "[TopicModelDocsetComparison:Topic:{}]",
             "and",
-        )
-
-
-class EnglishTopicRealizer(RegexRealizer):
-    def __init__(self, registry):
-        super().__init__(
-            registry, "en", r"\[TopicModelDocsetComparison:Topic:([^\]]+)\]", [1], "{}",
         )
 
 
@@ -227,4 +242,56 @@ class EnglishInternalJSDRealizer(RegexRealizer):
             r"\[TopicModelDocsetComparison:JSD:Internal\]",
             [],
             "mean pairwise JSD within the collection",
+        )
+
+
+class FinnishTopicModelRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry, "fi", r"\[TopicModelDocsetComparison:TM:([^\]]+)\]", [1], "{}-aihemallin",
+        )
+
+
+class FinnishTopicListRealizer(ListRegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            "fi",
+            r"\[TopicModelDocsetComparison:TopicList:([^\]]+)\]",
+            1,
+            "[TopicModelDocsetComparison:Topic:{}]",
+            "ja",
+        )
+
+
+class FinnishMeanJSDRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            "fi",
+            r"\[TopicModelDocsetComparison:JSD:Mean\]",
+            [],
+            "JSD-samankaltaisuusarvo kokoelmien välillä",
+        )
+
+
+class FinnishCrossJSDRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            "fi",
+            r"\[TopicModelDocsetComparison:JSD:Cross\]",
+            [],
+            "keskimääräinen kokoelmien välinen pareittainen JSD-samankaltaisuus",
+        )
+
+
+class FinnishInternalJSDRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            "fi",
+            r"\[TopicModelDocsetComparison:JSD:Internal\]",
+            [],
+            "kokoelman sisäinen keskimääräinen pareittainen JSD-samankaltaisuus",
         )
