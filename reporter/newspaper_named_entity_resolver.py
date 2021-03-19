@@ -20,7 +20,7 @@ class NewspaperEntityNameResolver(EntityNameResolver):
                 "LANGUAGE": {
                     "full": EnglishLanguageNameResolver(),
                     "short": EnglishLanguageNameResolver(),
-                    "pronoun": EntityNameListResolver(["the language"]),
+                    "pronoun": EnglishLanguageNameResolver(),
                 },
                 "NEWSPAPER": {
                     "full": MultilingualNewspaperNameResolver(),
