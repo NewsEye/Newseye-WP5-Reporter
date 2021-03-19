@@ -17,6 +17,9 @@ fr: le corpus est associé au {result_key} avec un poids de {result_value} {anal
 | analysis_type = TopicModel:Query:Corpus
 
 en: {result_key} with a weight of {result_value} {analysis_id}
+fi: {result_key} painolla {result_value} {analysis_id}
+de: {result_key} mit einem Gewicht von {result_value} verbunden {analysis_id}
+fr: {result_key} avec un poids de {result_value} {analysis_id}
 | analysis_type = TopicModel:Query:Document
 """
 
@@ -122,10 +125,14 @@ class QueryTopicModelResource(ProcessorResource):
             EnglishLanguageTopicModelRealizer,
             EnglishUnknownTopicModelRealizer,
             EnglishKnownTopicModelDocumentRealizer,
-            EnglishLanguageTopicModelDocumentRealizer,
-            EnglishUnknownTopicModelDocumentRealizer,
+            #
             FinnishTopicModelRealizer,
+            FinnishLanguageTopicModelRealizer,
+            FinnishUnknownTopicModelRealizer,
+            FinnishKnownTopicModelDocumentRealizer,
+            #
             GermanTopicModelRealizer,
+            #
             FrenchTopicModelRealizer,
         ]
 
@@ -164,38 +171,45 @@ class EnglishKnownTopicModelDocumentRealizer(RegexRealizer):
         super().__init__(
             registry,
             "en",
-            r"\[TopicModelAndDocument:Known:([^\]]+):([^\]]+):([^\]]+):([^\]]+)\]",
-            [1, 2, 3, 4],
-            "document {} is associated with [TopicModel:Known:{}:{}:{}]",
-        )
-
-
-class EnglishLanguageTopicModelDocumentRealizer(RegexRealizer):
-    def __init__(self, registry):
-        super().__init__(
-            registry,
-            "en",
-            r"\[TopicModelAndDocument:Language:([^\]]+):([^\]]+):([^\]]+)\]",
-            [1, 2, 3],
-            "document {} is associated with [TopicModel:Language:{}:{}]",
-        )
-
-
-class EnglishUnknownTopicModelDocumentRealizer(RegexRealizer):
-    def __init__(self, registry):
-        super().__init__(
-            registry,
-            "en",
-            r"\[TopicModelAndDocument:Unknown:([^\]]+):([^\]]+)\]",
+            r"\[TopicModelAndDocument:([^\]]+)\]",
             [1, 2],
-            "document {} is associated with [TopicModel:Unknown:{}]",
+            "document {} is associated with [TopicModel:{}]",
         )
 
 
 class FinnishTopicModelRealizer(RegexRealizer):
     def __init__(self, registry):
         super().__init__(
-            registry, "fi", r"\[TopicModel:([^\]]+):([^\]]+):([^\]]+)\]", [1, 2, 3], "{}-aihemallin {} aiheeseen #{}"
+            registry,
+            "fi",
+            r"\[TopicModel:Known:([^\]]+):([^\]]+):([^\]]+)\]",
+            [1, 2, 3],
+            "{}-aihemallin {} aiheeseen #{}",
+        )
+
+
+class FinnishLanguageTopicModelRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            "fi",
+            r"\[TopicModel:Language:({}[^\]]+):([^\]]+)\]",
+            [1, 2],
+            "nimeämättömän kielellä [LANGUAGE:{}] koulutetun aihemallin aiheeseen #{}",
+        )
+
+
+class FinnishUnknownTopicModelRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry, "fi", r"\[TopicModel:Unknown:([^\]]+)\]", [1], "tuntemattoman aihemallin aiheeseen #{}",
+        )
+
+
+class FinnishKnownTopicModelDocumentRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry, "fi", r"\[TopicModelAndDocument:([^\]]+)\]", [1, 2], "dokumentti {} liittyy [TopicModel:{}]",
         )
 
 
