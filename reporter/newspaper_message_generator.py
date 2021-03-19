@@ -69,6 +69,7 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
 
         messages: List[Message] = []
         for task_result in task_results:
+            log.info(f"Parsing messages from task result with id {task_result.uuid}")
             generation_succeeded = False
             for message_parser in message_parsers:
                 try:
