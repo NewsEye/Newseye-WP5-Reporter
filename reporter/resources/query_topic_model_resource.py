@@ -87,18 +87,18 @@ class QueryTopicModelResource(ProcessorResource):
             for ((topic, topic_weight), interestingness) in zip(enumerate(topic_weights), interestingness_values):
 
                 if "model_type" in task_result.parameters and "model_name" in task_result.parameters:
-                    result_key = "[TopicModelAndDocument:Known:{}:{}:{}:{}]".format(
+                    result_key = "[TopicModelAndDocument:{}:Known:{}:{}:{}]".format(
                         document,
                         task_result.parameters["model_type"].upper(),
                         task_result.parameters["model_name"],
                         topic,
                     )
                 elif "language" in task_result.parameters:
-                    result_key = "[TopicModelAndDocument:Language:{}:{}:{}]".format(
+                    result_key = "[TopicModelAndDocument:{}:Language:{}:{}]".format(
                         document, task_result.parameters["language"].lower(), topic
                     )
                 else:
-                    result_key = "[TopicModelAndDocument:Unknown:{}:{}]".format(document, topic)
+                    result_key = "[TopicModelAndDocument:{}:Unknown:{}]".format(document, topic)
 
                 messages.append(
                     Message(
@@ -171,7 +171,7 @@ class EnglishKnownTopicModelDocumentRealizer(RegexRealizer):
         super().__init__(
             registry,
             "en",
-            r"\[TopicModelAndDocument:([^\]]+)\]",
+            r"\[TopicModelAndDocument:([^:\]]+):([^\]]+)\]",
             [1, 2],
             "document {} is associated with [TopicModel:{}]",
         )
@@ -193,7 +193,7 @@ class FinnishLanguageTopicModelRealizer(RegexRealizer):
         super().__init__(
             registry,
             "fi",
-            r"\[TopicModel:Language:({}[^\]]+):([^\]]+)\]",
+            r"\[TopicModel:Language:([^\]]+):([^\]]+)\]",
             [1, 2],
             "nimeämättömän kielellä [LANGUAGE:{}] koulutetun aihemallin aiheeseen #{}",
         )
@@ -209,7 +209,11 @@ class FinnishUnknownTopicModelRealizer(RegexRealizer):
 class FinnishKnownTopicModelDocumentRealizer(RegexRealizer):
     def __init__(self, registry):
         super().__init__(
-            registry, "fi", r"\[TopicModelAndDocument:([^\]]+)\]", [1, 2], "dokumentti {} liittyy [TopicModel:{}]",
+            registry,
+            "fi",
+            r"\[TopicModelAndDocument:([^:\]]+):([^\]]+)\]",
+            [1, 2],
+            "dokumentti {} liittyy [TopicModel:{}]",
         )
 
 
