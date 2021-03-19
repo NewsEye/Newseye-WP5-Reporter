@@ -53,7 +53,10 @@ class TopicModelDocsetComparisonResource(ProcessorResource):
 
         corpus, corpus_type = self.build_corpus_fields(task_result)
         topics = task_result.task_result.get("result").get("shared_topics")
-        result_key = "[TopicModelDocsetComparison:TM:{}]".format(task_result.parameters["model_type"].upper(),)
+        topics = [str(t) for t in topics]
+        result_key = "[TopicModelDocsetComparison:TM:{}]".format(
+            task_result.parameters.get("model_type", "LDA").upper(),
+        )
 
         if len(topics) == 0:
             analysis_type = "TopicModelDocsetComparison:Shared:Topics:None"
@@ -112,7 +115,10 @@ class TopicModelDocsetComparisonResource(ProcessorResource):
 
         corpus, corpus_type = self.build_corpus_fields(task_result.parameters.get(collection))
         topics = task_result.task_result.get("result").get(topics_label)
-        result_key = "[TopicModelDocsetComparison:TM:{}]".format(task_result.parameters["model_type"].upper(),)
+        topics = [str(t) for t in topics]
+        result_key = "[TopicModelDocsetComparison:TM:{}]".format(
+            task_result.parameters.get("model_type", "LDA").upper(),
+        )
 
         if len(topics) == 0:
             analysis_type = "TopicModelDocsetComparison:Distinct:Topics:None"
