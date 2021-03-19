@@ -17,7 +17,7 @@ fr: {result_value} articles correspondant à votre recherche ont été trouvés 
 | analysis_type = GenerateTimeSeries:absolute_counts
 
 en: {time} the largest yearly amount of relevant articles in {result_key} was {result_value} {analysis_id}
-fi: {time} suurin vuosittainen määrä relevantteja artikkeleita {result_key} -lehdeessä oli {result_value} {analysis_id}
+fi: {time} suurin vuosittainen määrä relevantteja artikkeleita {result_key} -lehdessä oli {result_value} {analysis_id}
 de: {time} waren {result_value} Artikel die größte jährliche Menge von relevanten Artikeln in {result_key} {analysis_id}
 fr: Le plus grand nombre d'articles correspondant à votre recherche dans le {result_key} {time} est {result_value} articles sur une année {analysis_id}
 | analysis_type = GenerateTimeSeries:absolute_counts:max
