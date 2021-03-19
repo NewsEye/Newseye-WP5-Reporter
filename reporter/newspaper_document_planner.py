@@ -156,31 +156,31 @@ def _select_satellites_for_nucleus(nucleus: Message, available_messages: List[Me
         available_messages = [message for message in available_messages if message != selected_satellite]
 
 
+def _shared_prefix_length(candidate: Message, context: Message) -> int:
+    candidate_fragments = candidate.main_fact.analysis_type.split(":")
+    context_fragments = context.main_fact.analysis_type.split(":")
+    shared_prefix_length = 0
+    for context_fragment, candidate_fragment in zip(context_fragments, candidate_fragments):
+        if context_fragment == candidate_fragment:
+            shared_prefix_length += 1
+        else:
+            break
+    return shared_prefix_length
+
+
+def _fragment_count(message: Message) -> int:
+    return len(message.main_fact.analysis_type.split(":"))
+
+
 def _weigh_by_analysis_similarity(
     messages: List[Tuple[float, Message]], previous: Message
 ) -> List[Tuple[float, Message]]:
 
     weighted: List[Tuple[float, Message]] = []
-    unprocessed: List[Tuple[float, Message]] = []
-
-    # Given that the previous message has analysis_type of "a:b:c:d", we start trying prefixes longest-first,
-    # i.e. starting with "a:b:c:d", then "a:b:c", then "a:b" etc.
-    # Each message's score is then weighted by 1/n where n is how many'th prefix this is. That is,
-    # "a:b:c:d" -> n=1, "a:b:c" -> n=2 etc.
-    prev_analysis_type_fragments = previous.main_fact.analysis_type.split(":")
-    for n, fragment_count in enumerate(reversed(range(len(prev_analysis_type_fragments)))):
-        analysis_prefix = ":".join(prev_analysis_type_fragments[: fragment_count + 1])
-
-        for score, message in messages:
-            if message.main_fact.analysis_type.startswith(analysis_prefix):
-                weighted.append((score * 1 / (n + 1), message))
-            else:
-                unprocessed.append((score, message))
-
-        messages, unprocessed = unprocessed, []
-
-    # Still need to process the messages which shared no prefix at all.
-    weighted.extend((0, message) for (score, message) in unprocessed)
+    prev_fragment_count = _fragment_count(previous)
+    for score, message in messages:
+        weight = (2 * _shared_prefix_length(message, previous)) / (_fragment_count(message) + prev_fragment_count)
+        weighted.append((score * weight, message))
     return weighted
 
 
