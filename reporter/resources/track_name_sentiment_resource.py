@@ -44,7 +44,9 @@ class TrackNameSentimentResource(ProcessorResource):
         entries: Dict[str, Dict[int, Tuple[float, float]]] = {}
         for entity in task_result.task_result["result"]:
             print("ENTITY:", entity)
-            entity_name_map: Dict[str, str] = task_result.task_result["result"][entity].get("names", {})
+            entity_name_map: Dict[str, str] = task_result.task_result["result"][entity].get("names")
+            if entity_name_map is None:
+                entity_name_map = {}
             entity_name_priority_list = [
                 entity_name_map.get(language, None),
                 entity_name_map.get("en", None),
@@ -59,7 +61,7 @@ class TrackNameSentimentResource(ProcessorResource):
                     # Skip the names-map
                     continue
                 sentiment = task_result.task_result["result"][entity][year]
-                interestingness = task_result.task_result["interestingness"][entity][year]
+                interestingness = task_result.task_result["interestingness"][entity][1][year]
                 if sentiment != 0 or interestingness != 0:
                     years[int(year)] = (sentiment, interestingness)
 
