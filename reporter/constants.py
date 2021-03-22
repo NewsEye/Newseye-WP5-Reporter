@@ -28,7 +28,7 @@ def get_error_message(language: str, identifier: str) -> str:
 ERRORS = {
     "en": {
         "no-interesting-messages-for-selection": "<p>The reporter found nothing interesting to report.</p>",
-        "no-messages-for-selection": "<p>The reporter does not know how to describe the results.</p>",
+        "no-messages-for-selection": "<p>The reporter found nothing to report.</p>",
         "general-error": "<p>Something went wrong. Please try again later.</p>",
         "no-template": "[<i>I don't know how to express my thoughts here</i>]",
     }
