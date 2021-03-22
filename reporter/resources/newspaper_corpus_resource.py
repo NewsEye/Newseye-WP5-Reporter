@@ -2,7 +2,7 @@ from typing import List, Type
 
 from reporter.core.models import Message
 from reporter.core.realize_slots import RegexRealizer, SlotRealizerComponent, ListRegexRealizer
-from reporter.newspaper_message_generator import TaskResult
+from reporter.newspaper_message_generator import TaskResult, WrongResourceException
 from reporter.resources.processor_resource import ProcessorResource
 
 TEMPLATE = """
@@ -27,7 +27,8 @@ class NewspaperCorpusResource(ProcessorResource):
         return TEMPLATE
 
     def parse_messages(self, task_result: TaskResult, context: List[TaskResult], language: str) -> List[Message]:
-        return []
+        # This thing shouldn't *actually* parse anything, ever
+        raise WrongResourceException()
 
     def slot_realizer_components(self) -> List[Type[SlotRealizerComponent]]:
         slot_realizer_components: List[Type[SlotRealizerComponent]] = [

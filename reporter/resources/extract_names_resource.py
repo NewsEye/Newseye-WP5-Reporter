@@ -3,7 +3,7 @@ from typing import List, Type, Dict
 
 from reporter.core.models import Fact, Message
 from reporter.core.realize_slots import RegexRealizer, SlotRealizerComponent, ListRegexRealizer
-from reporter.newspaper_message_generator import TaskResult
+from reporter.newspaper_message_generator import TaskResult, WrongResourceException
 from reporter.resources.processor_resource import ProcessorResource
 
 log = logging.getLogger("root")
@@ -33,7 +33,7 @@ class ExtractNamesResource(ProcessorResource):
         language = language.split("-")[0]
 
         if not task_result.processor == "ExtractNames":
-            return []
+            raise WrongResourceException()
 
         corpus, corpus_type = self.build_corpus_fields(task_result)
 

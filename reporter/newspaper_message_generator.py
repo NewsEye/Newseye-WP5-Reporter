@@ -56,6 +56,13 @@ class TaskResult:
         )
 
 
+UNREPORTABLE_PROCESSORS: List[str] = [
+    "FindBestSplitFromTimeseries",
+    "SplitByFacet",
+    "ExpandQuery",
+]
+
+
 PAYLOAD_LOGGING_PATH: Path = Path(__file__).parent / ".." / "errored_payloads"
 MAX_LOGGED_PAYLOADS = 25
 
@@ -75,17 +82,22 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
         messages: List[Message] = []
         for task_result, original_json in zip(task_results, results):
             log.info(f"Parsing messages from task result with id {task_result.uuid}")
+            if task_result.processor in UNREPORTABLE_PROCESSORS:
+                log.info(f"Processor {task_result.processor} is not reportable, skipping")
+                continue
             generation_succeeded = False
             for message_parser in message_parsers:
                 try:
                     new_messages = message_parser(task_result, task_results, language)
                     for message in new_messages:
                         log.debug("Parsed message {}".format(message))
-                    if new_messages:
-                        generation_succeeded = True
-                        messages.extend(new_messages)
+                    generation_succeeded = True
+                    messages.extend(new_messages)
+                except WrongResourceException:
+                    continue
                 except Exception as ex:
                     log.error("Message parser crashed: {}".format(ex), exc_info=True)
+                    self.log_payload(original_json, task_result.uuid)
 
             if not generation_succeeded:
                 log.error("Failed to parse a Message from {}. Processor={}".format(task_result, task_result.processor))
@@ -119,3 +131,11 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
         if len(logged_payloads) > MAX_LOGGED_PAYLOADS:
             for p in logged_payloads[MAX_LOGGED_PAYLOADS:]:
                 p.unlink()
+
+
+class WrongResourceException(Exception):
+    pass
+
+
+class ParsingException(Exception):
+    pass

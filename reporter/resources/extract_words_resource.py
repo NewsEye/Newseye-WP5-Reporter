@@ -3,7 +3,7 @@ from typing import List, Type
 
 from reporter.core.models import Fact, Message
 from reporter.core.realize_slots import RegexRealizer, SlotRealizerComponent
-from reporter.newspaper_message_generator import TaskResult
+from reporter.newspaper_message_generator import TaskResult, WrongResourceException, ParsingException
 from reporter.resources.processor_resource import ProcessorResource
 
 log = logging.getLogger("root")
@@ -36,7 +36,7 @@ class ExtractWordsResource(ProcessorResource):
 
     def parse_messages(self, task_result: TaskResult, context: List[TaskResult], language: str) -> List[Message]:
         if not task_result.processor == "ExtractWords":
-            return []
+            raise WrongResourceException()
 
         unit: str = task_result.parameters.get("unit")
         if unit == "tokens":
@@ -45,7 +45,7 @@ class ExtractWordsResource(ProcessorResource):
             unit = "STEM"
         else:
             log.error("Unexpected unit '{}', expected 'tokens' or 'stems'".format(task_result.parameters.get("unit")))
-            return []
+            raise ParsingException()
         corpus, corpus_type = self.build_corpus_fields(task_result)
 
         messages = []
