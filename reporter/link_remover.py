@@ -7,6 +7,7 @@ from reporter.core.registry import Registry
 
 class LinkRemover(NLGPipelineComponent):
     def run(self, registry: Registry, random, language: str, text: str, max_score: float) -> Tuple[str, float]:
+        text = re.sub(r"\[LINK:ARTICLE:([^\]]+)\]", r"\1", text)
         text = re.sub(r" \[LINK:[^\]]+ \]", " ", text)  # " [link] " -> " "
         text = re.sub(r"\[LINK:[^\]]+ \]", "", text)  # " [link]" -> ""
         text = re.sub(r" \[LINK:[^\]]+\]", "", text)  # "[link] " -> ""

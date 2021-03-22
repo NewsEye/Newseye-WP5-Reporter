@@ -79,7 +79,7 @@ class EnglishLinkedArticleListRealizer(ListRegexRealizer):
 
 class LinkedArticleRealizer(RegexRealizer):
     def __init__(self, registry):
-        super().__init__(registry, "ANY", r"\[LinkedArticle:([^\]]+)\]", 1, "{}")
+        super().__init__(registry, "ANY", r"\[LinkedArticle:([^\]]+)\]", 1, "[LINK:ARTICLE:{}]")
 
 
 class FinnishLinkedArticleListRealizer(ListRegexRealizer):
