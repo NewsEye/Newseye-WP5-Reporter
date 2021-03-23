@@ -11,24 +11,31 @@ log = logging.getLogger("root")
 
 TEMPLATE = """
 en: the {result_key} results of {corpus} differ with Jensen-Shannon Divergence of {result_value} {analysis_id}
+fi: {corpus} {result_key} tulosten Jensen-Shannon eroavuus oli {result_value} {analysis_id}
 | analysis_type = Compare:JSD
 
 en: {corpus} are the most divergent for the {result_key} value {result_value} {analysis_id}
+fi: {corpus} erosivat eniten {result_key} arvon {result_value} osalta {analysis_id}
 | analysis_type = Compare:Most:Single
 
 en: {corpus} are the most divergent for the {result_key} values {result_value} {analysis_id}
+fi: {corpus} erosivat eniten {result_key} arvojen {result_value} osalta {analysis_id}
 | analysis_type = Compare:Most:Multi
 
 en: {corpus} are the least divergent for the {result_key} value {result_value} {analysis_id}
+fi: {corpus} erosivat vähiten {result_key} arvon {result_value} osalta {analysis_id}
 | analysis_type = Compare:Least:Single
 
 en: {corpus} are the least divergent for the {result_key} values {result_value} {analysis_id}
+fi: {corpus} erosivat vähiten {result_key} arvojen {result_value} osalta {analysis_id}
 | analysis_type = Compare:Least:Multi
 
 en: {corpus} have only a single shared {result_key} value: {result_value} {analysis_id}
+fi: {corpus} omaavat vain yhden jaetun {result_key} arvon: {result_value} osalta {analysis_id}
 | analysis_type = Compare:Single
 
 en: {corpus} have no shared {result_key} values {analysis_id}
+fi: {corpus} eivät omaa yhtään jaettua {result_key} arvoa {analysis_id}
 | analysis_type = Compare:None
 """
 
@@ -222,25 +229,30 @@ class ComparisonResource(ProcessorResource):
 
     def slot_realizer_components(self) -> List[Type[SlotRealizerComponent]]:
         return [
-            EnglishGenericInputProcessorRealizer,
-            EnglishExtractFacetsInputProcessorRealizer,
+            GenericInputProcessorRealizer,
+            ExtractFacetsInputProcessorRealizer,
+            #
             EnglishComparisonValueListRealizer,
             EnglishComparisonValueRealizer,
             EnglishComparisonTypeAbsDiffRealizer,
+            #
+            FinnishComparisonValueListRealizer,
+            FinnishComparisonValueRealizer,
+            FinnishComparisonTypeAbsDiffRealizer,
         ]
 
 
-class EnglishGenericInputProcessorRealizer(RegexRealizer):
+class GenericInputProcessorRealizer(RegexRealizer):
     def __init__(self, registry):
         super().__init__(
-            registry, "en", r"\[Comparison:Processor:([^:\]]+)\]", [1], "{}",
+            registry, "ANY", r"\[Comparison:Processor:([^:\]]+)\]", [1], "{}",
         )
 
 
-class EnglishExtractFacetsInputProcessorRealizer(RegexRealizer):
+class ExtractFacetsInputProcessorRealizer(RegexRealizer):
     def __init__(self, registry):
         super().__init__(
-            registry, "en", r"\[Comparison:Processor:ExtractFacets:([^:\]]+)\]", [1], "ExtractFacet ({})",
+            registry, "ANY", r"\[Comparison:Processor:ExtractFacets:([^:\]]+)\]", [1], "ExtractFacet ({})",
         )
 
 
@@ -266,4 +278,29 @@ class EnglishComparisonTypeAbsDiffRealizer(RegexRealizer):
     def __init__(self, registry):
         super().__init__(
             registry, "en", r"\[Comparison:ComparisonType:abs_diff\]", [], "absolute difference",
+        )
+
+
+class FinnishComparisonValueListRealizer(ListRegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry, "fi", r"\[Comparison:ValueList:([^\]]+)\]", 1, "[Comparison:Value:{}]", "ja",
+        )
+
+
+class FinnishComparisonValueRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            "fi",
+            r"\[Comparison:Value:([^\]]+):([^\]]+):([^\]]+)\]",
+            [1, 2, 3],
+            "'{}' ( [Comparison:ComparisonType:{}] = {} )",
+        )
+
+
+class FinnishComparisonTypeAbsDiffRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry, "fi", r"\[Comparison:ComparisonType:abs_diff\]", [], "absoluuttinen eroavaisuus",
         )
