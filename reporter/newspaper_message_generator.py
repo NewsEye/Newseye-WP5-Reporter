@@ -85,6 +85,9 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
             if task_result.processor in UNREPORTABLE_PROCESSORS:
                 log.info(f"Processor {task_result.processor} is not reportable, skipping")
                 continue
+            if not task_result.task_result.get("result"):
+                log.error(f"TaskResult {task_result.uuid} has empty result section, skipping.")
+                continue
             generation_succeeded = False
             for message_parser in message_parsers:
                 try:
