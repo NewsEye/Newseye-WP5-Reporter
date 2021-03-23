@@ -95,7 +95,13 @@ class ExtractNamesResource(ProcessorResource):
         ]
 
     def slot_realizer_components(self) -> List[Type[SlotRealizerComponent]]:
-        return [EnglishExtractedNamesListRealizer, EnglishExtractNamesEntityRealizer]
+        return [
+            EnglishExtractedNamesListRealizer,
+            EnglishExtractNamesEntityRealizer,
+            #
+            FinnishExtractedNamesListRealizer,
+            FinnishExtractNamesEntityRealizer,
+        ]
 
 
 class EnglishExtractedNamesListRealizer(ListRegexRealizer):
@@ -111,4 +117,20 @@ class EnglishExtractNamesEntityRealizer(RegexRealizer):
             r"\[ExtractNames:Entity:([^:\]]+):([^:\]]+):([^:\]]+)\]",
             (1, 2, 3),
             "[ENTITY:NAME:{}] (salience = {} , stance = {} )",
+        )
+
+
+class FinnishExtractedNamesListRealizer(ListRegexRealizer):
+    def __init__(self, registry):
+        super().__init__(registry, "fi", r"\[ExtractNamesList:([^\]]+)\]", 1, "[ExtractNames:Entity:{}]", "ja")
+
+
+class FinnishExtractNamesEntityRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            "ja",
+            r"\[ExtractNames:Entity:([^:\]]+):([^:\]]+):([^:\]]+)\]",
+            (1, 2, 3),
+            "[ENTITY:NAME:{}] (tärkeys = {} , suuntautuminen = {} )",
         )
