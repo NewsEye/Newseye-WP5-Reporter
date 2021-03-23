@@ -38,8 +38,8 @@ class NewspaperCorpusResource(ProcessorResource):
             EnglishDatasetQueryRealizer,
             EnglishDatasetQueryPlusRealizer,
             EnglishQueryMetaRealizer,
+            EnglishMultiCorpusRealizer,
             #
-            MultiCorpusRealizer,
             MmRealizer,
             QfRealizer,
             #
@@ -49,6 +49,7 @@ class NewspaperCorpusResource(ProcessorResource):
             FinnishDatasetQueryRealizer,
             FinnishDatasetQueryPlusRealizer,
             FinnishQueryMetaRealizer,
+            FinnishMultiCorpusRealizer,
             #
             GermanDatasetRealizer,
             GermanQueryRealizer,
@@ -68,9 +69,14 @@ class NewspaperCorpusResource(ProcessorResource):
         return slot_realizer_components
 
 
-class MultiCorpusRealizer(ListRegexRealizer):
+class EnglishMultiCorpusRealizer(ListRegexRealizer):
     def __init__(self, registry):
-        super().__init__(registry, "ANY", r"\[multicorpus_comparison:([^\]]+)\]", 1, "[{}]", "and", separator="||")
+        super().__init__(registry, "en", r"\[multicorpus_comparison:([^\]]+)\]", 1, "[{}]", "and", separator="||")
+
+
+class FinnishMultiCorpusRealizer(ListRegexRealizer):
+    def __init__(self, registry):
+        super().__init__(registry, "fi", r"\[multicorpus_comparison:([^\]]+)\]", 1, "[{}]", "ja", separator="||")
 
 
 class EnglishDatasetRealizer(RegexRealizer):
