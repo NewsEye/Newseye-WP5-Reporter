@@ -274,4 +274,4 @@ class NewspaperNlgService(object):
         self.registry.register("seed", seed_val)
 
     def get_languages(self) -> List[str]:
-        return list(self.registry.get("templates").keys())
+        return ["en", "fi"]
