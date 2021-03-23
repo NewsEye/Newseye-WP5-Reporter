@@ -37,6 +37,7 @@ from reporter.newspaper_document_planner import (
 from reporter.newspaper_importance_allocator import NewspaperImportanceSelector
 from reporter.newspaper_message_generator import NewspaperMessageGenerator, NoMessagesForSelectionException
 from reporter.newspaper_named_entity_resolver import NewspaperEntityNameResolver
+from reporter.resources.comparison_resource import ComparisonResource
 from reporter.resources.extract_bigrams_resource import ExtractBigramsResource
 from reporter.resources.extract_facets_resource import ExtractFacetsResource
 from reporter.resources.extract_names_resource import ExtractNamesResource
@@ -82,6 +83,7 @@ class NewspaperNlgService(object):
             TopicModelDocsetComparisonResource(),
             ExtractNamesResource(),
             TrackNameSentimentResource(),
+            ComparisonResource(),
         ]
 
         # Templates
