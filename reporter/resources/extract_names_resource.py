@@ -129,7 +129,7 @@ class FinnishExtractNamesEntityRealizer(RegexRealizer):
     def __init__(self, registry):
         super().__init__(
             registry,
-            "ja",
+            "fi",
             r"\[ExtractNames:Entity:([^:\]]+):([^:\]]+):([^:\]]+)\]",
             (1, 2, 3),
             "[ENTITY:NAME:{}] (tärkeys = {} , suuntautuminen = {} )",
