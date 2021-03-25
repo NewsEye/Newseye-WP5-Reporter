@@ -210,13 +210,20 @@ class NewspaperNlgService(object):
         # Flatten groups to single list
         outputs = list(itertools.chain.from_iterable(outputs))
 
-        bodies, headlines, _, errors = zip(*outputs)
+        headlines, bodies, _, errors = zip(*outputs)
+
+        # Set duplicate headlines to Nones
+        headlines = list(headlines)
+        for idx in range(len(headlines) - 1, 1, -1):
+            if headlines[idx] == headlines[idx - 1]:
+                headlines[idx] = None
+
         errors = list(itertools.chain.from_iterable(errors))
 
         end_time = datetime.datetime.now().timestamp()
         log.info("Multi-part generation complete. Generation time in seconds: {}".format(end_time - start_time))
 
-        return bodies, headlines, errors
+        return headlines, bodies, errors
 
     def run_pipeline_single(
         self, language: str, output_format: str, data: str, links: bool
