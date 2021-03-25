@@ -64,10 +64,14 @@ class TopicModelDocumentLinkingResource(ProcessorResource):
 
     def slot_realizer_components(self) -> List[Type[SlotRealizerComponent]]:
         return [
-            EnglishLinkedArticleListRealizer,
             LinkedArticleRealizer,
+            #
+            EnglishLinkedArticleListRealizer,
+            #
             FinnishLinkedArticleListRealizer,
+            #
             GermanLinkedArticleListRealizer,
+            #
             FrenchLinkedArticleListRealizer,
         ]
 
