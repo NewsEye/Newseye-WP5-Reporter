@@ -101,6 +101,12 @@ class ExtractNamesResource(ProcessorResource):
             #
             FinnishExtractedNamesListRealizer,
             FinnishExtractNamesEntityRealizer,
+            #
+            GermanExtractedNamesListRealizer,
+            GermanExtractNamesEntityRealizer,
+            #
+            FrenchExtractedNamesListRealizer,
+            FrenchExtractNamesEntityRealizer,
         ]
 
 
@@ -133,4 +139,36 @@ class FinnishExtractNamesEntityRealizer(RegexRealizer):
             r"\[ExtractNames:Entity:([^:\]]+):([^:\]]+):([^:\]]+)\]",
             (1, 2, 3),
             "[ENTITY:NAME:{}] (tärkeys = {} , suuntautuminen = {} )",
+        )
+
+
+class GermanExtractedNamesListRealizer(ListRegexRealizer):
+    def __init__(self, registry):
+        super().__init__(registry, "de", r"\[ExtractNamesList:([^\]]+)\]", 1, "[ExtractNames:Entity:{}]", "und")
+
+
+class GermanExtractNamesEntityRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            "de",
+            r"\[ExtractNames:Entity:([^:\]]+):([^:\]]+):([^:\]]+)\]",
+            (1, 2, 3),
+            "[ENTITY:NAME:{}] (Salience = {} , Einstellung = {} )",
+        )
+
+
+class FrenchExtractedNamesListRealizer(ListRegexRealizer):
+    def __init__(self, registry):
+        super().__init__(registry, "de", r"\[ExtractNamesList:([^\]]+)\]", 1, "[ExtractNames:Entity:{}]", "et")
+
+
+class FrenchExtractNamesEntityRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            "de",
+            r"\[ExtractNames:Entity:([^:\]]+):([^:\]]+):([^:\]]+)\]",
+            (1, 2, 3),
+            "[ENTITY:NAME:{}] (saillance = {} , position = {} )",
         )
