@@ -52,7 +52,7 @@ class SummarizationResource(ProcessorResource):
                 )
             )
         # For now, we limit the summaries to one per result. This needs to be re-evaluated later on.
-        return [max(*messages, key=lambda m: m.main_fact.outlierness)]
+        return [max(messages, key=lambda m: m.main_fact.outlierness)]
 
     def slot_realizer_components(self) -> List[Type[SlotRealizerComponent]]:
         return []
