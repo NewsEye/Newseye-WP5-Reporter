@@ -52,7 +52,7 @@ class QueryTopicModelResource(ProcessorResource):
             result_key = "[TopicModel:Unknown]"
 
         topics = [
-            (topic, weight, interestingness)
+            (topic + 1, weight, interestingness)  # +1 because enumerate is 0-indexed but topics are 1-indexed
             for ((topic, weight), interestingness) in zip(
                 enumerate(task_result.task_result["result"]["topic_weights"]),
                 task_result.task_result["interestingness"]["topic_weights"],
@@ -109,7 +109,8 @@ class QueryTopicModelResource(ProcessorResource):
         for (document, topic_weights, interestingness_values) in docs:
 
             topics = zip(topic_weights, interestingness_values)
-            topics = [(topic, weight, interestingness) for (topic, (weight, interestingness)) in enumerate(topics)]
+            # topic + 1 because enumerate is 0-indexed but topics are 1-indexed
+            topics = [(topic + 1, weight, interestingness) for (topic, (weight, interestingness)) in enumerate(topics)]
             topics = [
                 (topic, weight, interestingness) for (topic, weight, interestingness) in topics if interestingness > 0
             ]
