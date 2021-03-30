@@ -68,6 +68,11 @@ class ExtractNamesResource(ProcessorResource):
                 if interestingness >= 0.01
             ]
 
+        if len(entities_with_interestingness) == 0:
+            return []
+        count = min(5, len(entities_with_interestingness))
+        entities_with_interestingness = entities_with_interestingness[:count]
+
         single_or_multiple = "Single" if len(entities_with_interestingness) == 1 else "Multiple"
 
         return [
