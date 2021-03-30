@@ -43,7 +43,6 @@ class TrackNameSentimentResource(ProcessorResource):
 
         entries: Dict[str, Dict[int, Tuple[float, float]]] = {}
         for entity in task_result.task_result["result"]:
-            print("ENTITY:", entity)
             entity_name_map: Dict[str, str] = task_result.task_result["result"][entity].get("names")
             if entity_name_map is None:
                 entity_name_map = {}
