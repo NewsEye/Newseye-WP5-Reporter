@@ -122,7 +122,7 @@ class QueryTopicModelResource(ProcessorResource):
             else:
                 topic_model = "Unknown"
 
-            result_key = "[LINK:ARTICLE:{}]".format(document)
+            result_key = "[TopicModel:Query:Article:{}]".format(document)
             if len(topics) == 0:
                 analysis_type = "TopicModel:Query:Document:None"
                 result_value = "[TopicModel:Query:Document:None:{}".format(topic_model)
@@ -177,6 +177,8 @@ class QueryTopicModelResource(ProcessorResource):
 
     def slot_realizer_components(self) -> List[Type[SlotRealizerComponent]]:
         return [
+            LinkedArticleRealizer,
+            #
             EnglishTopicModelRealizer,
             EnglishLanguageTopicModelRealizer,
             EnglishUnknownTopicModelRealizer,
@@ -195,6 +197,11 @@ class QueryTopicModelResource(ProcessorResource):
             FinnishDocumentWeightRealizer,
             FinnishDocumentTopicWeightNoneRealizer,
         ]
+
+
+class LinkedArticleRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(registry, "ANY", r"\[TopicModel:Query:Article:([^\]]+)\]", (1, 1), "{} [LINK:ARTICLE:{}]")
 
 
 class EnglishTopicModelRealizer(RegexRealizer):
