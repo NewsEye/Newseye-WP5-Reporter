@@ -39,7 +39,7 @@ class TooltipRealizer(RegexRealizer):
             language,
             fr"(.*)\[Tooltip:{self.term}\](.*)",
             [1, 2],
-            rf'{{}}<abbr="{self.explanation}">{self.term_expression if self.term_expression else self.term}</abbr>{{}}',
+            rf'{{}}<abbr title="{self.explanation}">{self.term_expression if self.term_expression else self.term}</abbr>{{}}',  # noqa: E501
         )
 
 
