@@ -47,6 +47,7 @@ from reporter.resources.newspaper_corpus_resource import NewspaperCorpusResource
 from reporter.resources.processor_resource import ProcessorResource
 from reporter.resources.query_topic_model_resource import QueryTopicModelResource
 from reporter.resources.summarization_resource import SummarizationResource
+from reporter.resources.tooltip_resource import TooltipResource
 from reporter.resources.topic_model_docset_comparison_resource import TopicModelDocsetComparisonResource
 from reporter.resources.topic_model_document_linking_resource import TopicModelDocumentLinkingResource
 from reporter.resources.track_name_sentiment_resource import TrackNameSentimentResource
@@ -72,6 +73,7 @@ class NewspaperNlgService(object):
 
         # Per-processor resources
         self.processor_resources = [
+            TooltipResource(),
             NewspaperCorpusResource(),
             ExtractWordsResource(),
             ExtractBigramsResource(),

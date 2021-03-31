@@ -10,15 +10,15 @@ log = logging.getLogger("root")
 
 
 TEMPLATE = """
-en: the most negative sentiment towards {result_key} ( {result_value} ) occurred at {time} {analysis_id}
+en: the most negative {"[Tooltip:sentiment]"} towards {result_key} ( {result_value} ) occurred at {time} {analysis_id}
 fi: suhtautuminen entiteettiin {result_key} oli kaikkein negatiivisin ( {result_value} ) {time} {analysis_id}
 | analysis_type = TrackNameSentiment:Min
 
-en: the most positive sentiment towards {result_key} ( {result_value} ) occurred at {time} {analysis_id}
+en: the most positive {"[Tooltip:sentiment]"} towards {result_key} ( {result_value} ) occurred at {time} {analysis_id}
 fi: suhtautuminen entiteettiin {result_key} oli kaikkein positiivisin ( {result_value} ) {time} {analysis_id}
 | analysis_type = TrackNameSentiment:Max
 
-en: the mean sentiments towards {result_key} {time} was {result_value} {analysis_id}
+en: the mean {"[Tooltip:sentiment]"} towards {result_key} {time} was {result_value} {analysis_id}
 fi: keskimääräinen suhtautuminen entiteettiin {result_key} {time} oli {result_value} {analysis_id}
 | analysis_type = TrackNameSentiment:Mean
 

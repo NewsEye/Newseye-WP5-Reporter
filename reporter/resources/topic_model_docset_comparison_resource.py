@@ -229,14 +229,14 @@ class EnglishMeanJSDRealizer(RegexRealizer):
             "en",
             r"\[TopicModelDocsetComparison:JSD:Mean\]",
             [],
-            "a JSD between the mean document-topic proportions of the collections",
+            "a [Tooltip:JSD] between the mean document-topic proportions of the collections",
         )
 
 
 class EnglishCrossJSDRealizer(RegexRealizer):
     def __init__(self, registry):
         super().__init__(
-            registry, "en", r"\[TopicModelDocsetComparison:JSD:Cross\]", [], "mean cross-set pairwise JSD",
+            registry, "en", r"\[TopicModelDocsetComparison:JSD:Cross\]", [], "mean cross-set pairwise [Tooltip:JSD]",
         )
 
 
@@ -247,7 +247,7 @@ class EnglishInternalJSDRealizer(RegexRealizer):
             "en",
             r"\[TopicModelDocsetComparison:JSD:Internal\]",
             [],
-            "mean pairwise JSD within the collection",
+            "mean pairwise [Tooltip:JSD] within the collection",
         )
 
 

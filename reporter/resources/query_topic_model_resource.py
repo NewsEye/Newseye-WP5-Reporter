@@ -228,7 +228,11 @@ class EnglishUnknownTopicModelRealizer(RegexRealizer):
 class EnglishCorpusTopicWeightRealizer(RegexRealizer):
     def __init__(self, registry):
         super().__init__(
-            registry, "en", r"\[TopicModel:Query:Corpus:TopicWeight:([^\]]+):([^\]]+)\]", [1, 2], "{} ( weight = {} )",
+            registry,
+            "en",
+            r"\[TopicModel:Query:Corpus:TopicWeight:([^\]]+):([^\]]+)\]",
+            [1, 2],
+            "{} ( [Tooltip:TMWeight] = {} )",
         )
 
 
@@ -251,7 +255,7 @@ class EnglishDocumentWeightRealizer(RegexRealizer):
             "en",
             r"\[TopicModel:Query:Document:TopicWeight:([^\]]+):([^:\]]+):([^:\]]+)\]",
             [1, 2, 3],
-            "[TopicModel:{}] topic {} ( weight = {} )",
+            "[TopicModel:{}] topic {} ( [Tooltip:TMWeight] = {} )",
         )
 
 

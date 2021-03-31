@@ -22,7 +22,7 @@ de: {result_key} hatte eine relative Anzahl von {result_value} {analysis_id}
 fr: {result_key} ont un taux de comptage relatif de {result_value} {analysis_id}
 | analysis_type = ExtractBigrams:RelativeCount
 
-en: {result_key} had a Dice score of {result_value} {analysis_id}
+en: {result_key} had a {"[Tooltip:Dice]"} score of {result_value} {analysis_id}
 fi: {result_key, case=gen} Dice-luku oli {result_value} {analysis_id}
 de: {result_key} hatte eine Dice-Wertung von {result_value} {analysis_id}
 fr: {result_key} ont un coefficient de Dice de {result_value} {analysis_id}

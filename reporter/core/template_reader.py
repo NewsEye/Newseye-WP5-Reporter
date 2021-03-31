@@ -550,31 +550,7 @@ def expand_alternatives(line):
     :param line: raw line
     :return: list of alternatives
     """
-    alts = [""]
-
-    def add_to_alts(old_alts, new_alts):
-        return ["{}{}".format(old_alt, new_alt) for old_alt in old_alts for new_alt in new_alts]
-
-    rest = line
-    while len(rest):
-        before_bracket, bracket, rest = rest.partition("[")
-        # Add everything up to the next bracket to every existing alternative
-        alts = add_to_alts(alts, [before_bracket])
-        if bracket:
-            # We found an opening bracket: look for the closing one
-            in_bracket, closing_bracket, rest = rest.partition("]")
-            if not closing_bracket:
-                raise TemplateReadingError("unmatched square bracket in template line: {}".format(line))
-            # Expand out all the alternatives we've already got to versions that add the contents of the brackets
-            # and versions that don't
-            alts = add_to_alts(alts, [in_bracket, ""])
-    # Strip whitespace, so we don't have to worry about spaces before optional parts ending up at the end of templates
-    alts = [x.strip() for x in alts]
-    # Also replace any strings of multiple spaces with single spaces
-    # This is because it's not intuitive to write "I [really ]want", but rather "I [really] want", even though the
-    #  latter strictly speaking should have two consecutive spaces in the version without the optional text
-    alts = [multi_space_re.sub(" ", alt) for alt in alts]
-    return alts
+    return [line]
 
 
 class TemplateReadingError(Exception):

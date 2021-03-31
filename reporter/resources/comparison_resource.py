@@ -10,7 +10,7 @@ log = logging.getLogger("root")
 
 
 TEMPLATE = """
-en: the {result_key} results of {corpus} differ with Jensen-Shannon Divergence of {result_value} {analysis_id}
+en: the {result_key} results of {corpus} differ with {"[Tooltip:JSD]"} of {result_value} {analysis_id}
 fi: {corpus} {result_key} tulosten Jensen-Shannon eroavuus oli {result_value} {analysis_id}
 | analysis_type = Compare:JSD
 
