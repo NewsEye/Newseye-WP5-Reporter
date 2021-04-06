@@ -12,32 +12,39 @@ log = logging.getLogger("root")
 TEMPLATE = """
 en: the {result_key} results of {corpus} differ with {"[Tooltip:JSD]"} of {result_value} {analysis_id}
 fi: {corpus} {result_key} tulosten Jensen-Shannon eroavuus oli {result_value} {analysis_id}
+de: Die Resultate für die {result_key} für {corpus} unterscheiden sich um eine Jensen-Shannon-Divergenz von {result_value} {analysis_id}
 | analysis_type = Compare:JSD
 
 en: {corpus} are the most divergent for the {result_key} value {result_value} {analysis_id}
 fi: {corpus} erosivat eniten {result_key} arvon {result_value} osalta {analysis_id}
+de: {corpus} unterscheiden sich in der {result_key} am meisten für den Wert {result_value} {analysis_id}
 | analysis_type = Compare:Most:Single
 
 en: {corpus} are the most divergent for the {result_key} values {result_value} {analysis_id}
 fi: {corpus} erosivat eniten {result_key} arvojen {result_value} osalta {analysis_id}
+de: {corpus} unterscheiden sich in der {result_key} am meisten für die Werte {result_value} {analysis_id}
 | analysis_type = Compare:Most:Multi
 
 en: {corpus} are the least divergent for the {result_key} value {result_value} {analysis_id}
 fi: {corpus} erosivat vähiten {result_key} arvon {result_value} osalta {analysis_id}
+de: {corpus} unterscheiden sich in der {result_key} am wenigsten für den Wert {result_value} {analysis_id}
 | analysis_type = Compare:Least:Single
 
 en: {corpus} are the least divergent for the {result_key} values {result_value} {analysis_id}
 fi: {corpus} erosivat vähiten {result_key} arvojen {result_value} osalta {analysis_id}
+de: {corpus} unterscheiden sich in der {result_key} am wenigsten für die Werte {result_value} {analysis_id}
 | analysis_type = Compare:Least:Multi
 
 en: {corpus} have only a single shared {result_key} value: {result_value} {analysis_id}
 fi: {corpus} omaavat vain yhden jaetun {result_key} arvon: {result_value} osalta {analysis_id}
+de: {corpus} haben für die {result_key} nur einen gemeinsamen Wert: {result_value} {analysis_id}
 | analysis_type = Compare:Single
 
 en: {corpus} have no shared {result_key} values {analysis_id}
 fi: {corpus} eivät omaa yhtään jaettua {result_key} arvoa {analysis_id}
+de: {corpus} haben für die {result_key} keine gemeinsamen Werte {analysis_id}
 | analysis_type = Compare:None
-"""
+"""  # noqa: E501
 
 
 class ComparisonResource(ProcessorResource):
@@ -239,6 +246,10 @@ class ComparisonResource(ProcessorResource):
             FinnishComparisonValueListRealizer,
             FinnishComparisonValueRealizer,
             FinnishComparisonTypeAbsDiffRealizer,
+            #
+            GermanComparisonValueListRealizer,
+            GermanComparisonValueRealizer,
+            GermanComparisonTypeAbsDiffRealizer,
         ]
 
 
@@ -303,4 +314,29 @@ class FinnishComparisonTypeAbsDiffRealizer(RegexRealizer):
     def __init__(self, registry):
         super().__init__(
             registry, "fi", r"\[Comparison:ComparisonType:abs_diff\]", [], "absoluuttinen eroavaisuus",
+        )
+
+
+class GermanComparisonValueListRealizer(ListRegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry, "de", r"\[Comparison:ValueList:([^\]]+)\]", 1, "[Comparison:Value:{}]", "und",
+        )
+
+
+class GermanComparisonValueRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            "de",
+            r"\[Comparison:Value:([^\]]+):([^\]]+):([^\]]+)\]",
+            [1, 2, 3],
+            "'{}' ( [Comparison:ComparisonType:{}] = {} )",
+        )
+
+
+class GermanComparisonTypeAbsDiffRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry, "de", r"\[Comparison:ComparisonType:abs_diff\]", [], "absolute Differenz",
         )
