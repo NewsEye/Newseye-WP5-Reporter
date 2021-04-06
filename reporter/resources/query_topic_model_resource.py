@@ -12,26 +12,32 @@ log = logging.getLogger("root")
 TEMPLATE = """
 en: the corpus is the most associated with the following {result_key} topics: {result_value} {analysis_id}
 fi: kokoelman tekstit liittyvät seuraaviin {result_key, case=gen} aiheisiin {result_value} {analysis_id}
+de: Der Korpus ist mit den folgenden {result_key} Themen am meisten verbunden: {result_value} {analysis_id}
 | analysis_type = TopicModel:Query:Corpus:Multi
 
 en: the corpus is only associated with a single {result_key} topic: {result_value} {analysis_id}
 fi: kokoelman tekstit liittyvät ainoastaan yhteen {result_key, case=gen} aiheeseen: {result_value} {analysis_id}
+de: Der Korpus ist nur mit einem einzigen {result_key} Thema verbunden ist: {result_value} {analysis_id}
 | analysis_type = TopicModel:Query:Corpus:Single
 
-en: the corpus is not associated with any following {result_key} topics {analysis_id}
+en: the corpus is not associated with any {result_key} topics {analysis_id}
 fi: kokoelman tekstit eivät liity yhteenkään {result_key, case=gen} aiheeseen {analysis_id}
+de: Der Korpus ist nicht mit {result_key} Themen zugeordnet {analysis_id}
 | analysis_type = TopicModel:Query:Corpus:None
 
 en: the document {result_key} is most associated with {result_value} {analysis_id}
 fi: dokumentti {result_key} liittyy eniten {result_value, case=gen} {analysis_id}
+de: Das Dokument {result_key} ist am häufigsten mit {result_value} verbunden {analysis_id}
 | analysis_type = TopicModel:Query:Document:Multi
 
 en: the document {result_key} is associated only with {result_value} {analysis_id}
 fi: dokumentti {result_key} liittyy ainoastaan {result_value, case=gen} {analysis_id}
+de: Das Dokument {result_key} ist nur {result_value} verbunden {analysis_id}
 | analysis_type = TopicModel:Query:Document:Single
 
 en: the document {result_key} is not associated with any topics from {result_value} {analysis_id}
 fi: dokumentti {result_key} ei liity yhteenkään {result_value, case=gen} aiheeseen {analysis_id}
+de: Das Dokument {result_key} ist keinem Thema aus einem {result_value} zugeordnet {analysis_id}
 | analysis_type = TopicModel:Query:Document:None
 """
 
@@ -196,6 +202,15 @@ class QueryTopicModelResource(ProcessorResource):
             FinnishDocumentWeightListRealizer,
             FinnishDocumentWeightRealizer,
             FinnishDocumentTopicWeightNoneRealizer,
+            #
+            GermanTopicModelRealizer,
+            GermanLanguageTopicModelRealizer,
+            GermanUnknownTopicModelRealizer,
+            GermanCorpusTopicWeightListRealizer,
+            GermanCorpusTopicWeightRealizer,
+            GermanDocumentWeightListRealizer,
+            GermanDocumentWeightRealizer,
+            GermanDocumentTopicWeightNoneRealizer,
         ]
 
 
@@ -361,4 +376,74 @@ class FinnishDocumentTopicWeightNoneRealizer(RegexRealizer):
             [1],
             "[TopicModel:{}]",
             attach_attributes_to=[0],
+        )
+
+
+class GermanTopicModelRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry, "de", r"\[TopicModel:Named:([^\]]+)\]", [1], "'{}' Topic-Modell",
+        )
+
+
+class GermanLanguageTopicModelRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry, "de", r"\[TopicModel:Language:([^\]]+)\]", [1], "[ENTITY:LANGUAGE:{}] Topic-Modell",
+        )
+
+
+class GermanUnknownTopicModelRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry, "de", r"\[TopicModel:Unknown\]", [], "Topic-Modell",
+        )
+
+
+class GermanCorpusTopicWeightRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry, "de", r"\[TopicModel:Query:Corpus:TopicWeight:([^\]]+):([^\]]+)\]", [1, 2], "{} ( Schwere = {} )",
+        )
+
+
+class GermanCorpusTopicWeightListRealizer(ListRegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            "de",
+            r"\[TopicModel:Query:Corpus:TopicWeightList:([^\]]+)\]",
+            1,
+            "[TopicModel:Query:Corpus:TopicWeight:{}]",
+            "und",
+        )
+
+
+class GermanDocumentWeightRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            "de",
+            r"\[TopicModel:Query:Document:TopicWeight:([^\]]+):([^:\]]+):([^:\]]+)\]",
+            [1, 2, 3],
+            "dem [TopicModel:{}] Topic {} ( Schwere = {} )",
+        )
+
+
+class GermanDocumentWeightListRealizer(ListRegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            "de",
+            r"\[TopicModel:Query:Document:TopicWeightList:([^\]]+)\]",
+            1,
+            "[TopicModel:Query:Document:TopicWeight:{}]",
+            "und",
+        )
+
+
+class GermanDocumentTopicWeightNoneRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry, "de", r"\[TopicModel:Query:Document:None:([^\]]+)\]", [1], "[TopicModel:{}]",
         )
