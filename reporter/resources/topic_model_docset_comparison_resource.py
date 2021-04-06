@@ -12,34 +12,42 @@ log = logging.getLogger("root")
 TEMPLATE = """
 en: {corpus} share the following topics from {result_key}: {result_value} {analysis_id}
 fi: {corpus} jakavat seuraavat aiheet {result_key}: {result_value} {analysis_id}
+de: {corpus} haben die folgenden Topics eines {result_key} gemeinsam: {result_value} {analysis_id}
 | analysis_type = TopicModelDocsetComparison:Shared:Topics:Multi
 
 en: {corpus} share the topic {result_value} from {result_key} {analysis_id}
 fi: {corpus} jakavant aiheen {result_value} {result_key} {analysis_id}
+de: {corpus} haben den Topic {result_value} eines {result_key} gemeinsam {analysis_id}
 | analysis_type = TopicModelDocsetComparison:Shared:Topics:Single
 
 en: {corpus} share no topics from {result_key} {analysis_id}
 fi: {corpus} eivät jaa aiheita {result_key} {analysis_id}
+de: {corpus} haben keine gemeinsamen Topics eines {result_key} {analysis_id}.
 | analysis_type = TopicModelDocsetComparison:Shared:Topics:None
 
 en: the shared topics of {corpus} have {result_key} of {result_value} {analysis_id}
 fi: {corpus} {result_key} oli {result_value} {analysis_id}
+de: Für {corpus} {result_key} {result_value} {analysis_id}
 | analysis_type = TopicModelDocsetComparison:Shared:JSD
 
 en: {corpus} discussed the following topics from {result_key}: {result_value} {analysis_id}
 fi: {corpus} käsitteli seuraavia aiheita {result_key}: {result_value} {analysis_id}
+de: {corpus} diskutierte die folgenden Topics eines {result_key}: {result_value} {analysis_id}
 | analysis_type = TopicModelDocsetComparison:Distinct:Topics:Multi
 
 en: {corpus} discussed only the topic {result_value} from {result_key} {analysis_id}
 fi: {corpus} käsitteli ainoastaan aihetta {result_value} from {result_key} {analysis_id}
+de: {corpus} diskutierte nur den Topic {result_value} eines {result_key} {analysis_id}
 | analysis_type = TopicModelDocsetComparison:Distinct:Topics:Single
 
 en: {corpus} discussed no topics from {result_key} {analysis_id}
 fi: {corpus} ei käsitellyt ainoatakan aihetta {result_key} {analysis_id}
+de: {corpus} diskutierte keine Topics eines {result_key} {analysis_id}
 | analysis_type = TopicModelDocsetComparison:Distinct:Topics:None
 
 en: {corpus} has {result_key} of {result_value} {analysis_id}
 fi: {corpus} {result_key} oli {result_value} {analysis_id}
+de: {corpus} hat {result_key} von {result_value} {analysis_id}
 | analysis_type = TopicModelDocsetComparison:Distinct:JSD
 """
 
@@ -193,6 +201,12 @@ class TopicModelDocsetComparisonResource(ProcessorResource):
             FinnishMeanJSDRealizer,
             FinnishCrossJSDRealizer,
             FinnishInternalJSDRealizer,
+            #
+            GermanTopicModelRealizer,
+            GermanTopicListRealizer,
+            GermanMeanJSDRealizer,
+            GermanCrossJSDRealizer,
+            GermanInternalJSDRealizer,
         ]
 
 
@@ -300,4 +314,56 @@ class FinnishInternalJSDRealizer(RegexRealizer):
             r"\[TopicModelDocsetComparison:JSD:Internal\]",
             [],
             "kokoelman sisäinen keskimääräinen pareittainen JSD-samankaltaisuus",
+        )
+
+
+class GermanTopicModelRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry, "de", r"\[TopicModelDocsetComparison:TM:([^\]]+)\]", [1], "{}-Topic-Modells",
+        )
+
+
+class GermanTopicListRealizer(ListRegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            "de",
+            r"\[TopicModelDocsetComparison:TopicList:([^\]]+)\]",
+            1,
+            "[TopicModelDocsetComparison:Topic:{}]",
+            "und",
+        )
+
+
+class GermanMeanJSDRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            "de",
+            r"\[TopicModelDocsetComparison:JSD:Mean\]",
+            [],
+            "beträgt der JSD Wert zwischen den mittleren Dokument-Topic-Anteilen der Kollektionen",
+        )
+
+
+class GermanCrossJSDRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            "de",
+            r"\[TopicModelDocsetComparison:JSD:Cross\]",
+            [],
+            "haben einen mittleren cross-set paarweisen JSD von",
+        )
+
+
+class GermanInternalJSDRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            "de",
+            r"\[TopicModelDocsetComparison:JSD:Internal\]",
+            [],
+            "einen internen mittleren paarweisen JSD Wert",
         )
