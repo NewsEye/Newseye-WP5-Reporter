@@ -36,7 +36,7 @@ class TopicModelDocumentLinkingResource(ProcessorResource):
         articles_with_interestingness = [
             (article, interestingness)
             for (article, interestingness) in zip(
-                task_result.task_result["result"]["similar_docs"], task_result.task_result["interestingness"]["linking"]
+                task_result.task_result["result"]["documents"], task_result.task_result["interestingness"]["documents"]
             )
         ]
         articles_with_interestingness = sorted(articles_with_interestingness, key=lambda pair: pair[1], reverse=True)
