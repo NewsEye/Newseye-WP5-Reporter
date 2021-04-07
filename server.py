@@ -43,8 +43,6 @@ static_root = os.path.dirname(os.path.realpath(__file__)) + "/../static/"
 # END INIT
 #
 
-LANGUAGES = ["en", "fi", "fr", "de"]
-
 FORMATS = ["p", "ol", "ul"]
 
 
@@ -71,7 +69,7 @@ def api_generate_json() -> Optional[Dict[str, str]]:
     links = body.get("links", False)
     data = json.dumps(body["data"])
 
-    if language not in LANGUAGES or format not in FORMATS:
+    if language not in service.get_languages() or format not in FORMATS:
         response.status = 400
         return
 
@@ -90,7 +88,7 @@ def api_generate() -> Optional[Dict[str, str]]:
     data = request.forms.get("data")
     links = request.forms.get("links", "") == "true"
 
-    if language not in LANGUAGES or format not in FORMATS:
+    if language not in service.get_languages() or format not in FORMATS:
         response.status = 400
         return
 
@@ -104,7 +102,7 @@ def api_generate() -> Optional[Dict[str, str]]:
 @app.route("/api/languages")
 @allow_cors
 def get_languages() -> Dict[str, List[str]]:
-    return {"languages": LANGUAGES}
+    return {"languages": service.get_languages()}
 
 
 @app.route("/api/formats")
