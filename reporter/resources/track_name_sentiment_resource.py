@@ -13,21 +13,25 @@ TEMPLATE = """
 en: the most negative {"[Tooltip:sentiment]"} towards {result_key} ( {result_value} ) occurred at {time} {analysis_id}
 fi: suhtautuminen entiteettiin {result_key} oli kaikkein negatiivisin ( {result_value} ) {time} {analysis_id}
 de: Die negativste Wertung zu {result_key} ( {result_value} ) trat {time} auf {analysis_id}
+fr: le sentiment le plus négatif envers {result_key} ( {result_value} ) se rencontre en {time} {analysis_id}
 | analysis_type = TrackNameSentiment:Min
 
 en: the most positive {"[Tooltip:sentiment]"} towards {result_key} ( {result_value} ) occurred at {time} {analysis_id}
 fi: suhtautuminen entiteettiin {result_key} oli kaikkein positiivisin ( {result_value} ) {time} {analysis_id}
 de: de: Die positivste Wertung zu {result_key} ( {result_value} ) trat {time} auf {analysis_id}
+fr: le sentiment le plus positif envers {result_key} ( {result_value} ) se rencontre en {time} {analysis_id}
 | analysis_type = TrackNameSentiment:Max
 
 en: the mean {"[Tooltip:sentiment]"} towards {result_key} {time} was {result_value} {analysis_id}
 fi: keskimääräinen suhtautuminen entiteettiin {result_key} {time} oli {result_value} {analysis_id}
 de: Die mittlere Wertung zu {result_key} {time} war {result_value}
+fr: les sentiments moyens envers la {result_key} {time} étaient de {result_value} {analysis_id}
 | analysis_type = TrackNameSentiment:Mean
 
 en: {result_key} was discussed during {result_value} distinct years {time} {analysis_id}
 fi: entiteetistä {result_key} keskusteltiin yhteensä {result_value} vuoden aikana {time} {analysis_id}
 de: {result_key} wurde in {result_value} verschiedenen Jahren {time} diskutiert {analysis_id}
+fr: {result_key} a été discutée pendant {result_value} années distinctes {time} {analysis_id}
 | analysis_type = TrackNameSentiment:CountYears
 """  # noqa: E501
 

@@ -13,41 +13,49 @@ TEMPLATE = """
 en: {corpus} share the following topics from {result_key}: {result_value} {analysis_id}
 fi: {corpus} jakavat seuraavat aiheet {result_key}: {result_value} {analysis_id}
 de: {corpus} haben die folgenden Topics eines {result_key} gemeinsam: {result_value} {analysis_id}
+fr: {corpus} partagent les sujets suivants à partir {result_key}: {result_value} {analysis_id}
 | analysis_type = TopicModelDocsetComparison:Shared:Topics:Multi
 
 en: {corpus} share the topic {result_value} from {result_key} {analysis_id}
 fi: {corpus} jakavant aiheen {result_value} {result_key} {analysis_id}
 de: {corpus} haben den Topic {result_value} eines {result_key} gemeinsam {analysis_id}
+fr: {corpus} partagent le sujet {result_value} à partir {result_key} {analysis_id}
 | analysis_type = TopicModelDocsetComparison:Shared:Topics:Single
 
 en: {corpus} share no topics from {result_key} {analysis_id}
 fi: {corpus} eivät jaa aiheita {result_key} {analysis_id}
 de: {corpus} haben keine gemeinsamen Topics eines {result_key} {analysis_id}.
+fr: {corpus} ne partagent aucun sujet issu {result_key} {analysis_id}
 | analysis_type = TopicModelDocsetComparison:Shared:Topics:None
 
 en: the shared topics of {corpus} have {result_key} of {result_value} {analysis_id}
 fi: {corpus} {result_key} oli {result_value} {analysis_id}
 de: Für {corpus} {result_key} {result_value} {analysis_id}
+fr: Les sujets partagés par {corpus} ont une {result_key} {result_value} {analysis_id}
 | analysis_type = TopicModelDocsetComparison:Shared:JSD
 
 en: {corpus} discussed the following topics from {result_key}: {result_value} {analysis_id}
 fi: {corpus} käsitteli seuraavia aiheita {result_key}: {result_value} {analysis_id}
 de: {corpus} diskutierte die folgenden Topics eines {result_key}: {result_value} {analysis_id}
+fr: {corpus} traite des sujets suivants à partir {result_key}: {result_value} {analysis_id}
 | analysis_type = TopicModelDocsetComparison:Distinct:Topics:Multi
 
 en: {corpus} discussed only the topic {result_value} from {result_key} {analysis_id}
 fi: {corpus} käsitteli ainoastaan aihetta {result_value} from {result_key} {analysis_id}
 de: {corpus} diskutierte nur den Topic {result_value} eines {result_key} {analysis_id}
+fr: {corpus} traite du seul sujet {result_value} issu {result_key} {analysis_id}
 | analysis_type = TopicModelDocsetComparison:Distinct:Topics:Single
 
 en: {corpus} discussed no topics from {result_key} {analysis_id}
 fi: {corpus} ei käsitellyt ainoatakan aihetta {result_key} {analysis_id}
 de: {corpus} diskutierte keine Topics eines {result_key} {analysis_id}
+fr: {corpus} ne traite d'aucun sujet issu {result_key} {analysis_id}
 | analysis_type = TopicModelDocsetComparison:Distinct:Topics:None
 
 en: {corpus} has {result_key} of {result_value} {analysis_id}
 fi: {corpus} {result_key} oli {result_value} {analysis_id}
 de: {corpus} hat {result_key} von {result_value} {analysis_id}
+fr: {corpus} a {result_key} de {result_value} {analysis_id}
 | analysis_type = TopicModelDocsetComparison:Distinct:JSD
 """
 
@@ -207,6 +215,12 @@ class TopicModelDocsetComparisonResource(ProcessorResource):
             GermanMeanJSDRealizer,
             GermanCrossJSDRealizer,
             GermanInternalJSDRealizer,
+            #
+            FrenchTopicModelRealizer,
+            FrenchTopicListRealizer,
+            FrenchMeanJSDRealizer,
+            FrenchCrossJSDRealizer,
+            FrenchInternalJSDRealizer,
         ]
 
 
@@ -366,4 +380,52 @@ class GermanInternalJSDRealizer(RegexRealizer):
             r"\[TopicModelDocsetComparison:JSD:Internal\]",
             [],
             "einen internen mittleren paarweisen JSD Wert",
+        )
+
+
+class FrenchTopicModelRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry, "fr", r"\[TopicModelDocsetComparison:TM:([^\]]+)\]", [1], "d'un modèle de sujet {}",
+        )
+
+
+class FrenchTopicListRealizer(ListRegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            "fr",
+            r"\[TopicModelDocsetComparison:TopicList:([^\]]+)\]",
+            1,
+            "[TopicModelDocsetComparison:Topic:{}]",
+            "et",
+        )
+
+
+class FrenchMeanJSDRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            "fr",
+            r"\[TopicModelDocsetComparison:JSD:Mean\]",
+            [],
+            "une valeur JSD entre les proportions moyennes document-sujet des collections est",
+        )
+
+
+class FrenchCrossJSDRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry, "fr", r"\[TopicModelDocsetComparison:JSD:Cross\]", [], "un JSD croisé moyen par paire",
+        )
+
+
+class FrenchInternalJSDRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            "fr",
+            r"\[TopicModelDocsetComparison:JSD:Internal\]",
+            [],
+            "une valeur interne moyenne JSD par paire",
         )
