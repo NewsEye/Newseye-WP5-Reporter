@@ -13,31 +13,37 @@ TEMPLATE = """
 en: the corpus is the most associated with the following {result_key} topics: {result_value} {analysis_id}
 fi: kokoelman tekstit liittyvät seuraaviin {result_key, case=gen} aiheisiin {result_value} {analysis_id}
 de: Der Korpus ist mit den folgenden {result_key} Themen am meisten verbunden: {result_value} {analysis_id}
+fr: le jeu de données est le plus associé aux sujet {result_key} suivant: {result_value} {analysis_id}
 | analysis_type = TopicModel:Query:Corpus:Multi
 
 en: the corpus is only associated with a single {result_key} topic: {result_value} {analysis_id}
 fi: kokoelman tekstit liittyvät ainoastaan yhteen {result_key, case=gen} aiheeseen: {result_value} {analysis_id}
 de: Der Korpus ist nur mit einem einzigen {result_key} Thema verbunden ist: {result_value} {analysis_id}
+fr: le jeu de données est uniquement associé au sujet {result_key} suivant: {result_value} {analysis_id}
 | analysis_type = TopicModel:Query:Corpus:Single
 
 en: the corpus is not associated with any {result_key} topics {analysis_id}
 fi: kokoelman tekstit eivät liity yhteenkään {result_key, case=gen} aiheeseen {analysis_id}
 de: Der Korpus ist nicht mit {result_key} Themen zugeordnet {analysis_id}
+fr: le jeu de données n'est associé à aucun sujet {result_key} {analysis_id}
 | analysis_type = TopicModel:Query:Corpus:None
 
 en: the document {result_key} is most associated with {result_value} {analysis_id}
 fi: dokumentti {result_key} liittyy eniten {result_value, case=gen} {analysis_id}
 de: Das Dokument {result_key} ist am häufigsten mit {result_value} verbunden {analysis_id}
+fr: le document est le plus associé aux sujet {result_key} suivant: {result_value} {analysis_id}
 | analysis_type = TopicModel:Query:Document:Multi
 
 en: the document {result_key} is associated only with {result_value} {analysis_id}
 fi: dokumentti {result_key} liittyy ainoastaan {result_value, case=gen} {analysis_id}
 de: Das Dokument {result_key} ist nur {result_value} verbunden {analysis_id}
+fr: le document est uniquement associé au sujet {result_key} suivant: {result_value} {analysis_id}
 | analysis_type = TopicModel:Query:Document:Single
 
 en: the document {result_key} is not associated with any topics from {result_value} {analysis_id}
 fi: dokumentti {result_key} ei liity yhteenkään {result_value, case=gen} aiheeseen {analysis_id}
 de: Das Dokument {result_key} ist keinem Thema aus einem {result_value} zugeordnet {analysis_id}
+fr: le document n'est associé à aucun sujet {result_key} {analysis_id}
 | analysis_type = TopicModel:Query:Document:None
 """
 
@@ -211,6 +217,15 @@ class QueryTopicModelResource(ProcessorResource):
             GermanDocumentWeightListRealizer,
             GermanDocumentWeightRealizer,
             GermanDocumentTopicWeightNoneRealizer,
+            #
+            FrenchTopicModelRealizer,
+            FrenchLanguageTopicModelRealizer,
+            FrenchUnknownTopicModelRealizer,
+            FrenchCorpusTopicWeightListRealizer,
+            FrenchCorpusTopicWeightRealizer,
+            FrenchDocumentWeightListRealizer,
+            FrenchDocumentWeightRealizer,
+            FrenchDocumentTopicWeightNoneRealizer,
         ]
 
 
@@ -446,4 +461,78 @@ class GermanDocumentTopicWeightNoneRealizer(RegexRealizer):
     def __init__(self, registry):
         super().__init__(
             registry, "de", r"\[TopicModel:Query:Document:None:([^\]]+)\]", [1], "[TopicModel:{}]",
+        )
+
+
+class FrenchTopicModelRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry, "fr", r"\[TopicModel:Named:([^\]]+)\]", [1], "de modelé de sujet '{}'",
+        )
+
+
+class FrenchLanguageTopicModelRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry, "fr", r"\[TopicModel:Language:([^\]]+)\]", [1], "de modelé de sujet [ENTITY:LANGUAGE:{}]",
+        )
+
+
+class FrenchUnknownTopicModelRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry, "fr", r"\[TopicModel:Unknown\]", [], "de modelé de sujet",
+        )
+
+
+class FrenchCorpusTopicWeightRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            "fr",
+            r"\[TopicModel:Query:Corpus:TopicWeight:([^\]]+):([^\]]+)\]",
+            [1, 2],
+            "{} ( l'importance = {} )",
+        )
+
+
+class FrenchCorpusTopicWeightListRealizer(ListRegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            "fr",
+            r"\[TopicModel:Query:Corpus:TopicWeightList:([^\]]+)\]",
+            1,
+            "[TopicModel:Query:Corpus:TopicWeight:{}]",
+            "et",
+        )
+
+
+class FrenchDocumentWeightRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            "fr",
+            r"\[TopicModel:Query:Document:TopicWeight:([^\]]+):([^:\]]+):([^:\]]+)\]",
+            [1, 2, 3],
+            "{} ( l'importance = {} )",
+        )
+
+
+class FrenchDocumentWeightListRealizer(ListRegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry,
+            "fr",
+            r"\[TopicModel:Query:Document:TopicWeightList:([^\]]+)\]",
+            1,
+            "[TopicModel:Query:Document:TopicWeight:{}]",
+            "et",
+        )
+
+
+class FrenchDocumentTopicWeightNoneRealizer(RegexRealizer):
+    def __init__(self, registry):
+        super().__init__(
+            registry, "fr", r"\[TopicModel:Query:Document:None:([^\]]+)\]", [1], "[TopicModel:{}]",
         )
