@@ -165,14 +165,14 @@ class GermanExtractNamesEntityRealizer(RegexRealizer):
 
 class FrenchExtractedNamesListRealizer(ListRegexRealizer):
     def __init__(self, registry):
-        super().__init__(registry, "de", r"\[ExtractNamesList:([^\]]+)\]", 1, "[ExtractNames:Entity:{}]", "et")
+        super().__init__(registry, "fr", r"\[ExtractNamesList:([^\]]+)\]", 1, "[ExtractNames:Entity:{}]", "et")
 
 
 class FrenchExtractNamesEntityRealizer(RegexRealizer):
     def __init__(self, registry):
         super().__init__(
             registry,
-            "de",
+            "fr",
             r"\[ExtractNames:Entity:([^:\]]+):([^:\]]+):([^:\]]+)\]",
             (1, 2, 3),
             "[ENTITY:NAME:{}] (saillance = {} , position = {} )",
