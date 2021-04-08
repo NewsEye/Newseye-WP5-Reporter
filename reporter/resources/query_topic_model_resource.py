@@ -31,19 +31,19 @@ fr: le jeu de données n'est associé à aucun sujet {result_key} {analysis_id}
 en: the document {result_key} is most associated with {result_value} {analysis_id}
 fi: dokumentti {result_key} liittyy eniten {result_value, case=gen} {analysis_id}
 de: Das Dokument {result_key} ist am häufigsten mit {result_value} verbunden {analysis_id}
-fr: le document est le plus associé aux sujet {result_key} suivant: {result_value} {analysis_id}
+fr: le document {result_key} est le plus associé aux {result_value} suivant {analysis_id}
 | analysis_type = TopicModel:Query:Document:Multi
 
 en: the document {result_key} is associated only with {result_value} {analysis_id}
 fi: dokumentti {result_key} liittyy ainoastaan {result_value, case=gen} {analysis_id}
 de: Das Dokument {result_key} ist nur {result_value} verbunden {analysis_id}
-fr: le document est uniquement associé au sujet {result_key} suivant: {result_value} {analysis_id}
+fr: le document {result_key} est uniquement associé au {result_value} suivant {analysis_id}
 | analysis_type = TopicModel:Query:Document:Single
 
 en: the document {result_key} is not associated with any topics from {result_value} {analysis_id}
 fi: dokumentti {result_key} ei liity yhteenkään {result_value, case=gen} aiheeseen {analysis_id}
 de: Das Dokument {result_key} ist keinem Thema aus einem {result_value} zugeordnet {analysis_id}
-fr: le document n'est associé à aucun sujet {result_key} {analysis_id}
+fr: le document {result_key} n'est associé à aucun sujet {result_value} {analysis_id}
 | analysis_type = TopicModel:Query:Document:None
 """
 
@@ -514,8 +514,8 @@ class FrenchDocumentWeightRealizer(RegexRealizer):
             registry,
             "fr",
             r"\[TopicModel:Query:Document:TopicWeight:([^\]]+):([^:\]]+):([^:\]]+)\]",
-            [1, 2, 3],
-            "{} ( l'importance = {} )",
+            [2, 1, 3],
+            "de sujet {} [TopicModel:{}] ( l'importance = {} )",
         )
 
 
