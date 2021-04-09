@@ -28,8 +28,13 @@ class SlotRealizer(NLGPipelineComponent):
         log.info("Realizing slots")
         self._registry = registry
         self._random = random
-        self.slot_realizers = self._registry.get("slot-realizers")[:]
+        self.slot_realizers: List[SlotRealizerComponent] = self._registry.get("slot-realizers")[:]
         self.slot_realizers.append(NumberRealizer())
+        self.slot_realizers = [
+            realizer
+            for realizer in self.slot_realizers
+            if language in realizer.supported_languages() or "ANY" in realizer.supported_languages()
+        ]
         while self._recurse(document_plan, language.split("-")[0]):
             pass  # Repeat until no more changes
         return (document_plan,)
