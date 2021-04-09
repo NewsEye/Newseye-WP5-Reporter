@@ -140,8 +140,8 @@ class Aggregator(NLGPipelineComponent):
             return False
 
         if isinstance(c1, Slot) and isinstance(c2, Slot):
-            assert c1.fact is not None
-            assert c2.fact is not None
+            if c1.fact is None or c2.fact is None:
+                return False
 
             if (c1.slot_type == "time") != (c2.slot_type == "time"):
                 return False
