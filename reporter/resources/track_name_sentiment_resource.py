@@ -98,7 +98,7 @@ class TrackNameSentimentResource(ProcessorResource):
                         corpus_type,
                         min_year,
                         max_year,
-                        "between_years" if min_year != max_year else "year",
+                        "between_years",
                         "TrackNameSentiment:Mean",
                         "[ENTITY:NAME:{}]".format(entry),
                         mean_sentiment,
