@@ -98,7 +98,7 @@ class TrackNameSentimentResource(ProcessorResource):
                         corpus_type,
                         min_year,
                         max_year,
-                        "between_years",
+                        "between_years" if min_year != max_year else "year",
                         "TrackNameSentiment:Mean",
                         "[ENTITY:NAME:{}]".format(entry),
                         mean_sentiment,
@@ -109,51 +109,53 @@ class TrackNameSentimentResource(ProcessorResource):
             )
 
             if len(years) > 1:
-                messages.extend(
-                    [
-                        Message(
-                            Fact(
-                                corpus,
-                                corpus_type,
-                                min_year,
-                                max_year,
-                                "between_years",
-                                "TrackNameSentiment:CountYears",
-                                "[ENTITY:NAME:{}]".format(entry),
-                                year_count,
-                                max_interestingness,
-                                "[LINK:{}]".format(task_result.uuid),  # uuid
-                            )
-                        ),
-                        Message(
-                            Fact(
-                                corpus,
-                                corpus_type,
-                                min_sentiment_year,
-                                min_sentiment_year,
-                                "year",
-                                "TrackNameSentiment:Min",
-                                "[ENTITY:NAME:{}]".format(entry),
-                                min_sentiment,
-                                max_interestingness,
-                                "[LINK:{}]".format(task_result.uuid),  # uuid
-                            )
-                        ),
-                        Message(
-                            Fact(
-                                corpus,
-                                corpus_type,
-                                max_sentiment_year,
-                                max_sentiment_year,
-                                "year",
-                                "TrackNameSentiment:Max",
-                                "[ENTITY:NAME:{}]".format(entry),
-                                max_sentiment,
-                                max_interestingness,
-                                "[LINK:{}]".format(task_result.uuid),  # uuid
-                            )
-                        ),
-                    ]
+                messages.append(
+                    Message(
+                        Fact(
+                            corpus,
+                            corpus_type,
+                            min_year,
+                            max_year,
+                            "between_years",
+                            "TrackNameSentiment:CountYears",
+                            "[ENTITY:NAME:{}]".format(entry),
+                            year_count,
+                            max_interestingness,
+                            "[LINK:{}]".format(task_result.uuid),  # uuid
+                        )
+                    )
+                )
+                messages.append(
+                    Message(
+                        Fact(
+                            corpus,
+                            corpus_type,
+                            min_sentiment_year,
+                            min_sentiment_year,
+                            "year",
+                            "TrackNameSentiment:Min",
+                            "[ENTITY:NAME:{}]".format(entry),
+                            min_sentiment,
+                            max_interestingness,
+                            "[LINK:{}]".format(task_result.uuid),  # uuid
+                        )
+                    ),
+                )
+                messages.append(
+                    Message(
+                        Fact(
+                            corpus,
+                            corpus_type,
+                            max_sentiment_year,
+                            max_sentiment_year,
+                            "year",
+                            "TrackNameSentiment:Max",
+                            "[ENTITY:NAME:{}]".format(entry),
+                            max_sentiment,
+                            max_interestingness,
+                            "[LINK:{}]".format(task_result.uuid),  # uuid
+                        )
+                    )
                 )
 
         return messages
