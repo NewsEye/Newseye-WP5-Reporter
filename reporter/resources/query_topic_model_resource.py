@@ -322,7 +322,7 @@ class FinnishLanguageTopicModelRealizer(RegexRealizer):
             "fi",
             r"\[TopicModel:Language:([^\]]+)\]",
             [1],
-            "[ENTITY:LANGUAGE:{}]kielisen aihemallin",
+            "[ENTITY:LANGUAGE:{}] kielisen aihemallin",
             attach_attributes_to=[0],
         )
 
