@@ -33,7 +33,7 @@ class SlotRealizer(NLGPipelineComponent):
         self.slot_realizers = [
             realizer
             for realizer in self.slot_realizers
-            if language in realizer.supported_languages() or "ANY" in realizer.supported_languages()
+            if language.split("-")[0] in realizer.supported_languages() or "ANY" in realizer.supported_languages()
         ]
         while self._recurse(document_plan, language.split("-")[0]):
             pass  # Repeat until no more changes
