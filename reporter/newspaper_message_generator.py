@@ -63,7 +63,8 @@ UNREPORTABLE_PROCESSORS: List[str] = [
 ]
 
 
-PAYLOAD_LOGGING_PATH: Path = Path(__file__).parent / ".." / "errored_payloads"
+PAYLOAD_ERROR_LOGGING_PATH: Path = Path(__file__).parent / ".." / "errored_payloads"
+PAYLOAD_ALL_LOGGING_PATH: Path = Path(__file__).parent / ".." / "payloads"
 MAX_LOGGED_PAYLOADS = 25
 
 
@@ -100,11 +101,13 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
                     continue
                 except Exception as ex:
                     log.error("Message parser crashed: {}".format(ex), exc_info=True)
-                    self.log_payload(original_json, task_result.uuid)
+                    self.log_payload(original_json, PAYLOAD_ERROR_LOGGING_PATH, task_result.uuid)
 
             if not generation_succeeded:
                 log.error("Failed to parse a Message from {}. Processor={}".format(task_result, task_result.processor))
-                self.log_payload(original_json, task_result.uuid)
+                self.log_payload(original_json, PAYLOAD_ERROR_LOGGING_PATH, task_result.uuid)
+            else:
+                self.log_payload(original_json, PAYLOAD_ALL_LOGGING_PATH, task_result.uuid)
 
         # Filter out messages that share the same underlying fact. Can't be done with set() because of how the
         # __hash__ and __eq__ are (not) defined.
@@ -122,14 +125,14 @@ class NewspaperMessageGenerator(NLGPipelineComponent):
         return (messages,)
 
     @staticmethod
-    def log_payload(payload: Dict, uuid: str) -> None:
+    def log_payload(payload: Dict, path: Path, uuid: str) -> None:
         # Save payload as <uuid>.txt
-        PAYLOAD_LOGGING_PATH.mkdir(parents=True, exist_ok=True)
-        with (PAYLOAD_LOGGING_PATH / f"{uuid}.txt").open("w") as fp:
+        path.mkdir(parents=True, exist_ok=True)
+        with (path / f"{uuid}.txt").open("w") as fp:
             json.dump(payload, fp)
 
         # Clean up older stored payload if there are more than 100.
-        logged_payloads: List[Path] = list(PAYLOAD_LOGGING_PATH.glob("*.txt"))
+        logged_payloads: List[Path] = list(path.glob("*.txt"))
         logged_payloads.sort(key=lambda path: path.stat().st_mtime, reverse=True)
         if len(logged_payloads) > MAX_LOGGED_PAYLOADS:
             for p in logged_payloads[MAX_LOGGED_PAYLOADS:]:
