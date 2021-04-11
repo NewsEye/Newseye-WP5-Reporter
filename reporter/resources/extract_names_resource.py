@@ -34,13 +34,15 @@ class ExtractNamesResource(ProcessorResource):
 
     @lru_cache(maxsize=256)
     def _resolve_name_from_solr(self, entity: str, language: str) -> Optional[str]:
+        if not entity.startswith("entity_"):
+            return None
         try:
             sleep(1)
             solr_query = f"http://newseye.cs.helsinki.fi:9985/solr/newseye_collection/select?fl=label_{language}_ssi&fq=id:{entity}&q=*:*"  # noqa: E501
             log.error(f"SOLR QUERY: {solr_query}")
             reply = requests.get(solr_query).json()
             log.error(f"SOLR RESPONSE: {reply}")
-            name = reply["response"]["docs"][f"label_{language}_ssi"]
+            name = reply["response"]["docs"][0][f"label_{language}_ssi"]
             log.error(f"SOLR NAME: {name}")
             return name
         except Exception as ex:
