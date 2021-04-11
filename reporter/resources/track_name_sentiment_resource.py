@@ -1,5 +1,9 @@
 import logging
-from typing import List, Type, Dict, Tuple
+from functools import lru_cache
+from time import sleep
+from typing import List, Type, Dict, Tuple, Optional
+
+import requests
 
 from reporter.core.models import Fact, Message
 from reporter.core.realize_slots import SlotRealizerComponent
@@ -40,6 +44,23 @@ class TrackNameSentimentResource(ProcessorResource):
     def templates_string(self) -> str:
         return TEMPLATE
 
+    @lru_cache(maxsize=256)
+    def _resolve_name_from_solr(self, entity: str, language: str) -> Optional[str]:
+        if not entity.startswith("entity_"):
+            return None
+        try:
+            sleep(1)
+            solr_query = f"http://newseye.cs.helsinki.fi:9985/solr/newseye_collection/select?fl=label_{language}_ssi&fq=id:{entity}&q=*:*"  # noqa: E501
+            log.error(f"SOLR QUERY: {solr_query}")
+            reply = requests.get(solr_query).json()
+            log.error(f"SOLR RESPONSE: {reply}")
+            name = reply["response"]["docs"][0][f"label_{language}_ssi"]
+            log.error(f"SOLR NAME: {name}")
+            return name
+        except Exception as ex:
+            log.error(f"SOLR ERROR: {ex}")
+            return None
+
     def parse_messages(self, task_result: TaskResult, context: List[TaskResult], language: str) -> List[Message]:
 
         language = language.split("-")[0]
@@ -60,6 +81,10 @@ class TrackNameSentimentResource(ProcessorResource):
                 list(entity_name_map.values())[0] if list(entity_name_map.values()) else None,
                 entity,
             ]
+
+            if not entity_name_map:
+                entity_name_priority_list.insert(0, self._resolve_name_from_solr(entity, language))
+
             name = next(name for name in entity_name_priority_list if name)
 
             years: Dict[int, Tuple[float, float]] = {}
