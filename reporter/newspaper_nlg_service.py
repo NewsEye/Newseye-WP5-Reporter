@@ -7,6 +7,7 @@ import os
 import pickle
 import random
 from collections import defaultdict
+from pathlib import Path
 from typing import Callable, Dict, Iterable, List, Optional, Tuple, TypeVar, Union
 
 from reporter.constants import CONJUNCTIONS, get_error_message
@@ -174,12 +175,27 @@ class NewspaperNlgService(object):
         if not links:
             yield LinkRemover()
 
+    @staticmethod
+    def log_payload(payload: Dict, path: Path, uuid: str) -> None:
+        # Save payload as <uuid>.txt
+        path.mkdir(parents=True, exist_ok=True)
+        with (path / f"{uuid}.txt").open("w") as fp:
+            json.dump(payload, fp)
+
+        # Clean up older stored payload if there are more than 100.
+        logged_payloads: List[Path] = list(path.glob("*.txt"))
+        logged_payloads.sort(key=lambda path: path.stat().st_mtime, reverse=True)
+        if len(logged_payloads) > 10:
+            for p in logged_payloads[10:]:
+                p.unlink()
+
     def run_pipeline(
         self, language: str, output_format: str, data: str, links: bool
     ) -> Tuple[Union[str, List[str]], Union[str, List[str]], List[str]]:
         start_time = datetime.datetime.now().timestamp()
         log.warning("Starting multi-part generation")
         data = json.loads(data)
+        self.log_payload(data, Path(__file__).parent / ".." / "full_payloads", str(start_time))
         splits: Dict[str, List[str]] = defaultdict(list)
         for result in data:
             key = json.dumps(
