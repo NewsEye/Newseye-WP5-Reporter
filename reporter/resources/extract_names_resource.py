@@ -1,5 +1,9 @@
+from functools import lru_cache
 import logging
-from typing import List, Type, Dict
+from typing import List, Type, Dict, Optional
+from time import sleep
+
+import requests
 
 from reporter.core.models import Fact, Message
 from reporter.core.realize_slots import RegexRealizer, SlotRealizerComponent, ListRegexRealizer
@@ -28,6 +32,21 @@ class ExtractNamesResource(ProcessorResource):
     def templates_string(self) -> str:
         return TEMPLATE
 
+    @lru_cache(maxsize=256)
+    def _resolve_name_from_solr(self, entity: str, language: str) -> Optional[str]:
+        try:
+            sleep(1)
+            solr_query = f"http://newseye.cs.helsinki.fi:9985/solr/newseye_collection/select?fl=label_{language}_ssi&fq=id:{entity}&q=*:*"  # noqa: E501
+            log.error(f"SOLR QUERY: {solr_query}")
+            reply = requests.get(solr_query).json()
+            log.error(f"SOLR RESPONSE: {reply}")
+            name = reply["response"]["docs"][f"label_{language}_ssi"]
+            log.error(f"SOLR NAME: {name}")
+            return name
+        except Exception as ex:
+            log.error(f"SOLR ERROR: {ex}")
+            return None
+
     def parse_messages(self, task_result: TaskResult, context: List[TaskResult], language: str) -> List[Message]:
 
         language = language.split("-")[0]
@@ -39,12 +58,17 @@ class ExtractNamesResource(ProcessorResource):
 
         for entity in task_result.task_result["result"]:
             entity_name_map: Dict[str, str] = task_result.task_result["result"][entity].get("names", {})
+
             entity_names = [
                 entity_name_map.get(language, None),
                 entity_name_map.get("en", None),
                 list(entity_name_map.values())[0] if list(entity_name_map.values()) else None,
                 entity,
             ]
+
+            if not entity_name_map:
+                entity_names.insert(0, self._resolve_name_from_solr(entity, language))
+
             task_result.task_result["result"][entity]["entity"] = next(name for name in entity_names if name)
 
         entities_with_interestingness = [
