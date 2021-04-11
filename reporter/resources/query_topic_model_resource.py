@@ -34,10 +34,10 @@ de: Das Dokument {result_key} ist am häufigsten mit {result_value} verbunden {a
 fr: le document {result_key} est le plus associé aux {result_value} suivant {analysis_id}
 | analysis_type = TopicModel:Query:Document:Multi
 
-en: the document {result_key} is associated only with {result_value} {analysis_id}
-fi: dokumentti {result_key} liittyy ainoastaan {result_value, case=gen} {analysis_id}
-de: Das Dokument {result_key} ist nur {result_value} verbunden {analysis_id}
-fr: le document {result_key} est uniquement associé au {result_value} suivant {analysis_id}
+en: the document {result_key} is associated with {result_value} {analysis_id}
+fi: dokumentti {result_key} liittyy {result_value, case=gen} {analysis_id}
+de: Das Dokument {result_key} ist {result_value} verbunden {analysis_id}
+fr: le document {result_key} est associé au {result_value} suivant {analysis_id}
 | analysis_type = TopicModel:Query:Document:Single
 
 en: the document {result_key} is not associated with any topics from {result_value} {analysis_id}
