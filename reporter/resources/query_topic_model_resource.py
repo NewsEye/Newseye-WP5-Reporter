@@ -284,8 +284,8 @@ class EnglishDocumentWeightRealizer(RegexRealizer):
             registry,
             "en",
             r"\[TopicModel:Query:Document:TopicWeight:([^\]]+):([^:\]]+):([^:\]]+)\]",
-            [1, 2, 3],
-            "[TopicModel:{}] topic {} ( [Tooltip:TMWeight] = {} )",
+            [2, 3],
+            "topic {} ( [Tooltip:TMWeight] = {} )",
         )
 
 
@@ -363,8 +363,8 @@ class FinnishDocumentWeightRealizer(RegexRealizer):
             registry,
             "fi",
             r"\[TopicModel:Query:Document:TopicWeight:([^\]]+):([^:\]]+):([^:\]]+)\]",
-            [1, 2, 3],
-            "[TopicModel:{}] aiheeseen {} ( paino = {} )",
+            [2, 3],
+            "aiheeseen {} ( paino = {} )",
             attach_attributes_to=[0],
         )
 
@@ -440,8 +440,8 @@ class GermanDocumentWeightRealizer(RegexRealizer):
             registry,
             "de",
             r"\[TopicModel:Query:Document:TopicWeight:([^\]]+):([^:\]]+):([^:\]]+)\]",
-            [1, 2, 3],
-            "dem [TopicModel:{}] Topic {} ( Schwere = {} )",
+            [2, 3],
+            "dem Topic {} ( Schwere = {} )",
         )
 
 
@@ -514,8 +514,8 @@ class FrenchDocumentWeightRealizer(RegexRealizer):
             registry,
             "fr",
             r"\[TopicModel:Query:Document:TopicWeight:([^\]]+):([^:\]]+):([^:\]]+)\]",
-            [2, 1, 3],
-            "de sujet {} [TopicModel:{}] ( l'importance = {} )",
+            [2, 3],
+            "de sujet {} ( l'importance = {} )",
         )
 
 
