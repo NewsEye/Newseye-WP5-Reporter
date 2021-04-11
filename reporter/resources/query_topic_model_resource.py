@@ -365,7 +365,6 @@ class FinnishDocumentWeightRealizer(RegexRealizer):
             r"\[TopicModel:Query:Document:TopicWeight:([^\]]+):([^:\]]+):([^:\]]+)\]",
             [2, 3],
             "aiheeseen {} ( paino = {} )",
-            attach_attributes_to=[0],
         )
 
 
