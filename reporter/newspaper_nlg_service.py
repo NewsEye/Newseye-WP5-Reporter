@@ -178,7 +178,7 @@ class NewspaperNlgService(object):
         self, language: str, output_format: str, data: str, links: bool
     ) -> Tuple[Union[str, List[str]], Union[str, List[str]], List[str]]:
         start_time = datetime.datetime.now().timestamp()
-        log.info("Starting multi-part generation")
+        log.warning("Starting multi-part generation")
         data = json.loads(data)
         splits: Dict[str, List[str]] = defaultdict(list)
         for result in data:
@@ -223,7 +223,7 @@ class NewspaperNlgService(object):
         errors = list(itertools.chain.from_iterable(errors))
 
         end_time = datetime.datetime.now().timestamp()
-        log.info("Multi-part generation complete. Generation time in seconds: {}".format(end_time - start_time))
+        log.warning("Multi-part generation complete. Generation time in seconds: {}".format(end_time - start_time))
 
         return headlines, bodies, errors
 

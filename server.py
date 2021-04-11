@@ -26,7 +26,7 @@ rotating_file_handler = logging.handlers.RotatingFileHandler(
     "reporter.log", mode="a", maxBytes=5 * 1024 * 1024, backupCount=2, encoding=None, delay=0
 )
 rotating_file_handler.setFormatter(formatter)
-rotating_file_handler.setLevel(logging.INFO)
+rotating_file_handler.setLevel(logging.WARN)
 
 log.addHandler(stream_handler)
 log.addHandler(rotating_file_handler)
@@ -112,9 +112,9 @@ def get_formats() -> Dict[str, List[str]]:
 
 
 def main() -> None:
-    log.info("Starting server at 8080")
+    log.warning("Starting server at 8080")
     run(app, server="meinheld", host="0.0.0.0", port=8080)
-    log.info("Stopping")
+    log.warning("Stopping")
 
 
 if __name__ == "__main__":
