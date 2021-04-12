@@ -85,8 +85,8 @@ class SurfaceRealizer(NLGPipelineComponent):
 
 
 class HeadlineHTMLSurfaceRealizer(SurfaceRealizer):
-    paragraph_start = "<h1>"
-    paragraph_end = "</h1>"
+    paragraph_start = "<h4>"
+    paragraph_end = "</h4>"
     sentence_end = ""
     sentence_start = ""
     fail_on_empty = True
